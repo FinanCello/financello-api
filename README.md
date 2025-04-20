@@ -14,7 +14,7 @@
 | Bravo Ricapa Leonardo Leoncio | Desarrollador Backend | [LinkedIn](https://www.linkedin.com/in/leonardo-bravo-4120b8228/)           |
 | Anaya Vadillo Nathaly Eliane |  | [LinkedIn]()           |
 | Ticona Apaza María Fernanda Camila |  | [LinkedIn]()           |
-| Vera Castellón Mauricio Eduardo |  | [LinkedIn]()           |
+| Vera Castellón Mauricio Eduardo | Desarrollador Frontend  | [LinkedIn](https://www.linkedin.com/in/mauricio-c-616227b0/)           |
 | Timana Mendoza Sebastián |  | [LinkedIn]()           |
 
 ### Revisa el Progreso del Proyecto FinanCello
