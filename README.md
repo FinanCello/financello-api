@@ -38,8 +38,7 @@ Para entender mejor la estructura y diseño de la aplicación "FinanCello", revi
 
 ### Diagrama de Base de Datos
 
-![Diagrama de Base de Datos](untitled.png)
-
+![Diagrama de Base de Datos](Untitled.svg)
 Este diagrama ilustra el esquema de la base de datos utilizada por la aplicación, mostrando las tablas, columnas, y relaciones entre las entidades.
 
 ### Descripción de Capas del Proyecto
