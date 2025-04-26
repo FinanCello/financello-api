@@ -38,7 +38,7 @@ Para entender mejor la estructura y diseño de la aplicación "FinanCello", revi
 
 ### Diagrama de Base de Datos
 
-![Diagrama de Base de Datos](jobhub-db-2024-09-22_18-23.png)
+![Diagrama de Base de Datos](untitled.png)
 
 Este diagrama ilustra el esquema de la base de datos utilizada por la aplicación, mostrando las tablas, columnas, y relaciones entre las entidades.
 
