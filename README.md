@@ -34,8 +34,8 @@ Para entender mejor la estructura y diseño de la aplicación "FinanCello", revi
 
 ### Diagrama de Clases
 
-![Diagrama de Clases](![DiagramaClasesUML](https://github.com/user-attachments/assets/88754dbb-05cd-49e6-ab3a-ad412f804a46))
-
+![Image](https://github.com/user-attachments/assets/5cdbc14c-8114-45f3-b018-8d460ebd0a30)
+Este diagrama nos ayudan a entender cómo funciona el sistema, cómo se comporta y cómo se relacionan sus partes.
 ### Diagrama de Base de Datos
 
 ![Diagrama de Base de Datos](Untitled.svg)
