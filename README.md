@@ -10,7 +10,7 @@
 
 | **Nombre**                    | **Rol**                                     | **Perfil**                                                 |
 |-------------------------------|---------------------------------------------|------------------------------------------------------------|
-| Quino Neff Liam Mikael | Project Manager | [LinkedIn]()           |
+| Quino Neff Liam Mikael | Project Manager | [LinkedIn](https://www.linkedin.com/in/liam-quino-neff-455891265/)           |
 | Bravo Ricapa Leonardo Leoncio | Desarrollador Backend | [LinkedIn](https://www.linkedin.com/in/leonardo-bravo-4120b8228/)           |
 | Anaya Vadillo Nathaly Eliane |  | [LinkedIn]()           |
 | Ticona Apaza María Fernanda Camila |  | [LinkedIn]()           |
@@ -34,7 +34,7 @@ Para entender mejor la estructura y diseño de la aplicación "FinanCello", revi
 
 ### Diagrama de Clases
 
-![Diagrama de Clases](jobhub-dc-2024-09-24_18-23.png)
+![Diagrama de Clases](![DiagramaClasesUML](https://github.com/user-attachments/assets/88754dbb-05cd-49e6-ab3a-ad412f804a46))
 
 ### Diagrama de Base de Datos
 
