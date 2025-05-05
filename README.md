@@ -39,7 +39,7 @@ Este diagrama nos ayudan a entender cómo funciona el sistema, cómo se comporta
 
 ### Diagrama de Base de Datos
 
-![Diagrama de Base de Datos](DiagramaDB.svg)
+![Diagrama de Base de Datos](DB_Diagram.svg)
 Este diagrama ilustra el esquema de la base de datos utilizada por la aplicación, mostrando las tablas, columnas, y relaciones entre las entidades.
 
 ### Descripción de Capas del Proyecto
