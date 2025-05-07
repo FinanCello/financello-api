@@ -18,4 +18,16 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(name = "role_type", nullable = false)
     private RoleType roleType;
+
+    // Roles básicos
+    public static final Role ADMIN = new Role(1, RoleType.ADMIN);
+    public static final Role BASIC = new Role(2, RoleType.BASIC);
+
+    // Constructor, Getters, Setters
+    public Role() {}
+
+    public Role(Integer id, RoleType roleType) {
+        this.id = id;
+        this.roleType = roleType;
+    }
 }
