@@ -1,6 +1,7 @@
 package com.example.financelloapi.service;
 
 import com.example.financelloapi.dto.request.CategoryRequest;
+import com.example.financelloapi.dto.response.CategoryResponse;
 import com.example.financelloapi.mapper.CategoryMapper;
 import com.example.financelloapi.model.entity.Category;
 import com.example.financelloapi.repository.CategoryRepository;
@@ -15,14 +16,17 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Transactional
-    public Category createCategory(CategoryRequest request) {
-        //if (categoryRepository.existsByName(request.name())){
-        //    String message = "Esta categoría ya existe";
-        //    throw new IllegalArgumentException(message);
-        //}
+    public CategoryResponse createCategory(CategoryRequest request) {
+        if (categoryRepository.existsByName(request.name())){
+            String message = "La categoría ya existe";
+            throw new IllegalArgumentException(message);
+        }
 
         Category newCategory = categoryMapper.toCategoryEntity(request);
-        return categoryRepository.save(newCategory);
+        Category savedCategory = categoryRepository.save(newCategory);
+
+        CategoryResponse response = categoryMapper.toCategoryResponse(savedCategory);
+        return response;
 
     }
 

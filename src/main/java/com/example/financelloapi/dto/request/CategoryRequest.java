@@ -1,3 +1,10 @@
 package com.example.financelloapi.dto.request;
 
-public record CategoryRequest(String name, String description) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record CategoryRequest(
+        @NotBlank(message = "El nombre es obligatorio")
+        String name,
+
+        @NotBlank(message = "La descripción es obligatoria")
+        String description) {}

@@ -1,8 +1,10 @@
 package com.example.financelloapi.api;
 
 import com.example.financelloapi.dto.request.CategoryRequest;
+import com.example.financelloapi.dto.response.CategoryResponse;
 import com.example.financelloapi.model.entity.Category;
 import com.example.financelloapi.service.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +20,9 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<Category> addCategory(@RequestBody CategoryRequest dto) {
-        return new ResponseEntity<>(categoryService.createCategory(dto), HttpStatus.CREATED);
+    public ResponseEntity<CategoryResponse> addCategory(@Valid @RequestBody CategoryRequest request) {
+        CategoryResponse response = categoryService.createCategory(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
 }
