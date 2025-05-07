@@ -1,7 +1,9 @@
 package com.example.financelloapi.service.internal;
 
 import com.example.financelloapi.dto.request.RegisterRequest;
+import com.example.financelloapi.dto.request.UpdateProfileRequest;
 import com.example.financelloapi.dto.test.AuthResponse;
+import com.example.financelloapi.dto.test.UserProfileResponse;  // Importamos el DTO de respuesta de perfil
 import com.example.financelloapi.exception.CustomException;
 import com.example.financelloapi.exception.UserAlreadyExistsException;
 import com.example.financelloapi.mapper.UserMapper;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class AuthServiceImpl implements AuthService {
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
@@ -45,5 +48,24 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         return userMapper.toAuthResponse(user);
+    }
+
+    // Implementación para obtener el perfil del usuario
+    @Override
+    public UserProfileResponse getUserProfile(Integer userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException("User not found"));
+        return new UserProfileResponse(user);
+    }
+
+    // Implementación para actualizar el perfil del usuario
+    @Override
+    public UserProfileResponse updateUserProfile(Integer userId, UpdateProfileRequest updateRequest) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException("User not found"));
+        user.setFirstName(updateRequest.getFirstName());
+        user.setLastName(updateRequest.getLastName());
+        user.setEmail(updateRequest.getEmail());
+        user.setPassword(updateRequest.getPassword());  // Asegúrate de manejar la seguridad de la contraseña
+        userRepository.save(user);
+        return new UserProfileResponse(user);
     }
 }
