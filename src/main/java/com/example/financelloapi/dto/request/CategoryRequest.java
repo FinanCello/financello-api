@@ -6,5 +6,4 @@ public record CategoryRequest(
         @NotBlank(message = "El nombre es obligatorio")
         String name,
 
-        @NotBlank(message = "La descripción es obligatoria")
         String description) {}
