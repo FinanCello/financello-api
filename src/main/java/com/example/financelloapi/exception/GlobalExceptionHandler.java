@@ -31,14 +31,12 @@ public class GlobalExceptionHandler {
     // para errores de formato
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult().getAllErrors().stream()
-                .map(objectError -> {
-                    FieldError fieldError = (FieldError) objectError;
-                    return fieldError.getDefaultMessage();
-                })
-                .collect(Collectors.toList());
+        String firstErrorMessage = ex.getBindingResult().getAllErrors().stream()
+                .findFirst()
+                .map(error -> ((FieldError) error).getDefaultMessage())
+                .orElse("Error de validación");
 
         // mensaje personalizado
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(firstErrorMessage, HttpStatus.BAD_REQUEST);
     }
 }
