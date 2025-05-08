@@ -29,5 +29,4 @@ public class SpendingLimit {
     @NotNull
     @Column(name = "monthly_limit", nullable = false)
     private Float monthlyLimit;
-
 }
