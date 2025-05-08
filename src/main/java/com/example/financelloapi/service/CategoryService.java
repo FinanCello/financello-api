@@ -5,6 +5,7 @@ import com.example.financelloapi.dto.response.CategoryResponse;
 import com.example.financelloapi.mapper.CategoryMapper;
 import com.example.financelloapi.model.entity.Category;
 import com.example.financelloapi.repository.CategoryRepository;
+import com.example.financelloapi.repository.FinancialMovementRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final FinancialMovementRepository financialMovementRepository;
 
     @Transactional
     public CategoryResponse createCategory(CategoryRequest request) {
@@ -36,6 +38,11 @@ public class CategoryService {
         //    String message = "La categoría no existe";
         //    throw new IllegalArgumentException(message);
         //}
+
+        if (financialMovementRepository.existsByCategory_Id(id)) {
+            String message = "La categoría no puede eliminarse porque está asociada a movimientos financieros.";
+            throw new IllegalArgumentException(message);
+        }
         categoryRepository.deleteById(id);
     }
 }
