@@ -3,6 +3,7 @@ package com.example.financelloapi.service;
 import com.example.financelloapi.dto.request.CategoryRequest;
 import com.example.financelloapi.dto.response.CategoryResponse;
 import com.example.financelloapi.exception.CategoryInUseException;
+import com.example.financelloapi.exception.CategoryNotFoundException;
 import com.example.financelloapi.mapper.CategoryMapper;
 import com.example.financelloapi.model.entity.Category;
 import com.example.financelloapi.repository.CategoryRepository;
@@ -35,10 +36,10 @@ public class CategoryService {
 
     @Transactional
     public void deleteCategory(Integer id) {
-        //if (!categoryRepository.existsById(id)){
-        //    String message = "La categoría no existe";
-        //    throw new IllegalArgumentException(message);
-        //}
+        if (!categoryRepository.existsById(id)){
+            String message = "La categoría no existe";
+            throw new CategoryNotFoundException(message);
+        }
 
         if (financialMovementRepository.existsByCategory_Id(id)) {
             throw new CategoryInUseException("La categoría no puede eliminarse porque está asociada a movimientos financieros.");
