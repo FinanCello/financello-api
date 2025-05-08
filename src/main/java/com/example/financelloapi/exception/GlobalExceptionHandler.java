@@ -16,4 +16,9 @@ public class GlobalExceptionHandler extends RuntimeException {
     public ResponseEntity<String> handleCustomException(CustomException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(CategoryInUseException.class)
+    public ResponseEntity<String> handleCategoryInUseException(CategoryInUseException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }

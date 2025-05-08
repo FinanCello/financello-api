@@ -2,6 +2,7 @@ package com.example.financelloapi.service;
 
 import com.example.financelloapi.dto.request.CategoryRequest;
 import com.example.financelloapi.dto.response.CategoryResponse;
+import com.example.financelloapi.exception.CategoryInUseException;
 import com.example.financelloapi.mapper.CategoryMapper;
 import com.example.financelloapi.model.entity.Category;
 import com.example.financelloapi.repository.CategoryRepository;
@@ -40,8 +41,7 @@ public class CategoryService {
         //}
 
         if (financialMovementRepository.existsByCategory_Id(id)) {
-            String message = "La categoría no puede eliminarse porque está asociada a movimientos financieros.";
-            throw new IllegalArgumentException(message);
+            throw new CategoryInUseException("La categoría no puede eliminarse porque está asociada a movimientos financieros.");
         }
         categoryRepository.deleteById(id);
     }
