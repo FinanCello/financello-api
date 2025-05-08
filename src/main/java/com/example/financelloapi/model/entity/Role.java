@@ -10,6 +10,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "roles")
 public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "role_id", nullable = false)
@@ -18,4 +19,13 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(name = "role_type", nullable = false)
     private RoleType roleType;
+
+    // Constructor
+    public Role() {}
+
+    public Role(Integer id, RoleType roleType) {
+        this.id = id;
+        this.roleType = roleType;
+    }
+
 }
