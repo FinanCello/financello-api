@@ -39,4 +39,9 @@ public class GlobalExceptionHandler {
         // mensaje personalizado
         return new ResponseEntity<>(firstErrorMessage, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(UserDoesntExistException.class)
+    public ResponseEntity<Object> handleUserDoesntExistException(UserDoesntExistException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
