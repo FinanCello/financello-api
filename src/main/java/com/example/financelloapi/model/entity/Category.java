@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -23,4 +25,14 @@ public class Category {
 
     @Column(name = "description", length = Integer.MAX_VALUE)
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
+    private List<FinancialMovement> movements;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
+    private List<SpendingLimit> spendingLimits;
 }
