@@ -39,4 +39,12 @@ public class CategoryService {
 
     }
 
+    @Transactional
+    public CategoryResponse updateCategory(Integer categoryId, CategoryRequest request) {
+        Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow();
+        category.setName(request.name());
+        category.setDescription(request.description());
+        return categoryMapper.toCategoryResponse(categoryRepository.save(category));
+    }
+
 }
