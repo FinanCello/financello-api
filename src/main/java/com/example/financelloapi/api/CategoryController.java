@@ -1,6 +1,7 @@
 package com.example.financelloapi.api;
 
 import com.example.financelloapi.dto.request.CategoryRequest;
+import com.example.financelloapi.dto.test.CategoryResponse;
 import com.example.financelloapi.dto.response.CategoryResponse;
 import com.example.financelloapi.dto.response.CategorySimpleResponse;
 import com.example.financelloapi.model.entity.Category;
@@ -20,8 +21,8 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> addCategory(@Valid @RequestBody CategoryRequest request) {
-        CategoryResponse response = categoryService.createCategory(request);
+    public ResponseEntity<CategoryResponse> addCategory(@RequestParam Integer userId, @Valid @RequestBody CategoryRequest request) {
+        CategoryResponse response = categoryService.createCategory(userId, request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }

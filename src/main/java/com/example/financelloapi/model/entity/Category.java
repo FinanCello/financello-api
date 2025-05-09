@@ -20,7 +20,6 @@ public class Category {
     private Integer id;
 
     @Size(max = 100)
-    @NotNull
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
@@ -28,7 +27,7 @@ public class Category {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")

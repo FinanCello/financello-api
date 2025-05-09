@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
+    boolean existsByNameAndUserId(String name, Integer userId);
     Optional<Category> findByName(String name);
     boolean existsByName(String name);
     List<Category> findByUser_Id(Integer userId);
