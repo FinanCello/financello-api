@@ -3,6 +3,7 @@ package com.example.financelloapi.service;
 import com.example.financelloapi.dto.request.CategoryRequest;
 import com.example.financelloapi.dto.test.CategoryResponse;
 import com.example.financelloapi.exception.CategoryAlreadyExistsException;
+import com.example.financelloapi.exception.CategoryNotFoundException;
 import com.example.financelloapi.exception.UserDoesntExistException;
 import com.example.financelloapi.dto.test.CategorySimpleResponse;
 import com.example.financelloapi.mapper.CategoryMapper;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +47,18 @@ public class CategoryService {
     }
 
     public List<CategorySimpleResponse> getCategoryNamesByUserId(Integer userId) {
-        return categoryRepository.findByUser_Id(userId)
-                .stream().map(this::getCategory).toList();
+        userRepository.findByIdCustom(userId)
+                .orElseThrow(() -> new UserDoesntExistException("Usuario no encontrado"));
+
+        List<Category> categories = categoryRepository.findByUser_Id(userId);
+
+        if (categories.isEmpty()) {
+            throw new CategoryNotFoundException("El usuario no tiene categorías creadas");
+        }
+
+        return categories.stream()
+                .map(this::getCategory)
+                .toList();
     }
 
 
