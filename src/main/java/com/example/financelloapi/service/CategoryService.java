@@ -49,8 +49,5 @@ public class CategoryService {
                 .stream().map(this::getCategory).toList();
     }
 
-    public CategoryResponse getCategoryById(Integer categoryId) {
-        Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow();
-        return categoryMapper.toCategoryResponse(category);
-    }
+
 }
