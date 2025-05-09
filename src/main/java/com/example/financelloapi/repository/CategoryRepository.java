@@ -1,13 +1,21 @@
 package com.example.financelloapi.repository;
 import com.example.financelloapi.model.entity.Category;
+import com.example.financelloapi.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
     boolean existsByNameAndUserId(String name, Integer userId);
-    Optional<Category> findByName(String name);
-    boolean existsByName(String name);
-    List<Category> findByUser_Id(Integer userId);
+
+    @Query("SELECT t FROM Category t WHERE t.user.id = :user_id")
+    List<Category> findByUser_Id(@Param("user_id") Integer userId);
+
+    @Query("SELECT c FROM Category c WHERE c.id = :categoryId")
+    Optional<Category> findByCategoryId(@Param("categoryId") Integer categoryId);
+
+    Integer user(User user);
 }

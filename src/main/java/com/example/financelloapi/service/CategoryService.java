@@ -40,8 +40,17 @@ public class CategoryService {
 
     }
 
+    public CategorySimpleResponse getCategory(Category category) {
+        return new CategorySimpleResponse(category.getName());
+    }
+
     public List<CategorySimpleResponse> getCategoryNamesByUserId(Integer userId) {
-        List<Category> categories = categoryRepository.findByUser_Id(userId);
-        return CategoryMapper.toCategorySimpleResponseList(categories);
+        return categoryRepository.findByUser_Id(userId)
+                .stream().map(this::getCategory).toList();
+    }
+
+    public CategoryResponse getCategoryById(Integer categoryId) {
+        Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow();
+        return categoryMapper.toCategoryResponse(category);
     }
 }
