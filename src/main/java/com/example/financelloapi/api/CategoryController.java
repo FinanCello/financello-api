@@ -25,13 +25,13 @@ public class CategoryController {
 
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<List<CategorySimpleResponse>> getCategoryNamesByUserId(@PathVariable(name="id") Integer userId) {
+    @GetMapping("/{userid}")
+    public ResponseEntity<List<CategorySimpleResponse>> getCategoryNamesByUserId(@PathVariable(name="userid") Integer userId) {
         return ResponseEntity.ok(categoryService.getCategoryNamesByUserId(userId));
     }
 
-    //@GetMapping("/{id}")
-    //public CategoryResponse getCategoryById(@PathVariable Integer id) {
-    //    return categoryService.getCategoryById(id);
-    //}
+    @GetMapping("/{id}")
+    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Integer id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
+    }
 }
