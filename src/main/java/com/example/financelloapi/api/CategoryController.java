@@ -2,9 +2,7 @@ package com.example.financelloapi.api;
 
 import com.example.financelloapi.dto.request.CategoryRequest;
 import com.example.financelloapi.dto.test.CategoryResponse;
-import com.example.financelloapi.dto.response.CategoryResponse;
-import com.example.financelloapi.dto.response.CategorySimpleResponse;
-import com.example.financelloapi.model.entity.Category;
+import com.example.financelloapi.dto.test.CategorySimpleResponse;
 import com.example.financelloapi.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,8 @@
 package com.example.financelloapi.mapper;
 
 import com.example.financelloapi.dto.request.CategoryRequest;
-import com.example.financelloapi.dto.response.CategoryResponse;
-import com.example.financelloapi.dto.response.CategorySimpleResponse;
 import com.example.financelloapi.dto.test.CategoryResponse;
+import com.example.financelloapi.dto.test.CategorySimpleResponse;
 import com.example.financelloapi.model.entity.Category;
 import com.example.financelloapi.model.entity.User;
 import org.springframework.stereotype.Component;
@@ -28,7 +27,6 @@ public class CategoryMapper {
         category.setUser(user);
         return category;
     }
-}
 
     // devuelve nombre de categoria
     public static CategorySimpleResponse toCategorySimpleResponse(Category category) {
@@ -41,4 +39,6 @@ public class CategoryMapper {
                 .map(CategoryMapper::toCategorySimpleResponse)
                 .collect(Collectors.toList());
     }
+
 }
+
