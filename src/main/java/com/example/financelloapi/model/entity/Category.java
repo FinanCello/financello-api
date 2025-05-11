@@ -35,4 +35,5 @@ public class Category {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
     private List<SpendingLimit> spendingLimits;
+
 }
