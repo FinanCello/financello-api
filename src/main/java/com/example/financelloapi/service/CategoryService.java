@@ -4,10 +4,14 @@ import com.example.financelloapi.dto.request.CategoryRequest;
 import com.example.financelloapi.dto.test.CategoryResponse;
 import com.example.financelloapi.exception.CategoryAlreadyExistsException;
 import com.example.financelloapi.exception.UserDoesntExistException;
+import com.example.financelloapi.dto.test.CategoryResponse;
+import com.example.financelloapi.exception.CategoryInUseException;
+import com.example.financelloapi.exception.CategoryNotFoundException;
 import com.example.financelloapi.mapper.CategoryMapper;
 import com.example.financelloapi.model.entity.Category;
 import com.example.financelloapi.model.entity.User;
 import com.example.financelloapi.repository.CategoryRepository;
+import com.example.financelloapi.repository.FinancialMovementRepository;
 import com.example.financelloapi.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
     private final UserRepository userRepository;
+    private final FinancialMovementRepository financialMovementRepository;
 
     @Transactional
     public CategoryResponse createCategory(Integer userId, CategoryRequest request) {
@@ -39,4 +44,16 @@ public class CategoryService {
 
     }
 
+    @Transactional
+    public void deleteCategory(Integer id) {
+        if (!categoryRepository.existsById(id)){
+            String message = "La categoría no existe";
+            throw new CategoryNotFoundException(message);
+        }
+
+        if (financialMovementRepository.existsByCategory_Id(id)) {
+            throw new CategoryInUseException("La categoría no puede eliminarse porque está asociada a movimientos financieros.");
+        }
+        categoryRepository.deleteById(id);
+    }
 }
