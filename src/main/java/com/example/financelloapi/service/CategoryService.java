@@ -57,6 +57,7 @@ public class CategoryService {
         }
         categoryRepository.deleteById(id);
     }
+
     @Transactional
     public CategoryResponse updateCategory(Integer categoryId, CategoryRequest request) {
 
