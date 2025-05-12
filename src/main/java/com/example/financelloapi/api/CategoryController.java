@@ -25,6 +25,17 @@ public class CategoryController {
 
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
+        categoryService.deleteCategory(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryResponse> updateCategory(@PathVariable(name="id") Integer categoryId, @Valid @RequestBody CategoryRequest request) {
+        return new ResponseEntity<>(categoryService.updateCategory(categoryId, request), HttpStatus.OK);
+    }
+
     @GetMapping("/{userid}")
     public ResponseEntity<List<CategorySimpleResponse>> getCategoryNamesByUserId(@PathVariable(name="userid") Integer userId) {
         return ResponseEntity.ok(categoryService.getCategoryNamesByUserId(userId));
