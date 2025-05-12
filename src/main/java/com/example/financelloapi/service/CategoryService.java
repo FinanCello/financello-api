@@ -49,7 +49,7 @@ public class CategoryService {
 
     @Transactional
     public void deleteCategory(Integer id) {
-        if (!categoryRepository.existsById(id)){
+        if (!categoryRepository.existsById(id)) {
             String message = "La categoría no existe";
             throw new CategoryNotFoundException(message);
         }
