@@ -27,4 +27,9 @@ public class CategoryController {
         categoryService.deleteCategory(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CategoryResponse> updateCategory(@PathVariable(name="id") Integer categoryId, @Valid @RequestBody CategoryRequest request) {
+        return new ResponseEntity<>(categoryService.updateCategory(categoryId, request), HttpStatus.OK);
+    }
 }

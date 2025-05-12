@@ -3,6 +3,7 @@ package com.example.financelloapi.service;
 import com.example.financelloapi.dto.request.CategoryRequest;
 import com.example.financelloapi.dto.test.CategoryResponse;
 import com.example.financelloapi.exception.CategoryAlreadyExistsException;
+import com.example.financelloapi.exception.CategoryNotFoundException;
 import com.example.financelloapi.exception.UserDoesntExistException;
 import com.example.financelloapi.dto.test.CategoryResponse;
 import com.example.financelloapi.exception.CategoryInUseException;
@@ -56,4 +57,28 @@ public class CategoryService {
         }
         categoryRepository.deleteById(id);
     }
+
+    @Transactional
+    public CategoryResponse updateCategory(Integer categoryId, CategoryRequest request) {
+
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new CategoryNotFoundException("La categoría no existe");
+        }
+
+        Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow();
+
+        Integer userId = category.getUser().getId();
+
+        // valida si el nombre cambia primero
+        if (!category.getName().equals(request.name())) {
+            if (categoryRepository.existsByNameAndUser_IdAndIdNot(request.name(), userId, categoryId)) {
+                throw new CategoryAlreadyExistsException("Ya existe otra categoría con ese nombre");
+            }
+            category.setName(request.name());
+        }
+        category.setDescription(request.description());
+
+        return categoryMapper.toCategoryResponse(categoryRepository.save(category));
+    }
+
 }
