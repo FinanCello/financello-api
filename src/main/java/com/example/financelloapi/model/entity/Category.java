@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.util.List;
 
@@ -20,6 +19,7 @@ public class Category {
     private Integer id;
 
     @Size(max = 100)
+    @NotNull
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
@@ -27,7 +27,7 @@ public class Category {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
@@ -35,5 +35,4 @@ public class Category {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
     private List<SpendingLimit> spendingLimits;
-
 }
