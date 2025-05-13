@@ -8,14 +8,15 @@
 
 ### Colaboradores del Proyecto
 
-| **Nombre**                    | **Rol**                | **Perfil**                                                 |
-|-------------------------------|------------------------|------------------------------------------------------------|
-| Quino Neff Liam Mikael | Project Manager        | [LinkedIn](https://www.linkedin.com/in/liam-quino-neff-455891265/)           |
-| Bravo Ricapa Leonardo Leoncio | Desarrollador Backend  | [LinkedIn](https://www.linkedin.com/in/leonardo-bravo-4120b8228/)           |
-| Anaya Vadillo Nathaly Eliane | Tester                 | [LinkedIn]()           |
-| Ticona Apaza María Fernanda Camila | Functional Analyst                       | [LinkedIn]()           |
-| Vera Castellón Mauricio Eduardo | Desarrollador Frontend | [LinkedIn](https://www.linkedin.com/in/mauricio-c-616227b0/)           |
-| Timana Mendoza Sebastián | Ingeniero DevOps       | [LinkedIn](https://www.linkedin.com/in/timana-mendoza-sebasti%C3%A1n-7a048624a/)           |
+| **Nombre**                            | **Rol**                 | **Perfil**                                                                 |
+|---------------------------------------|--------------------------|-----------------------------------------------------------------------------|
+| Quino Neff Liam Mikael                | Project Manager          | [LinkedIn](https://www.linkedin.com/in/liam-quino-neff-455891265/)         |
+| Bravo Ricapa Leonardo Leoncio         | Desarrollador Backend    | [LinkedIn](https://www.linkedin.com/in/leonardo-bravo-4120b8228/)          |
+| Anaya Vadillo Nathaly Eliane          | Tester                   | [LinkedIn]()                                                               |
+| Ticona Apaza María Fernanda Camila    | Functional Analyst       | [LinkedIn]()                                                               |
+| Vera Castellón Mauricio Eduardo       | Desarrollador Frontend   | [LinkedIn](https://www.linkedin.com/in/mauricio-c-616227b0/)               |
+| Timana Mendoza Sebastián              | Ingeniero DevOps         | [LinkedIn](https://www.linkedin.com/in/timana-mendoza-sebasti%C3%A1n-7a048624a/) |
+
 
 ### Revisa el Progreso del Proyecto FinanCello
 
