@@ -1,4 +1,4 @@
-package com.example.financelloapi.service.internal;
+package com.example.financelloapi.service.impl;
 
 import com.example.financelloapi.dto.request.RegisterGoalContributionRequest;
 import com.example.financelloapi.dto.test.RegisterGoalContributionResponse;
