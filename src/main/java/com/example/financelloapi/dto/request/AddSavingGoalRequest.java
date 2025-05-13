@@ -1,7 +1,9 @@
 package com.example.financelloapi.dto.request;
 
 import com.example.financelloapi.model.entity.GoalContribution;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalDate;
 
-public record AddSavingGoalRequest(GoalContribution contribution, String name, Float targetAmount, Float currentAmount, LocalDate dueDate) {}
+public record AddSavingGoalRequest(GoalContribution contribution, String name, @Positive Float targetAmount, @PositiveOrZero Float currentAmount, LocalDate dueDate) {}
