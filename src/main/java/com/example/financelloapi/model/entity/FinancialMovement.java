@@ -1,45 +1,38 @@
 package com.example.financelloapi.model.entity;
 
-import com.example.financelloapi.model.enums.CurrencyType;
-import com.example.financelloapi.model.enums.MovementType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "financial_movements")
-public class FinancialMovement {
+@Table(name = "categories")
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "movement_id", nullable = false)
+    @Column(name = "category_id", nullable = false)
     private Integer id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "movement_type", nullable = false)
-    private MovementType movementType;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", referencedColumnName = "category_id")
-    private Category category;
-
+    @Size(max = 100)
     @NotNull
-    @Column(name = "amount", nullable = false)
-    private Float amount;
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
 
-    @NotNull
-    @Column(name = "date", nullable = false)
-    private LocalDate date;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "currency", nullable = false)
-    private CurrencyType currencyType;
+    @Column(name = "description", length = Integer.MAX_VALUE)
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
+    private List<FinancialMovement> movements;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
+    private List<SpendingLimit> spendingLimits;
 }
