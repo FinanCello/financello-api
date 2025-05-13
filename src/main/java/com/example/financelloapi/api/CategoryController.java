@@ -2,12 +2,15 @@ package com.example.financelloapi.api;
 
 import com.example.financelloapi.dto.request.CategoryRequest;
 import com.example.financelloapi.dto.test.CategoryResponse;
+import com.example.financelloapi.dto.test.CategorySimpleResponse;
 import com.example.financelloapi.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -32,4 +35,10 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> updateCategory(@PathVariable(name="id") Integer categoryId, @Valid @RequestBody CategoryRequest request) {
         return new ResponseEntity<>(categoryService.updateCategory(categoryId, request), HttpStatus.OK);
     }
+
+    @GetMapping("/{userid}")
+    public ResponseEntity<List<CategorySimpleResponse>> getCategoryNamesByUserId(@PathVariable(name="userid") Integer userId) {
+        return ResponseEntity.ok(categoryService.getCategoryNamesByUserId(userId));
+    }
+
 }
