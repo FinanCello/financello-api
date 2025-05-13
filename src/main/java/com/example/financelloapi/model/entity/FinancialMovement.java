@@ -6,10 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -26,10 +23,8 @@ public class FinancialMovement {
     @Column(name = "movement_type", nullable = false)
     private MovementType movementType;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "category_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", referencedColumnName = "category_id")
     private Category category;
 
     @NotNull
@@ -43,4 +38,8 @@ public class FinancialMovement {
     @Enumerated(EnumType.STRING)
     @Column(name = "currency", nullable = false)
     private CurrencyType currencyType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

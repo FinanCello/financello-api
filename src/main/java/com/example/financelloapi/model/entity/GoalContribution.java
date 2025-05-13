@@ -24,4 +24,8 @@ public class GoalContribution {
     @NotNull
     @Column(name = "date", nullable = false)
     private LocalDate date;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_id", referencedColumnName = "goal_id", nullable = false)
+    private SavingGoal savingGoal;
 }
