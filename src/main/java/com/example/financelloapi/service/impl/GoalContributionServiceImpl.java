@@ -1,5 +1,6 @@
-package com.example.financelloapi.service.internal;
+package com.example.financelloapi.service.impl;
 
+import com.example.financelloapi.exception.IncorrectDateException;
 import com.example.financelloapi.model.entity.GoalContribution;
 import com.example.financelloapi.repository.GoalContributionRepository;
 import com.example.financelloapi.service.GoalContributionService;
@@ -15,6 +16,9 @@ public class GoalContributionServiceImpl implements GoalContributionService {
     public final GoalContributionRepository goalContributionRepository;
 
     public List<GoalContribution> historyGoalContributionsByDate(LocalDate date) {
+        if (goalContributionRepository.findGoalContributionsByDate(date).isEmpty()) {
+            throw new IncorrectDateException();
+        }
         return goalContributionRepository.findGoalContributionsByDate(date);
     }
 
