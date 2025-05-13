@@ -1,11 +1,13 @@
 package com.example.financelloapi.service.internal;
 
+import com.example.financelloapi.dto.request.LoginRequest;
 import com.example.financelloapi.dto.request.RegisterRequest;
 import com.example.financelloapi.dto.request.UpdateProfileRequest;
 import com.example.financelloapi.dto.test.AuthResponse;
 import com.example.financelloapi.dto.test.UserProfileResponse;  // Importamos el DTO de respuesta de perfil
 import com.example.financelloapi.exception.CustomException;
 import com.example.financelloapi.exception.UserAlreadyExistsException;
+import com.example.financelloapi.exception.UserNotFoundException;
 import com.example.financelloapi.mapper.UserMapper;
 import com.example.financelloapi.model.entity.User;
 import com.example.financelloapi.repository.UserRepository;
@@ -54,6 +56,16 @@ public class AuthServiceImpl implements AuthService {
 
         user.setRole(defaultRole);
         userRepository.save(user);
+
+        return userMapper.toAuthResponse(user);
+    }
+    @Override
+    public AuthResponse login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.email()).orElseThrow(() -> new UserNotFoundException(request.email()));
+
+        if (!user.getPassword().equals(request.password())) {
+            throw new CustomException("Incorrect password");
+        }
 
         return userMapper.toAuthResponse(user);
     }

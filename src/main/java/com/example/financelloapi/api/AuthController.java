@@ -1,5 +1,6 @@
 package com.example.financelloapi.api;
 
+import com.example.financelloapi.dto.request.LoginRequest;
 import com.example.financelloapi.dto.request.RegisterRequest;
 import com.example.financelloapi.dto.request.UpdateProfileRequest;  // Importamos el nuevo DTO para editar perfil
 import com.example.financelloapi.dto.test.AuthResponse;
@@ -19,6 +20,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(authService.register(request));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 
     // Endpoint para obtener el perfil de usuario

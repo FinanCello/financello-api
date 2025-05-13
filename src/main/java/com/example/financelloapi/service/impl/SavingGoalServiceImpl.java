@@ -31,7 +31,7 @@ public class SavingGoalServiceImpl implements SavingGoalService{
 
 
         SavingGoal goal = savingGoalMapper.toEntity(request);
-        goal.setContribution(contribution);
+        goal.getContributions().set(request.contribution().getId(), contribution);
         goal.setCurrentAmount(0.0f);
 
         SavingGoal savedGoal = savingGoalRepository.save(goal);

@@ -22,4 +22,9 @@ public class GlobalExceptionHandlerException extends RuntimeException {
                 .status(HttpStatus.NOT_FOUND)
                 .body(Map.of("message", ex.getMessage()));
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }
