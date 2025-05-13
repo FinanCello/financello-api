@@ -1,6 +1,10 @@
 package com.example.financelloapi.service.impl;
 
+import com.example.financelloapi.dto.request.RegisterGoalContributionRequest;
+import com.example.financelloapi.dto.test.RegisterGoalContributionResponse;
+import com.example.financelloapi.exception.EmptyAmountException;
 import com.example.financelloapi.exception.IncorrectDateException;
+import com.example.financelloapi.mapper.GoalContributionMapper;
 import com.example.financelloapi.model.entity.GoalContribution;
 import com.example.financelloapi.repository.GoalContributionRepository;
 import com.example.financelloapi.service.GoalContributionService;
@@ -13,15 +17,35 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class GoalContributionServiceImpl implements GoalContributionService {
-    public final GoalContributionRepository goalContributionRepository;
 
-    public List<GoalContribution> historyGoalContributionsByDate(LocalDate date) {
-        if (goalContributionRepository.findGoalContributionsByDate(date).isEmpty()) {
-            throw new IncorrectDateException();
+    private final GoalContributionRepository goalContributionRepository;
+    private final GoalContributionMapper goalContributionMapper;
+
+    @Override
+    public RegisterGoalContributionResponse registerGoalContribution(RegisterGoalContributionRequest request) {
+        if (request.amount() <= 0) {
+            throw new EmptyAmountException("Amount must be greater than zero");
         }
-        return goalContributionRepository.findGoalContributionsByDate(date);
+
+        GoalContribution goalContribution = new GoalContribution();
+        goalContribution.setDate(request.date());
+        goalContribution.setAmount(request.amount());
+
+        goalContributionRepository.save(goalContribution);
+
+        return goalContributionMapper.toResponse(goalContribution);
     }
 
+    @Override
+    public List<GoalContribution> historyGoalContributionsByDate(LocalDate date) {
+        List<GoalContribution> contributions = goalContributionRepository.findGoalContributionsByDate(date);
+        if (contributions.isEmpty()) {
+            throw new IncorrectDateException();
+        }
+        return contributions;
+    }
+
+    @Override
     public List<GoalContribution> historyGoalContributions() {
         return goalContributionRepository.findAll();
     }
