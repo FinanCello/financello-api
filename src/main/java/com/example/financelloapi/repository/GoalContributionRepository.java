@@ -3,4 +3,8 @@ package com.example.financelloapi.repository;
 import com.example.financelloapi.model.entity.GoalContribution;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface GoalContributionRepository extends JpaRepository<GoalContribution, Integer> {}
+import java.util.Optional;
+
+public interface GoalContributionRepository extends JpaRepository<GoalContribution, Integer> {
+    Optional<GoalContribution> findById(Integer id);
+}
