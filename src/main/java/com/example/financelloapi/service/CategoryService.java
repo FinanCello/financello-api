@@ -47,8 +47,7 @@ public class CategoryService {
     @Transactional
     public void deleteCategory(Integer id) {
         if (!categoryRepository.existsById(id)) {
-            String message = "La categoría no existe";
-            throw new CategoryNotFoundException(message);
+            throw new CategoryNotFoundException("The category dont exist");
         }
 
         if (financialMovementRepository.existsByCategory_Id(id)) {
@@ -61,7 +60,7 @@ public class CategoryService {
     public CategoryResponse updateCategory(Integer categoryId, CategoryRequest request) {
 
         if (!categoryRepository.existsById(categoryId)) {
-            throw new CategoryNotFoundException("La categoría no existe");
+            throw new CategoryNotFoundException("The category dont exist");
         }
 
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow();
@@ -92,7 +91,7 @@ public class CategoryService {
         List<Category> categories = categoryRepository.findByUser_Id(userId);
 
         if (categories.isEmpty()) {
-            throw new CategoryNotFoundException("El usuario no tiene categorías creadas");
+            throw new CategoryNotFoundException("The category dont exist");
         }
 
         return categories.stream()

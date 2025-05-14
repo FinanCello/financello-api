@@ -26,12 +26,8 @@ public class SavingGoalServiceImpl implements SavingGoalService{
             throw new TargetAmountLessThanCurrentAmountException();
         }
 
-        GoalContribution contribution = goalContributionRepository.findById(request.contribution().getId())
-                .orElseThrow(() -> new GoalContributionNotFoundException(request.contribution().getId()));
-
 
         SavingGoal goal = savingGoalMapper.toEntity(request);
-        goal.getContributions().set(request.contribution().getId(), contribution);
         goal.setCurrentAmount(0.0f);
 
         SavingGoal savedGoal = savingGoalRepository.save(goal);
