@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
@@ -19,10 +18,14 @@ public class GoalContribution {
     private Integer id;
 
     @NotNull
-    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal amount;
+    @Column(name = "amount", nullable = false)
+    private Float amount;
 
     @NotNull
     @Column(name = "date", nullable = false)
     private LocalDate date;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "goal_id", referencedColumnName = "goal_id", nullable = false)
+    private SavingGoal savingGoal;
 }

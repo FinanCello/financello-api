@@ -30,4 +30,8 @@ public class Budget {
     @NotNull
     @Column(name = "total_outcome_planned", nullable = false)
     private Float totalOutcomePlanned;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }
