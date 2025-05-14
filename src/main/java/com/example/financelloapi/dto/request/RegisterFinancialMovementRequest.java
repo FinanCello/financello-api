@@ -6,10 +6,4 @@ import com.example.financelloapi.model.enums.MovementType;
 
 import java.time.LocalDate;
 
-public record RegisterFinancialMovementRequest(
-        Float amount,
-        LocalDate date,
-        MovementType movementType,
-        Integer categoryId,
-        CurrencyType currencyType
-    ) {}
+public record RegisterFinancialMovementRequest(Float amount, LocalDate date, MovementType movementType, Integer categoryId, CurrencyType currencyType) {}
