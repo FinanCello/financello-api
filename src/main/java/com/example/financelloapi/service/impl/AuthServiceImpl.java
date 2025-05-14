@@ -1,4 +1,4 @@
-package com.example.financelloapi.service.internal;
+package com.example.financelloapi.service.impl;
 
 import com.example.financelloapi.dto.request.LoginRequest;
 import com.example.financelloapi.dto.request.RegisterRequest;
@@ -6,6 +6,7 @@ import com.example.financelloapi.dto.request.UpdateProfileRequest;
 import com.example.financelloapi.dto.test.AuthResponse;
 import com.example.financelloapi.dto.test.UserProfileResponse;  // Importamos el DTO de respuesta de perfil
 import com.example.financelloapi.exception.CustomException;
+import com.example.financelloapi.exception.EmptyException;
 import com.example.financelloapi.exception.UserAlreadyExistsException;
 import com.example.financelloapi.exception.UserNotFoundException;
 import com.example.financelloapi.mapper.UserMapper;
@@ -28,6 +29,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse register(RegisterRequest request) {
+        if (request.firstName().trim().isEmpty() || request.lastName().trim().isEmpty() || request.email().trim().isEmpty() || request.password().trim().isEmpty() || request.userType()==null) {
+            throw new EmptyException("Fill all blank spaces");
+        }
         if (userRepository.existsByEmail(request.email())) {
             throw new UserAlreadyExistsException(request.email());
         }
@@ -81,6 +85,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserProfileResponse updateUserProfile(Integer userId, UpdateProfileRequest updateRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException("User not found"));
+        if (updateRequest.getFirstName().trim().isEmpty() || updateRequest.getLastName().trim().isEmpty() || updateRequest.getEmail().trim().isEmpty() || updateRequest.getPassword().trim().isEmpty()) {
+            throw new EmptyException("Fill all blank spaces");
+        }
         user.setFirstName(updateRequest.getFirstName());
         user.setLastName(updateRequest.getLastName());
         user.setEmail(updateRequest.getEmail());

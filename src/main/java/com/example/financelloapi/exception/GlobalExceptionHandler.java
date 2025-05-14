@@ -51,4 +51,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(RoleDoesntExistException.class)
+    public ResponseEntity<Object> handleRoleDoesntExistException(RoleDoesntExistException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EmptyException.class)
+    public ResponseEntity<Object> handleEmptyException(EmptyException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }
