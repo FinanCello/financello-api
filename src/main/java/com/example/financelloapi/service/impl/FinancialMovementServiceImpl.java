@@ -61,4 +61,23 @@ public class FinancialMovementServiceImpl implements FinancialMovementService {
                 .map(TransactionMapper::toResponse)
                 .toList();
     }
+
+    @Override
+    public List<RegisterFinancialMovementResponse> filterMovements(Integer userId, Integer categoryId, MovementType type) {
+        List<FinancialMovement> movimientos;
+
+        if (categoryId != null && type != null) {
+            movimientos = financialMovementRepository.findByUser_IdAndCategory_IdAndMovementType(userId, categoryId, type);
+        } else if (categoryId != null) {
+            movimientos = financialMovementRepository.findByUser_IdAndCategory_Id(userId, categoryId);
+        } else if (type != null) {
+            movimientos = financialMovementRepository.findByUser_IdAndMovementType(userId, type);
+        } else {
+            movimientos = financialMovementRepository.findByUser_Id(userId);
+        }
+
+        return movimientos.stream()
+                .map(financialMovementMapper::toRegisterFinancialMovementResponse)
+                .toList();
+    }
 }

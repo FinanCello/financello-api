@@ -30,7 +30,6 @@ public class Role {
         this.roleType = roleType;
     }
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     private List<User> users;
 }

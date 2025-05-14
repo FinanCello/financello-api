@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -24,7 +25,10 @@ public class SpendingLimitController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/alerts"
-    public ResponseEntity<SpendingLimitAlertResponse>> getAlerts(@)
+    @GetMapping("/alerts")
+    public ResponseEntity<List<SpendingLimitAlertResponse>> getAlerts(@RequestParam Integer userId) {
+        List<SpendingLimitAlertResponse> response = spendingLimitService.getAlerts(userId);
+        return ResponseEntity.ok(response);
+    }
 
 }
