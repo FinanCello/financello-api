@@ -5,9 +5,7 @@ import com.example.financelloapi.dto.test.CategoryResponse;
 import com.example.financelloapi.exception.CategoryAlreadyExistsException;
 import com.example.financelloapi.exception.CategoryNotFoundException;
 import com.example.financelloapi.exception.UserDoesntExistException;
-import com.example.financelloapi.dto.test.CategoryResponse;
 import com.example.financelloapi.exception.CategoryInUseException;
-import com.example.financelloapi.exception.CategoryNotFoundException;
 import com.example.financelloapi.dto.test.CategorySimpleResponse;
 import com.example.financelloapi.mapper.CategoryMapper;
 import com.example.financelloapi.model.entity.Category;
@@ -20,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
