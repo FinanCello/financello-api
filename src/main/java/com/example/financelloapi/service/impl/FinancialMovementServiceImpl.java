@@ -26,7 +26,7 @@ public class FinancialMovementServiceImpl implements FinancialMovementService {
             throw new CustomException("Amount must be greater than or equal to 0.");
         }
 
-        Category category = categoryRepository.findByName(request.category().getName()).orElseThrow(() -> new CategoryNotFoundException(request.category().getName()));
+        Category category = categoryRepository.findById(request.categoryId()).orElseThrow(() -> new CategoryNotFoundException(request.categoryId()));
 
         FinancialMovement movement = financialMovementMapper.toEntity(request, category);
         financialMovementRepository.save(movement);

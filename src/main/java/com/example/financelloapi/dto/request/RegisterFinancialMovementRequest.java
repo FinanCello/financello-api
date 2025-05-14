@@ -10,6 +10,6 @@ public record RegisterFinancialMovementRequest(
         Float amount,
         LocalDate date,
         MovementType movementType,
-        Category category,
+        Integer categoryId,
         CurrencyType currencyType
     ) {}
