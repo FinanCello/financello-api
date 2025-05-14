@@ -28,7 +28,7 @@ public class Role {
         this.roleType = roleType;
     }
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 }
