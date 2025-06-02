@@ -1,64 +1,147 @@
 package com.example.financelloapi.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
-@ControllerAdvice
-public class GlobalExceptionHandler extends RuntimeException{
+import java.util.List;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleUserAlreadyExistsException(UserAlreadyExistsException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Usuario duplicado");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
     }
 
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<String> handleCustomException(CustomException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleCustomException(CustomException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Error personalizado");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
     }
 
     @ExceptionHandler(CategoryInUseException.class)
-    public ResponseEntity<String> handleCategoryInUseException(CategoryInUseException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleCategoryInUseException(CategoryInUseException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Categoría en uso");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)
-    public ResponseEntity<String> handleCategoryNotFoundException(CategoryNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleCategoryNotFoundException(CategoryNotFoundException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle("Categoría no encontrada");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
     }
 
     @ExceptionHandler(CategoryAlreadyExistsException.class)
-    public ResponseEntity<String> handleCategoryAlreadyExistsException(CategoryAlreadyExistsException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleCategoryAlreadyExistsException(CategoryAlreadyExistsException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Categoría duplicada");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
     }
 
-    // para errores de formato
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        String firstErrorMessage = ex.getBindingResult().getAllErrors().stream()
+    public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
+        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
+        String firstErrorMessage = fieldErrors.stream()
                 .findFirst()
-                .map(error -> ((FieldError) error).getDefaultMessage())
+                .map(FieldError::getDefaultMessage)
                 .orElse("Error de validación");
 
-        // mensaje personalizado
-        return new ResponseEntity<>(firstErrorMessage, HttpStatus.BAD_REQUEST);
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Error de validación");
+        pd.setDetail(firstErrorMessage);
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
     }
 
     @ExceptionHandler(UserDoesntExistException.class)
-    public ResponseEntity<Object> handleUserDoesntExistException(UserDoesntExistException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleUserDoesntExistException(UserDoesntExistException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Usuario no existe");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
     }
 
     @ExceptionHandler(RoleDoesntExistException.class)
-    public ResponseEntity<Object> handleRoleDoesntExistException(RoleDoesntExistException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleRoleDoesntExistException(RoleDoesntExistException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Rol no existe");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
     }
 
     @ExceptionHandler(EmptyException.class)
-    public ResponseEntity<Object> handleEmptyException(EmptyException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    public ProblemDetail handleEmptyException(EmptyException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Contenido vacío");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
     }
 
+    @ExceptionHandler(IncorrectDateException.class)
+    public ProblemDetail handleIncorrectDateException(IncorrectDateException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Fecha incorrecta");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(TargetAmountLessThanCurrentAmountException.class)
+    public ProblemDetail handleTargetAmountException(TargetAmountLessThanCurrentAmountException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Cantidad objetivo inválida");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(GoalContributionNotFoundException.class)
+    public ProblemDetail handleGoalContributionNotFoundException(GoalContributionNotFoundException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle("Contribución a meta no encontrada");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ProblemDetail handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle("Usuario no encontrado");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleGenericException(Exception ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        pd.setTitle("Error interno");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
 }
