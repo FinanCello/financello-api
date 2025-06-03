@@ -2,10 +2,7 @@ package com.example.financelloapi.service;
 
 import com.example.financelloapi.dto.request.CategoryRequest;
 import com.example.financelloapi.dto.test.CategoryResponse;
-import com.example.financelloapi.exception.CategoryAlreadyExistsException;
-import com.example.financelloapi.exception.CategoryNotFoundException;
-import com.example.financelloapi.exception.UserDoesntExistException;
-import com.example.financelloapi.exception.CategoryInUseException;
+import com.example.financelloapi.exception.*;
 import com.example.financelloapi.dto.test.CategorySimpleResponse;
 import com.example.financelloapi.mapper.CategoryMapper;
 import com.example.financelloapi.model.entity.Category;
@@ -30,7 +27,7 @@ public class CategoryService {
     @Transactional
     public CategoryResponse createCategory(Integer userId, CategoryRequest request) {
         if (categoryRepository.existsByNameAndUserId(request.name(), userId)) {
-            throw new CategoryAlreadyExistsException("La categoría ya existe");
+            throw new DuplicateResourceException("La categoría ya existe");
         }
 
         User user = userRepository.findByIdCustom(userId)
@@ -47,11 +44,11 @@ public class CategoryService {
     @Transactional
     public void deleteCategory(Integer id) {
         if (!categoryRepository.existsById(id)) {
-            throw new CategoryNotFoundException("The category dont exist");
+            throw new ResourceNotFoundException("The category dont exist");
         }
 
         if (financialMovementRepository.existsByCategory_Id(id)) {
-            throw new CategoryInUseException("La categoría no puede eliminarse porque está asociada a movimientos financieros.");
+            throw new IllegalStateException("La categoría no puede eliminarse porque está asociada a movimientos financieros.");
         }
         categoryRepository.deleteById(id);
     }
@@ -60,7 +57,7 @@ public class CategoryService {
     public CategoryResponse updateCategory(Integer categoryId, CategoryRequest request) {
 
         if (!categoryRepository.existsById(categoryId)) {
-            throw new CategoryNotFoundException("The category dont exist");
+            throw new ResourceNotFoundException("La categoría no existe");
         }
 
         Category category = categoryRepository.findByCategoryId(categoryId).orElseThrow();
@@ -70,7 +67,7 @@ public class CategoryService {
         // valida si el nombre cambia primero
         if (!category.getName().equals(request.name())) {
             if (categoryRepository.existsByNameAndUser_IdAndIdNot(request.name(), userId, categoryId)) {
-                throw new CategoryAlreadyExistsException("Ya existe otra categoría con ese nombre");
+                throw new DuplicateResourceException("Ya existe otra categoría con ese nombre");
             }
             category.setName(request.name());
         }
@@ -91,7 +88,7 @@ public class CategoryService {
         List<Category> categories = categoryRepository.findByUser_Id(userId);
 
         if (categories.isEmpty()) {
-            throw new CategoryNotFoundException("The category dont exist");
+            throw new ResourceNotFoundException("La categoría no existe");
         }
 
         return categories.stream()
