@@ -31,24 +31,6 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
-    @ExceptionHandler(CategoryInUseException.class)
-    public ProblemDetail handleCategoryInUseException(CategoryInUseException ex, WebRequest request) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Categoría en uso");
-        pd.setDetail(ex.getMessage());
-        pd.setProperty("path", request.getDescription(false));
-        return pd;
-    }
-
-    @ExceptionHandler(CategoryNotFoundException.class)
-    public ProblemDetail handleCategoryNotFoundException(CategoryNotFoundException ex, WebRequest request) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        pd.setTitle("Categoría no encontrada");
-        pd.setDetail(ex.getMessage());
-        pd.setProperty("path", request.getDescription(false));
-        return pd;
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
         List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
@@ -144,4 +126,14 @@ public class GlobalExceptionHandler {
         pd.setProperty("path", request.getDescription(false));
         return pd;
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle("Recurso no encontrado");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
 }
