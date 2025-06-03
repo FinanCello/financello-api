@@ -49,15 +49,6 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
-    @ExceptionHandler(CategoryAlreadyExistsException.class)
-    public ProblemDetail handleCategoryAlreadyExistsException(CategoryAlreadyExistsException ex, WebRequest request) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Categoría duplicada");
-        pd.setDetail(ex.getMessage());
-        pd.setProperty("path", request.getDescription(false));
-        return pd;
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
         List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
@@ -140,6 +131,15 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleGenericException(Exception ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         pd.setTitle("Error interno");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ProblemDetail handleDuplicateResourceException(DuplicateResourceException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Recurso duplicado");
         pd.setDetail(ex.getMessage());
         pd.setProperty("path", request.getDescription(false));
         return pd;
