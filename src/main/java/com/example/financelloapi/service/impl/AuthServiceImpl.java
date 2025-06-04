@@ -5,6 +5,7 @@ import com.example.financelloapi.dto.request.RegisterRequest;
 import com.example.financelloapi.dto.request.UpdateProfileRequest;
 import com.example.financelloapi.dto.test.AuthResponse;
 import com.example.financelloapi.dto.test.UserProfileResponse;  // Importamos el DTO de respuesta de perfil
+import com.example.financelloapi.dto.test.UserWithRoleResponse;
 import com.example.financelloapi.exception.CustomException;
 import com.example.financelloapi.exception.EmptyException;
 import com.example.financelloapi.exception.UserAlreadyExistsException;
@@ -18,6 +19,9 @@ import com.example.financelloapi.repository.RoleRepository;
 import com.example.financelloapi.model.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -94,5 +98,24 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(updateRequest.getPassword());  // Asegúrate de manejar la seguridad de la contraseña
         userRepository.save(user);
         return new UserProfileResponse(user);
+    }
+
+    @Override
+    public List<UserWithRoleResponse> getAllUsersWithRoles()
+    {
+        List<User> users = userRepository.findAll();
+
+        return users.stream().map(u -> {
+                                Role role = u.getRole();
+                                RoleType roleType = (role != null) ? role.getRoleType() : null;
+                                return new UserWithRoleResponse(
+                                                u.getId(),
+                                                u.getFirstName(),
+                                                u.getLastName(),
+                                                u.getEmail(),
+                                                roleType
+                                                );
+                            })
+                                .collect(Collectors.toList());
     }
 }

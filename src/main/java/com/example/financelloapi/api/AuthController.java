@@ -5,10 +5,13 @@ import com.example.financelloapi.dto.request.RegisterRequest;
 import com.example.financelloapi.dto.request.UpdateProfileRequest;  // Importamos el nuevo DTO para editar perfil
 import com.example.financelloapi.dto.test.AuthResponse;
 import com.example.financelloapi.dto.test.UserProfileResponse;  // Nuevo DTO para devolver el perfil
+import com.example.financelloapi.dto.test.UserWithRoleResponse;
 import com.example.financelloapi.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -39,5 +42,11 @@ public class AuthController {
     public ResponseEntity<UserProfileResponse> updateUserProfile(@PathVariable Integer userId, @RequestBody UpdateProfileRequest updateRequest) {
         UserProfileResponse updatedProfile = authService.updateUserProfile(userId, updateRequest);
         return ResponseEntity.ok(updatedProfile);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserWithRoleResponse>> getAllUsersWithRoles() {
+                List<UserWithRoleResponse> lista = authService.getAllUsersWithRoles();
+                return ResponseEntity.ok(lista);
     }
 }
