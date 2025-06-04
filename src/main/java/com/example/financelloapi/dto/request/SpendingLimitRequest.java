@@ -1,5 +1,6 @@
 package com.example.financelloapi.dto.request;
 
+<<<<<<< HEAD
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -11,3 +12,7 @@ public record SpendingLimitRequest(
         Float monthlyLimit,
         @NotNull YearMonth period
     ){}
+=======
+public record SpendingLimitRequest(Integer categoryId, Float monthlyLimit, Integer userId) {
+}
+>>>>>>> origin/develop

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Entity
@@ -28,7 +30,6 @@ public class Role {
         this.roleType = roleType;
     }
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
+    private List<User> users;
 }

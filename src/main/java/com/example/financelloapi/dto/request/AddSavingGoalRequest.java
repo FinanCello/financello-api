@@ -6,4 +6,4 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalDate;
 
-public record AddSavingGoalRequest(GoalContribution contribution, String name, @Positive Float targetAmount, @PositiveOrZero Float currentAmount, LocalDate dueDate) {}
+public record AddSavingGoalRequest(String name, @Positive Float targetAmount, @PositiveOrZero Float currentAmount, LocalDate dueDate) {}

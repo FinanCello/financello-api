@@ -7,11 +7,18 @@ import java.time.YearMonth;
 
 @Component
 public class SpendingLimitMapper {
+<<<<<<< HEAD
     public SpendingLimitResponse toResponse(SpendingLimit limit, YearMonth period) {
         return new SpendingLimitResponse(
                 limit.getCategory().getName(),
                 limit.getMonthlyLimit(),
                 period
+=======
+    public SpendingLimitResponse toResponse(SpendingLimit limit) {
+        return new SpendingLimitResponse(
+                limit.getCategory().getName(),
+                limit.getMonthlyLimit()
+>>>>>>> origin/develop
         );
     }
 }

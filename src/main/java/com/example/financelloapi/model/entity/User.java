@@ -27,9 +27,9 @@ public class User {
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private List<Budget> budgets;
 
-    @OneToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "role_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")

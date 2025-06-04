@@ -7,6 +7,7 @@ import com.example.financelloapi.exception.IncorrectDateException;
 import com.example.financelloapi.mapper.GoalContributionMapper;
 import com.example.financelloapi.model.entity.GoalContribution;
 import com.example.financelloapi.repository.GoalContributionRepository;
+import com.example.financelloapi.repository.SavingGoalRepository;
 import com.example.financelloapi.service.GoalContributionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class GoalContributionServiceImpl implements GoalContributionService {
 
     private final GoalContributionRepository goalContributionRepository;
     private final GoalContributionMapper goalContributionMapper;
+    private final SavingGoalRepository savingGoalRepository;
 
     @Override
     public RegisterGoalContributionResponse registerGoalContribution(RegisterGoalContributionRequest request) {
@@ -27,9 +29,14 @@ public class GoalContributionServiceImpl implements GoalContributionService {
             throw new EmptyAmountException("Amount must be greater than zero");
         }
 
+        if (!savingGoalRepository.existsById(request.goalId())) {
+            throw new RuntimeException("Goal not found");
+        }
+
         GoalContribution goalContribution = new GoalContribution();
         goalContribution.setDate(request.date());
         goalContribution.setAmount(request.amount());
+        goalContribution.setSavingGoal(savingGoalRepository.getById(request.goalId()));
 
         goalContributionRepository.save(goalContribution);
 

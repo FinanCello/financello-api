@@ -1,5 +1,6 @@
 package com.example.financelloapi.dto.test;
 
+<<<<<<< HEAD
 import java.time.YearMonth;
 
 public record SpendingLimitResponse(
@@ -7,3 +8,9 @@ public record SpendingLimitResponse(
         Float monthlyLimit,
         YearMonth period
         ) {}
+=======
+public record SpendingLimitResponse(
+        String categoryName,
+        Float monthlyLimit
+) {}
+>>>>>>> origin/develop

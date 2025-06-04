@@ -1,6 +1,8 @@
 package com.example.financelloapi.service;
 
 import com.example.financelloapi.dto.request.RoleRequest;
+import com.example.financelloapi.exception.RoleDoesntExistException;
+import com.example.financelloapi.exception.UserAlreadyExistsException;
 import com.example.financelloapi.model.entity.Role;
 import com.example.financelloapi.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,6 @@ public class RoleService {
     }
 
     public Role getRole(Integer roleId) {
-        return roleRepository.findById(roleId)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+        return roleRepository.findById(roleId).orElseThrow(() -> new RoleDoesntExistException(roleId));
     }
 }

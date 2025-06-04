@@ -1,5 +1,10 @@
 package com.example.financelloapi.service;
 
+<<<<<<< HEAD
+=======
+import lombok.RequiredArgsConstructor;
+
+>>>>>>> origin/develop
 import com.example.financelloapi.dto.request.SpendingLimitRequest;
 import com.example.financelloapi.dto.test.SpendingLimitResponse;
 import com.example.financelloapi.dto.test.SpendingLimitAlertResponse;
@@ -60,7 +65,11 @@ public class SpendingLimitService {
 
         SpendingLimit savedLimit = spendingLimitRepository.save(newLimit);
 
+<<<<<<< HEAD
         return spendingLimitMapper.toResponse(savedLimit, request.period());
+=======
+        return spendingLimitMapper.toResponse(savedLimit);
+>>>>>>> origin/develop
 
     }
 
