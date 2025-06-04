@@ -1,10 +1,7 @@
 package com.example.financelloapi.service;
 
-<<<<<<< HEAD
-=======
 import lombok.RequiredArgsConstructor;
 
->>>>>>> origin/develop
 import com.example.financelloapi.dto.request.SpendingLimitRequest;
 import com.example.financelloapi.dto.test.SpendingLimitResponse;
 import com.example.financelloapi.dto.test.SpendingLimitAlertResponse;
@@ -22,7 +19,6 @@ import com.example.financelloapi.repository.CategoryRepository;
 import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.repository.FinancialMovementRepository;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.time.LocalDate;
@@ -65,11 +61,7 @@ public class SpendingLimitService {
 
         SpendingLimit savedLimit = spendingLimitRepository.save(newLimit);
 
-<<<<<<< HEAD
-        return spendingLimitMapper.toResponse(savedLimit, request.period());
-=======
         return spendingLimitMapper.toResponse(savedLimit);
->>>>>>> origin/develop
 
     }
 
