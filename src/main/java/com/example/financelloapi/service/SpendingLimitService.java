@@ -1,10 +1,7 @@
 package com.example.financelloapi.service;
 
-<<<<<<< HEAD
-=======
 import lombok.RequiredArgsConstructor;
 
->>>>>>> origin/develop
 import com.example.financelloapi.dto.request.SpendingLimitRequest;
 import com.example.financelloapi.dto.test.SpendingLimitResponse;
 import com.example.financelloapi.dto.test.SpendingLimitAlertResponse;
@@ -21,8 +18,8 @@ import com.example.financelloapi.repository.SpendingLimitRepository;
 import com.example.financelloapi.repository.CategoryRepository;
 import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.repository.FinancialMovementRepository;
+import com.example.financelloapi.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.time.LocalDate;
@@ -65,13 +62,29 @@ public class SpendingLimitService {
 
         SpendingLimit savedLimit = spendingLimitRepository.save(newLimit);
 
-<<<<<<< HEAD
-        return spendingLimitMapper.toResponse(savedLimit, request.period());
-=======
         return spendingLimitMapper.toResponse(savedLimit);
->>>>>>> origin/develop
 
     }
+
+    @Transactional
+    public List<SpendingLimitResponse> listSpendingLimits(Integer userId) {
+        return spendingLimitRepository
+                .findByUser_Id(userId)
+                .stream()
+                .map(spendingLimitMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional
+    public void deleteByCategory(Integer userId, Integer categoryId) {
+        SpendingLimit limit = spendingLimitRepository
+                .findByCategory_IdAndUser_Id(categoryId, userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "No existe un límite para la categoría " + categoryId));
+        spendingLimitRepository.delete(limit);
+    }
+
 
     @Transactional
     public List<SpendingLimitAlertResponse> getAlerts(Integer userId) {
