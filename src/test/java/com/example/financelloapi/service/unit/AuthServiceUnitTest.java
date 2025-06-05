@@ -1,6 +1,7 @@
 // src/test/java/com/example/financelloapi/service/unit/AuthServiceUnitTest.java
 package com.example.financelloapi.service.unit;
 
+import com.example.financelloapi.dto.request.LoginRequest;
 import com.example.financelloapi.dto.request.RegisterRequest;
 import com.example.financelloapi.dto.request.UpdateProfileRequest;
 import com.example.financelloapi.dto.test.AuthResponse;
@@ -9,6 +10,7 @@ import com.example.financelloapi.dto.test.UserProfileResponse;
 import com.example.financelloapi.exception.CustomException;
 import com.example.financelloapi.exception.EmptyException;
 import com.example.financelloapi.exception.UserAlreadyExistsException;
+import com.example.financelloapi.exception.UserNotFoundException;
 import com.example.financelloapi.mapper.UserMapper;
 import com.example.financelloapi.model.entity.Role;
 import com.example.financelloapi.model.entity.User;
@@ -134,6 +136,66 @@ public class AuthServiceUnitTest {
         // Act & Assert
         assertThrows(EmptyException.class, () -> authService.register(request));
         verify(userRepository, never()).save(any());
+    }
+
+    // US02: Login User
+    @Test
+    @DisplayName("US02-CP01 - Login: Escenario Exitoso")
+    void login_success() {
+        // Arrange
+        LoginRequest request = new LoginRequest("juan@example.com", "password123");
+
+        User user = new User();
+        user.setEmail("juan@example.com");
+        user.setPassword("password123");
+        user.setFirstName("Juan");
+        user.setLastName("Pérez");
+        user.setUserType(UserType.PERSONAL);
+
+        AuthResponse expectedResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL);
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+        when(userMapper.toAuthResponse(user)).thenReturn(expectedResponse);
+
+        // Act
+        AuthResponse actualResponse = authService.login(request);
+
+        // Assert
+        assertNotNull(actualResponse);
+        assertEquals(expectedResponse.email(), actualResponse.email());
+        assertEquals(expectedResponse.firstName(), actualResponse.firstName());
+        assertEquals(expectedResponse.lastName(), actualResponse.lastName());
+        assertEquals(expectedResponse.userType(), actualResponse.userType());
+    }
+
+    @Test
+    @DisplayName("US02-CP02 - Login: Usuario no entontrado")
+    void login_fails_whenUserNotFound() {
+        // Arrange
+        LoginRequest request = new LoginRequest("noexistente@example.com", "password123");
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () -> authService.login(request));
+        verify(userMapper, never()).toAuthResponse(any());
+    }
+
+    @Test
+    @DisplayName("US02-CP02 - Login: Contraseña incorrecta")
+    void login_fails_whenIncorrectPassword() {
+        // Arrange
+        LoginRequest request = new LoginRequest("juan@example.com", "wrongpassword");
+
+        User user = new User();
+        user.setEmail("juan@example.com");
+        user.setPassword("correctpassword");
+
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+
+        // Act & Assert
+        assertThrows(CustomException.class, () -> authService.login(request));
+        verify(userMapper, never()).toAuthResponse(any());
     }
 
     // US17: Ver perfil
