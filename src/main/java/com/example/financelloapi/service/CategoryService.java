@@ -44,7 +44,7 @@ public class CategoryService {
     @Transactional
     public void deleteCategory(Integer id) {
         if (!categoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("The category dont exist");
+            throw new ResourceNotFoundException("La categoría no existe");
         }
 
         if (financialMovementRepository.existsByCategory_Id(id)) {
