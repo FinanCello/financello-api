@@ -87,10 +87,6 @@ public class CategoryService {
 
         List<Category> categories = categoryRepository.findByUser_Id(userId);
 
-        if (categories.isEmpty()) {
-            throw new ResourceNotFoundException("La categoría no existe");
-        }
-
         return categories.stream()
                 .map(this::getCategory)
                 .toList();
