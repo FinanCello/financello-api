@@ -6,6 +6,7 @@ import com.example.financelloapi.dto.test.TransactionResponse;
 import com.example.financelloapi.model.enums.MovementType;
 import com.example.financelloapi.service.FinancialMovementService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class FinancialMovementController {
         return financialMovementService.getMovementsByUserIdFiltered(userId, type, categoryId);
     }
     @PostMapping("/register")
-    public ResponseEntity<RegisterFinancialMovementResponse> register(@PathVariable Integer userId, @RequestBody RegisterFinancialMovementRequest request) {
+    public ResponseEntity<RegisterFinancialMovementResponse> register(@RequestParam Integer userId, @RequestBody RegisterFinancialMovementRequest request) {
         return ResponseEntity.ok(financialMovementService.registerMovement(userId, request));
     }
 

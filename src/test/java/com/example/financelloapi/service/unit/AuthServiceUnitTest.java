@@ -1,14 +1,19 @@
 // src/test/java/com/example/financelloapi/service/unit/AuthServiceUnitTest.java
 package com.example.financelloapi.service.unit;
 
+import com.example.financelloapi.dto.request.RegisterRequest;
 import com.example.financelloapi.dto.request.UpdateProfileRequest;
+import com.example.financelloapi.dto.test.AuthResponse;
 import com.example.financelloapi.dto.test.UserWithRoleResponse;
 import com.example.financelloapi.dto.test.UserProfileResponse;
 import com.example.financelloapi.exception.CustomException;
 import com.example.financelloapi.exception.EmptyException;
+import com.example.financelloapi.exception.UserAlreadyExistsException;
+import com.example.financelloapi.mapper.UserMapper;
 import com.example.financelloapi.model.entity.Role;
 import com.example.financelloapi.model.entity.User;
 import com.example.financelloapi.model.enums.RoleType;
+import com.example.financelloapi.model.enums.UserType;
 import com.example.financelloapi.repository.RoleRepository;
 import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.service.impl.AuthServiceImpl;
@@ -34,6 +39,9 @@ public class AuthServiceUnitTest {
     private UserRepository userRepository;
 
     @Mock
+    private UserMapper userMapper;
+
+    @Mock
     private RoleRepository roleRepository;
 
     @InjectMocks
@@ -42,6 +50,90 @@ public class AuthServiceUnitTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.initMocks(this);
+    }
+    // US01: Registrar usuario
+    @Test
+    @DisplayName("US01-CP01 - Registro exitoso")
+    void register_success() {
+        // Arrange
+        User user = new User();
+        user.setEmail("juan@example.com");
+        user.setFirstName("Juan");
+        user.setLastName("Pérez");
+        user.setPassword("password123");
+        user.setRole(new Role(1, RoleType.BASIC));
+
+        AuthResponse mockResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL);
+
+        RegisterRequest request = new RegisterRequest(
+                "juan@example.com",
+                "password123",
+                "Juan",
+                "Pérez",
+                UserType.PERSONAL);
+
+        Role basicRole = new Role(1, RoleType.BASIC);
+
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(userRepository.findAll()).thenReturn(Collections.emptyList());
+        when(roleRepository.findByRoleType(RoleType.BASIC)).thenReturn(Optional.of(basicRole));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userMapper.toAuthResponse(any(User.class))).thenReturn(mockResponse);
+
+        // Act
+        AuthResponse response = authService.register(request);
+
+        // Assert
+        assertNotNull(response, "El response no debería ser null");
+        verify(userRepository).save(argThat(savedUser ->
+                savedUser.getFirstName().equals("Juan") &&
+                        savedUser.getLastName().equals("Pérez") &&
+                        savedUser.getEmail().equals("juan@example.com") &&
+                        savedUser.getPassword().equals("password123") &&
+                        savedUser.getRole().getRoleType() == RoleType.BASIC
+        ));
+    }
+
+    @Test
+    @DisplayName("US01-CP02 - Email ya exsistente")
+    void register_fails_whenEmailAlreadyExists() {
+        // Arrange
+        RegisterRequest request = new RegisterRequest("juan@example.com", "password123", "Juan", "Pérez", UserType.PERSONAL);
+
+        when(userRepository.existsByEmail(request.email())).thenReturn(true);
+
+        // Act & Assert
+        assertThrows(UserAlreadyExistsException.class, () -> authService.register(request));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("US01-CP03 - Usuario ya exsistente")
+    void register_fails_whenUsernameAlreadyExists() {
+        // Arrange
+        RegisterRequest request = new RegisterRequest("juan@example.com", "password123", "Juan", "Pérez", UserType.PERSONAL);
+
+        User existingUser = new User();
+        existingUser.setFirstName("Juan");
+        existingUser.setLastName("Pérez");
+
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(userRepository.findAll()).thenReturn(List.of(existingUser));
+
+        // Act & Assert
+        assertThrows(CustomException.class, () -> authService.register(request));
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("US01-CP04 - Registro: Campo vacío")
+    void register_fails_whenFieldsAreEmpty() {
+        // Arrange
+        RegisterRequest request = new RegisterRequest(" ", " ", "", "", null);
+
+        // Act & Assert
+        assertThrows(EmptyException.class, () -> authService.register(request));
+        verify(userRepository, never()).save(any());
     }
 
     // US17: Ver perfil
