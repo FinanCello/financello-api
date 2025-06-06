@@ -24,7 +24,7 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-
+import java.util.List;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -129,6 +129,119 @@ public class FinancialMovementServiceUnitTest {
         // Act & Assert
         assertThrows(CategoryNotFoundException.class, () -> financialMovementService.registerMovement(1, request));
         verify(financialMovementRepository, never()).save(any());
+    }
+
+
+    // US16: Filtrar movimiento por categoria o tipo
+    @Test
+    @DisplayName("US16-CP01 - Filtra movimientos por categoría y tipo correctamente")
+    void filterMovements_byCategoryAndType_returnsCorrectResults() {
+        Integer userId = 1;
+        Integer categoryId = 10;
+        MovementType type = MovementType.INCOME;
+
+        Category category = new Category();
+        category.setId(categoryId);
+        category.setName("Salario");
+        category.setDescription("Ingreso mensual");
+
+        FinancialMovement movement = new FinancialMovement();
+        movement.setAmount(1000f);
+        movement.setDate(LocalDate.of(2024, 6, 1));
+        movement.setMovementType(type);
+        movement.setCategory(category);
+
+        RegisterFinancialMovementResponse expected = new RegisterFinancialMovementResponse(
+                1000f,
+                movement.getDate(),
+                type,
+                new CategoryResponse("Salario", "Ingreso mensual"),
+                CurrencyType.USD
+        );
+
+        when(financialMovementRepository.findByUser_IdAndCategory_IdAndMovementType(userId, categoryId, type)).thenReturn(List.of(movement));
+        when(financialMovementMapper.toRegisterFinancialMovementResponse(movement)).thenReturn(expected);
+
+        List<RegisterFinancialMovementResponse> result = financialMovementService.filterMovements(userId, categoryId, type);
+
+        assertEquals(1, result.size());
+        assertEquals(1000f, result.get(0).amount());
+        assertEquals("Salario", result.get(0).categoryResponse().name());
+    }
+
+    @Test
+    @DisplayName("US16-CP02 - Filtrar movimientos por tipo")
+    void filterMovements_byType_returnsFilteredMovements() {
+        Integer userId = 1;
+
+        Category category = new Category();
+        category.setId(10);
+        category.setName("Salario");
+        category.setDescription("Ingreso mensual");
+
+        FinancialMovement movement = new FinancialMovement();
+        movement.setAmount(1000f);
+        movement.setMovementType(MovementType.INCOME);
+        movement.setCategory(category);
+        movement.setDate(LocalDate.of(2024, 6, 1));
+        movement.setCurrencyType(CurrencyType.USD);
+
+        when(financialMovementRepository.findByUser_IdAndMovementType(userId, MovementType.INCOME)).thenReturn(List.of(movement));
+        when(financialMovementMapper.toRegisterFinancialMovementResponse(movement)).thenReturn(new RegisterFinancialMovementResponse(
+                        movement.getAmount(),
+                        movement.getDate(),
+                        movement.getMovementType(),
+                        new CategoryResponse(category.getName(), category.getDescription()),
+                        movement.getCurrencyType()
+                ));
+
+        List<RegisterFinancialMovementResponse> result = financialMovementService.filterMovements(userId, null, MovementType.INCOME);
+
+        assertEquals(1, result.size());
+        assertEquals("Salario", result.get(0).categoryResponse().name());
+    }
+
+    @Test
+    @DisplayName("US16-CP03 - Filtrar movimientos por categoría")
+    void filterMovements_byCategory_returnsFilteredMovements() {
+        Integer userId = 1;
+
+        Category category = new Category();
+        category.setId(20);
+        category.setName("Alimentación");
+        category.setDescription("Gastos de comida");
+
+        FinancialMovement movement = new FinancialMovement();
+        movement.setAmount(50f);
+        movement.setMovementType(MovementType.OUTCOME);
+        movement.setCategory(category);
+        movement.setDate(LocalDate.of(2024, 6, 3));
+        movement.setCurrencyType(CurrencyType.PEN);
+
+        when(financialMovementRepository.findByUser_IdAndCategory_Id(userId, 20)).thenReturn(List.of(movement));
+        when(financialMovementMapper.toRegisterFinancialMovementResponse(movement)).thenReturn(new RegisterFinancialMovementResponse(
+                        movement.getAmount(),
+                        movement.getDate(),
+                        movement.getMovementType(),
+                        new CategoryResponse(category.getName(), category.getDescription()),
+                        movement.getCurrencyType()
+                ));
+
+        List<RegisterFinancialMovementResponse> result = financialMovementService.filterMovements(userId, 20, null);
+
+        assertEquals(1, result.size());
+        assertEquals("Alimentación", result.get(0).categoryResponse().name());
+    }
+
+    @Test
+    @DisplayName("US16-CP04 - Filtro inválido")
+    void filterMovements_invalidMovementType_throwsException() {
+        Integer userId = 1;
+        String invalidMovementType = "GASTO";
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            MovementType.valueOf(invalidMovementType.toUpperCase());
+        });
     }
 
 }
