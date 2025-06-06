@@ -50,13 +50,13 @@ public class CategoryServiceUnitTest {
         user.setId(userId);
         CategoryResponse response = new CategoryResponse("Ocio", "Gastos en actividades de ocio");
 
-        when(categoryRepository.existsByNameAndUserId(request.name(), userId)).thenReturn(false);
-        when(userRepository.findByIdCustom(userId)).thenReturn(Optional.of(user));
+        when(categoryRepository.existsByNameAndUserId(request.name(), user.getId())).thenReturn(false);
+        when(userRepository.findByIdCustom(user.getId())).thenReturn(Optional.of(user));
         when(categoryMapper.toCategoryEntity(request, user)).thenReturn(entity);
         when(categoryRepository.save(entity)).thenReturn(entity);
         when(categoryMapper.toCategoryResponse(entity)).thenReturn(response);
 
-        CategoryResponse result = categoryService.createCategory(userId, request);
+        CategoryResponse result = categoryService.createCategory(user.getId(), request);
 
         assertEquals("Ocio", result.name());
         assertNotNull(result);
@@ -66,24 +66,28 @@ public class CategoryServiceUnitTest {
     @DisplayName("CP02 - Crear categoría con nombre duplicado")
     void createCategory_duplicatedCategory_throwException() {
         Integer userId = 1;
+        User user = new User();
+        user.setId(userId);
         CategoryRequest request = new CategoryRequest("Ocio", "Gastos en actividades de ocio");
 
-        when(categoryRepository.existsByNameAndUserId(request.name(), userId)).thenReturn(true);
+        when(categoryRepository.existsByNameAndUserId(request.name(), user.getId())).thenReturn(true);
 
         assertThrows(DuplicateResourceException.class,
-                () -> categoryService.createCategory(userId, request));
+                () -> categoryService.createCategory(user.getId(), request));
     }
 
     @Test
     @DisplayName("CP03 - Crear categoría cuando el usuario no existe")
     void createCategory_userNotFound_throwException() {
         Integer userId = 1;
+        User user = new User();
+        user.setId(userId);
         CategoryRequest request = new CategoryRequest("Ocio", "Gastos en actividades de ocio");
 
-        when(userRepository.findByIdCustom(userId)).thenReturn(Optional.empty());
+        when(userRepository.findByIdCustom(user.getId())).thenReturn(Optional.empty());
 
         assertThrows(UserDoesntExistException.class,
-                () -> categoryService.createCategory(userId, request));
+                () -> categoryService.createCategory(user.getId(), request));
     }
 
     //DELETE
@@ -91,21 +95,25 @@ public class CategoryServiceUnitTest {
     @DisplayName("CP04 - Eliminar categoría existente")
     void deleteCategory_valid_executesDelete() {
         Integer categoryId = 1;
+        Category category = new Category();
+        category.setId(categoryId);
 
-        when(categoryRepository.existsById(categoryId)).thenReturn(true);
-        when(financialMovementRepository.existsByCategory_Id(categoryId)).thenReturn(false);
+        when(categoryRepository.existsById(category.getId())).thenReturn(true);
+        when(financialMovementRepository.existsByCategory_Id(category.getId())).thenReturn(false);
 
-        categoryService.deleteCategory(categoryId);
+        categoryService.deleteCategory(category.getId());
 
-        verify(categoryRepository).deleteById(categoryId);
+        verify(categoryRepository).deleteById(category.getId());
     }
 
     @Test
     @DisplayName("CP05 - Eliminar categoría inexistente")
     void deleteCategory_notFound_throwException() {
         Integer categoryId = 1;
+        Category category = new Category();
+        category.setId(categoryId);
 
-        when(categoryRepository.existsById(categoryId)).thenReturn(false);
+        when(categoryRepository.existsById(category.getId())).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class,
                 () -> categoryService.deleteCategory(categoryId));
@@ -115,9 +123,11 @@ public class CategoryServiceUnitTest {
     @DisplayName("CP06 - Eliminar categoría asociada a movimientos financieros")
     void deleteCategory_associated_throwException() {
         Integer categoryId = 1;
+        Category category = new Category();
+        category.setId(categoryId);
 
-        when(categoryRepository.existsById(categoryId)).thenReturn(true);
-        when(financialMovementRepository.existsByCategory_Id(categoryId)).thenReturn(true);
+        when(categoryRepository.existsById(category.getId())).thenReturn(true);
+        when(financialMovementRepository.existsByCategory_Id(category.getId())).thenReturn(true);
 
         assertThrows(IllegalStateException.class,
                 () -> categoryService.deleteCategory(categoryId));
@@ -147,13 +157,13 @@ public class CategoryServiceUnitTest {
 
         CategoryResponse response = new CategoryResponse("Ocio", "Gastos en actividades de ocio");
 
-        when(categoryRepository.existsById(categoryId)).thenReturn(true);
-        when(categoryRepository.findByCategoryId(categoryId)).thenReturn(Optional.of(entity));
-        when(categoryRepository.existsByNameAndUser_IdAndIdNot("Ocio", user.getId(), categoryId)).thenReturn(false);
+        when(categoryRepository.existsById(entity.getId())).thenReturn(true);
+        when(categoryRepository.findByCategoryId(entity.getId())).thenReturn(Optional.of(entity));
+        when(categoryRepository.existsByNameAndUser_IdAndIdNot("Ocio", user.getId(), entity.getId())).thenReturn(false);
         when(categoryRepository.save(entity)).thenReturn(updatedEntity);
         when(categoryMapper.toCategoryResponse(updatedEntity)).thenReturn(response);
 
-        CategoryResponse result = categoryService.updateCategory(categoryId, request);
+        CategoryResponse result = categoryService.updateCategory(entity.getId(), request);
 
         assertEquals("Ocio", result.name());
     }
@@ -193,12 +203,12 @@ public class CategoryServiceUnitTest {
         entity.setUser(user);
         entity.setDescription("Gastos en mascotas");
 
-        when(categoryRepository.existsById(categoryId)).thenReturn(true);
-        when(categoryRepository.findByCategoryId(categoryId)).thenReturn(Optional.of(entity));
-        when(categoryRepository.existsByNameAndUser_IdAndIdNot("Ocio", user.getId(), categoryId)).thenReturn(true);
+        when(categoryRepository.existsById(entity.getId())).thenReturn(true);
+        when(categoryRepository.findByCategoryId(entity.getId())).thenReturn(Optional.of(entity));
+        when(categoryRepository.existsByNameAndUser_IdAndIdNot("Ocio", user.getId(), entity.getId())).thenReturn(true);
 
         assertThrows(DuplicateResourceException.class,
-                () -> categoryService.updateCategory(categoryId, request));
+                () -> categoryService.updateCategory(entity.getId(), request));
     }
 
     //GET
@@ -216,7 +226,7 @@ public class CategoryServiceUnitTest {
         when(userRepository.findByIdCustom(user.getId())).thenReturn(Optional.of(user));
         when(categoryRepository.findByUser_Id(user.getId())).thenReturn(List.of(cat1, cat2));
 
-        List<CategorySimpleResponse> result = categoryService.getCategoryNamesByUserId(userId);
+        List<CategorySimpleResponse> result = categoryService.getCategoryNamesByUserId(user.getId());
 
         assertEquals(2, result.size());
         assertEquals("Food", result.get(0).name());
@@ -234,7 +244,7 @@ public class CategoryServiceUnitTest {
         when(userRepository.findByIdCustom(user.getId())).thenReturn(Optional.empty());
 
         assertThrows(UserDoesntExistException.class,
-                () -> categoryService.getCategoryNamesByUserId(userId));
+                () -> categoryService.getCategoryNamesByUserId(user.getId()));
 
     }
 }
