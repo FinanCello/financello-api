@@ -23,7 +23,7 @@ public class FinancialMovementController {
         return financialMovementService.getMovementsByUserIdFiltered(userId, type, categoryId);
     }
     @PostMapping("/register")
-    public ResponseEntity<RegisterFinancialMovementResponse> register(@PathVariable Integer userId, @RequestBody RegisterFinancialMovementRequest request) {
+    public ResponseEntity<RegisterFinancialMovementResponse> register(@RequestParam Integer userId, @RequestBody RegisterFinancialMovementRequest request) {
         return ResponseEntity.ok(financialMovementService.registerMovement(userId, request));
     }
 

@@ -48,9 +48,9 @@ public class SpendingLimitServiceUnitTest {
         MockitoAnnotations.initMocks(this);
     }
 
-    //US07
+    //US07: Definir limite de gasto
     @Test
-    @DisplayName("CP01 - Registrar limite valido")
+    @DisplayName("US07-CP01 - Registrar limite valido")
     void createSpendingLimit_valid_returnResponse() {
         Integer userId = 1;
         Integer categoryId = 2;
@@ -82,7 +82,7 @@ public class SpendingLimitServiceUnitTest {
     }
 
     @Test
-    @DisplayName("CP02 - No registrar límite si ya existe uno para la categoría y usuario")
+    @DisplayName("US07-CP02 - Limite ya existe")
     void createSpendingLimit_alreadyExists_throwsException() {
         Integer userId = 1;
         Integer categoryId = 2;
@@ -101,7 +101,7 @@ public class SpendingLimitServiceUnitTest {
     }
 
     @Test
-    @DisplayName("CP03 - Registrar límite con monto inválido")
+    @DisplayName("US07-CP03 - Registrar límite con monto inválido")
     void createSpendingLimit_invalidAmount_throwsException() {
         Integer userId = 1;
         Integer categoryId = 2;
@@ -119,15 +119,14 @@ public class SpendingLimitServiceUnitTest {
 
 
 
-    //US09
+    //US09: Ver alerta por sobrepaso de limite
     @Test
-    @DisplayName("CP09 - Ver alerta cuando se supera el límite")
+    @DisplayName("US09-CP01 - Ver alerta cuando se supera el límite")
     void getAlerts_whenOverLimit_returnsAlert() {
         Integer userId = 1;
         Integer categoryId = 2;
         Float monthlyLimit = 200f;
 
-        // Datos simulados
         User user = new User();
         user.setId(userId);
 
@@ -164,10 +163,125 @@ public class SpendingLimitServiceUnitTest {
         SpendingLimitAlertResponse alert = alerts.get(0);
 
         assertEquals("Alimentación", alert.categoryName());
-        assertEquals(220f, alert.totalSpent()); // 120 + 100
+        assertEquals(220f, alert.totalSpent());
         assertTrue(alert.overLimit());
-        assertEquals("¡Has superado tu limite en la categoriaAlimentación!", alert.alertMessage());
+        assertEquals("¡Has superado tu limite en la categoria Alimentación!", alert.alertMessage());
     }
 
+    @Test
+    @DisplayName("US09-CP02 - No supera limite, no hay alerta")
+    void getAlerts_UnderLimit_returnsNoAlert() {
+        Integer userId = 1;
+        Integer categoryId = 2;
+        Float monthlyLimit = 300f;
+
+        User user = new User();
+        user.setId(userId);
+
+        Category category = new Category();
+        category.setId(categoryId);
+        category.setName("Educación");
+
+        SpendingLimit limit = new SpendingLimit();
+        limit.setUser(user);
+        limit.setCategory(category);
+        limit.setMonthlyLimit(monthlyLimit);
+
+        FinancialMovement movement = new FinancialMovement();
+        movement.setAmount(100f);
+        movement.setMovementType(MovementType.OUTCOME);
+        movement.setCategory(category);
+        movement.setUser(user);
+        movement.setDate(LocalDate.now());
+
+        when(spendingLimitRepository.findByUser_Id(userId)).thenReturn(List.of(limit));
+        when(financialMovementRepository.findByUser_IdAndCategory_IdAndMovementTypeAndDateBetween(eq(userId), eq(categoryId), eq(MovementType.OUTCOME), any(LocalDate.class), any(LocalDate.class)
+        )).thenReturn(List.of(movement));
+
+        List<SpendingLimitAlertResponse> alerts = spendingLimitService.getAlerts(userId);
+
+        assertEquals(0, alerts.size());
+    }
+
+    @Test
+    @DisplayName("US09-CP03 - Sin movimientos no hay alerta")
+    void getAlerts_NoMovements_returnsNoAlert() {
+        Integer userId = 1;
+        Integer categoryId = 2;
+        Float monthlyLimit = 100f;
+
+        User user = new User();
+        user.setId(userId);
+
+        Category category = new Category();
+        category.setId(categoryId);
+        category.setName("Salud");
+
+        SpendingLimit limit = new SpendingLimit();
+        limit.setUser(user);
+        limit.setCategory(category);
+        limit.setMonthlyLimit(monthlyLimit);
+
+        when(spendingLimitRepository.findByUser_Id(userId)).thenReturn(List.of(limit));
+        when(financialMovementRepository.findByUser_IdAndCategory_IdAndMovementTypeAndDateBetween(
+                eq(userId), eq(categoryId), eq(MovementType.OUTCOME), any(LocalDate.class), any(LocalDate.class)
+        )).thenReturn(List.of());
+
+        List<SpendingLimitAlertResponse> alerts = spendingLimitService.getAlerts(userId);
+
+        assertEquals(0, alerts.size());
+    }
+
+    @Test
+    @DisplayName("US09-CP04 - Multiples alertas")
+    void getAlerts_MultipleLimitsExceeded_returnsMultipleAlerts() {
+        Integer userId = 1;
+        User user = new User();
+        user.setId(userId);
+
+        // Categoría 1
+        Category cat1 = new Category();
+        cat1.setId(10);
+        cat1.setName("Ocio");
+
+        SpendingLimit limit1 = new SpendingLimit();
+        limit1.setUser(user);
+        limit1.setCategory(cat1);
+        limit1.setMonthlyLimit(100f);
+
+        FinancialMovement m1 = new FinancialMovement();
+        m1.setUser(user);
+        m1.setCategory(cat1);
+        m1.setAmount(150f);
+        m1.setMovementType(MovementType.OUTCOME);
+        m1.setDate(LocalDate.now());
+
+        // Categoría 2
+        Category cat2 = new Category();
+        cat2.setId(20);
+        cat2.setName("Comida");
+
+        SpendingLimit limit2 = new SpendingLimit();
+        limit2.setUser(user);
+        limit2.setCategory(cat2);
+        limit2.setMonthlyLimit(50f);
+
+        FinancialMovement m2 = new FinancialMovement();
+        m2.setUser(user);
+        m2.setCategory(cat2);
+        m2.setAmount(60f);
+        m2.setMovementType(MovementType.OUTCOME);
+        m2.setDate(LocalDate.now());
+
+        when(spendingLimitRepository.findByUser_Id(userId)).thenReturn(List.of(limit1, limit2));
+        when(financialMovementRepository.findByUser_IdAndCategory_IdAndMovementTypeAndDateBetween(eq(userId), eq(10), eq(MovementType.OUTCOME), any(LocalDate.class), any(LocalDate.class)
+        )).thenReturn(List.of(m1));
+        when(financialMovementRepository.findByUser_IdAndCategory_IdAndMovementTypeAndDateBetween(eq(userId), eq(20), eq(MovementType.OUTCOME), any(LocalDate.class), any(LocalDate.class)
+        )).thenReturn(List.of(m2));
+
+        List<SpendingLimitAlertResponse> alerts = spendingLimitService.getAlerts(userId);
+
+        assertEquals(2, alerts.size());
+    }
 
 }

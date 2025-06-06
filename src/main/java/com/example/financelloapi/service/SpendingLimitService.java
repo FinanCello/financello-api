@@ -89,17 +89,16 @@ public class SpendingLimitService {
 
             boolean overLimit = totalSpent > limit.getMonthlyLimit();
 
-            String alertMessage = overLimit
-                    ? "¡Has superado tu limite en la categoria" + limit.getCategory().getName() + "!"
-                    : "";
-
-            alerts.add(new SpendingLimitAlertResponse(
-                    limit.getCategory().getName(),
-                    limit.getMonthlyLimit(),
-                    totalSpent,
-                    overLimit,
-                    alertMessage
-            ));
+            if (overLimit) {
+                String alertMessage = "¡Has superado tu limite en la categoria " + limit.getCategory().getName() + "!";
+                alerts.add(new SpendingLimitAlertResponse(
+                        limit.getCategory().getName(),
+                        limit.getMonthlyLimit(),
+                        totalSpent,
+                        true,
+                        alertMessage
+                ));
+            }
         }
         return alerts;
     }
