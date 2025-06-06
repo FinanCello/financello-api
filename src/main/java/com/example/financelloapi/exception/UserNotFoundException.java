@@ -1,7 +1,7 @@
 package com.example.financelloapi.exception;
 
-public class UserNotFoundException extends RuntimeException {
-    public UserNotFoundException(String email) {
-        super("User with email " + email + " not found");
+public class UserNotFoundException extends CustomException {
+    public UserNotFoundException(String message) {
+        super(message);
     }
 }

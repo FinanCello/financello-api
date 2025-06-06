@@ -6,6 +6,7 @@ import com.example.financelloapi.dto.test.TransactionResponse;
 import com.example.financelloapi.model.enums.MovementType;
 import com.example.financelloapi.service.FinancialMovementService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
