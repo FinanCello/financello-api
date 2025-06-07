@@ -44,7 +44,7 @@ public class CategoryService {
     @Transactional
     public void deleteCategory(Integer id) {
         if (!categoryRepository.existsById(id)) {
-            throw new ResourceNotFoundException("The category dont exist");
+            throw new ResourceNotFoundException("La categoría no existe");
         }
 
         if (financialMovementRepository.existsByCategory_Id(id)) {
@@ -86,10 +86,6 @@ public class CategoryService {
                 .orElseThrow(() -> new UserDoesntExistException("Usuario no encontrado"));
 
         List<Category> categories = categoryRepository.findByUser_Id(userId);
-
-        if (categories.isEmpty()) {
-            throw new ResourceNotFoundException("La categoría no existe");
-        }
 
         return categories.stream()
                 .map(this::getCategory)

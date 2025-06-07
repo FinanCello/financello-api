@@ -33,4 +33,5 @@ public class FinancialMovementController {
         List<RegisterFinancialMovementResponse> result = financialMovementService.filterMovements(userId, categoryId, type);
         return ResponseEntity.ok(result);
     }
+
 }
