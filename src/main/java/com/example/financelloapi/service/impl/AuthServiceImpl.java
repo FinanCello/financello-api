@@ -5,6 +5,7 @@ import com.example.financelloapi.dto.request.RegisterRequest;
 import com.example.financelloapi.dto.request.UpdateProfileRequest;
 import com.example.financelloapi.dto.test.AuthResponse;
 import com.example.financelloapi.dto.test.UserProfileResponse;  // Importamos el DTO de respuesta de perfil
+import com.example.financelloapi.dto.test.UserWithRoleResponse;
 import com.example.financelloapi.exception.CustomException;
 import com.example.financelloapi.exception.EmptyException;
 import com.example.financelloapi.exception.UserAlreadyExistsException;
@@ -18,6 +19,9 @@ import com.example.financelloapi.repository.RoleRepository;
 import com.example.financelloapi.model.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -77,22 +81,62 @@ public class AuthServiceImpl implements AuthService {
     // Implementación para obtener el perfil del usuario
     @Override
     public UserProfileResponse getUserProfile(Integer userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException("User not found"));
+        // Si no existe, lanzamos UserNotFoundException con el mensaje “Error al cargar perfil”
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Error al cargar perfil"));
+
         return new UserProfileResponse(user);
     }
 
     // Implementación para actualizar el perfil del usuario
     @Override
     public UserProfileResponse updateUserProfile(Integer userId, UpdateProfileRequest updateRequest) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException("User not found"));
-        if (updateRequest.getFirstName().trim().isEmpty() || updateRequest.getLastName().trim().isEmpty() || updateRequest.getEmail().trim().isEmpty() || updateRequest.getPassword().trim().isEmpty()) {
-            throw new EmptyException("Fill all blank spaces");
+        // 1) Buscamos al usuario; si no existe, lanzamos UserNotFoundException
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Error al cargar perfil"));
+
+        // 2) Validamos que ninguno de los campos venga vacío o en blanco
+        if (updateRequest.getFirstName() == null || updateRequest.getFirstName().isBlank()
+                || updateRequest.getLastName()  == null || updateRequest.getLastName().isBlank()
+                || updateRequest.getEmail()     == null || updateRequest.getEmail().isBlank()
+                || updateRequest.getPassword()  == null || updateRequest.getPassword().isBlank()) {
+            throw new EmptyException("Campo obligatorio");
         }
+
+        // 3) Verificamos que el email nuevo no esté registrado en otro usuario
+        userRepository.findByEmail(updateRequest.getEmail())
+                .ifPresent(otro -> {
+                    if (!otro.getId().equals(userId)) {
+                        throw new CustomException("Email ya registrado");
+                    }
+                });
+
+        // 4) Si llega hasta aquí, actualizamos campos y guardamos
         user.setFirstName(updateRequest.getFirstName());
         user.setLastName(updateRequest.getLastName());
         user.setEmail(updateRequest.getEmail());
-        user.setPassword(updateRequest.getPassword());  // Asegúrate de manejar la seguridad de la contraseña
-        userRepository.save(user);
-        return new UserProfileResponse(user);
+        user.setPassword(updateRequest.getPassword());
+        User saved = userRepository.save(user);
+
+        return new UserProfileResponse(saved);
+    }
+
+    @Override
+    public List<UserWithRoleResponse> getAllUsersWithRoles() {
+        List<User> usuarios = userRepository.findAll();
+
+        return usuarios.stream()
+                .map(u -> {
+                    Role role = u.getRole();
+                    RoleType roleType = (role != null) ? role.getRoleType() : null;
+                    return new UserWithRoleResponse(
+                            u.getId(),
+                            u.getFirstName(),
+                            u.getLastName(),
+                            u.getEmail(),
+                            roleType
+                    );
+                })
+                .collect(Collectors.toList());
     }
 }

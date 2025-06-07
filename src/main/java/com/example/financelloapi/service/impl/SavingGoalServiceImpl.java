@@ -35,6 +35,12 @@ public class SavingGoalServiceImpl implements SavingGoalService{
         if (request.targetAmount() <= goal.getCurrentAmount()) {
             throw new TargetAmountLessThanCurrentAmountException();
         }
+        if (request.targetAmount() <= 0.0f) {
+            throw new IllegalArgumentException("El monto debe ser mayor a 0");
+        }
+        if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
+        }
 
         if (request.targetAmount() <= 0.0f) {
             throw new IllegalArgumentException("El monto debe ser mayor a 0");
@@ -43,14 +49,12 @@ public class SavingGoalServiceImpl implements SavingGoalService{
         if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
         }
+        SavingGoal existingGoal = savingGoalRepository.findByName(request.name())
+                .orElseThrow(() -> new NoSuchElementException("Meta no encontrada"));
 
-        // Aquí puedes actualizar la meta con los nuevos datos (por ejemplo targetAmount, dueDate, etc)
         goal.setTargetAmount(request.targetAmount());
-        // Asumiendo que quieres sumar o modificar currentAmount si corresponde
-        // goal.setCurrentAmount(...);
 
         SavingGoal savedGoal = savingGoalRepository.save(goal);
-
         return savingGoalMapper.toResponse(savedGoal);
     }
 }

@@ -16,4 +16,9 @@ public interface FinancialMovementRepository extends JpaRepository<FinancialMove
     List<FinancialMovement> findByUser_IdAndCategory_Id(Integer userId, Integer categoryId);
     List<FinancialMovement> findByUser_IdAndMovementType(Integer userId, MovementType type);
     List<FinancialMovement> findByUser_IdAndCategory_IdAndMovementType(Integer userId, Integer categoryId, MovementType type);
+
+
 }
+
+
+
