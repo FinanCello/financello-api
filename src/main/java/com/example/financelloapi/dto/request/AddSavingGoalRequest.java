@@ -1,6 +1,5 @@
 package com.example.financelloapi.dto.request;
 
-import com.example.financelloapi.model.entity.GoalContribution;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 
