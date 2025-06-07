@@ -1,4 +1,3 @@
-// src/test/java/com/example/financelloapi/service/unit/AuthServiceUnitTest.java
 package com.example.financelloapi.service.unit;
 
 import com.example.financelloapi.dto.request.LoginRequest;
