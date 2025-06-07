@@ -26,7 +26,13 @@ public class SavingGoalServiceImpl implements SavingGoalService{
 
     @Override
     public AddSavingGoalResponse addSavingGoal(AddSavingGoalRequest request) {
-        if (request.targetAmount() <= request.currentAmount()) {
+        Optional<SavingGoal> goalOpt = savingGoalRepository.findByName(request.name());
+        if (goalOpt.isEmpty()) {
+            throw new NoSuchElementException("Meta no encontrada");
+        }
+        SavingGoal goal = goalOpt.get();
+
+        if (request.targetAmount() <= goal.getCurrentAmount()) {
             throw new TargetAmountLessThanCurrentAmountException();
         }
         if (request.targetAmount() <= 0.0f) {
@@ -36,11 +42,17 @@ public class SavingGoalServiceImpl implements SavingGoalService{
             throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
         }
 
+        if (request.targetAmount() <= 0.0f) {
+            throw new IllegalArgumentException("El monto debe ser mayor a 0");
+        }
+
+        if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
+        }
         SavingGoal existingGoal = savingGoalRepository.findByName(request.name())
                 .orElseThrow(() -> new NoSuchElementException("Meta no encontrada"));
 
-        SavingGoal goal = savingGoalMapper.toEntity(request);
-        goal.setCurrentAmount(0.0f);
+        goal.setTargetAmount(request.targetAmount());
 
         SavingGoal savedGoal = savingGoalRepository.save(goal);
         return savingGoalMapper.toResponse(savedGoal);
