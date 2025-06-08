@@ -4,3 +4,4 @@ public record SpendingLimitResponse(
         String categoryName,
         Float monthlyLimit
 ) {}
+
