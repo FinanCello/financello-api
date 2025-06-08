@@ -341,11 +341,14 @@ public class FinancialMovementServiceUnitTest {
     }
 
     //US10 - Historial de transacciones
+
     @Test
     @DisplayName("US10-CP01 - Visualización exitosa del historial de transacciones")
-    void getTransactionHistory_returnsTransactions_whenUserHasMovements() {
+    void getMovementsByUserIdFiltered_returnsTransactions_whenUserHasMovements() {
         // Arrange
         Integer userId = 1;
+        String movementTypeName = null;
+        Integer categoryId = null;
 
         Category category = new Category();
         category.setId(15);
@@ -359,33 +362,37 @@ public class FinancialMovementServiceUnitTest {
         movement.setCategory(category);
         movement.setCurrencyType(CurrencyType.PEN);
 
+        CategoryResponse categoryResponse = new CategoryResponse("Transporte", "Gastos en movilidad");
+
         RegisterFinancialMovementResponse expectedResponse = new RegisterFinancialMovementResponse(
                 25.5f,
                 LocalDate.of(2024, 6, 6),
                 MovementType.OUTCOME,
-                new CategoryResponse("Transporte", "Gastos en movilidad"),
+                categoryResponse,
                 CurrencyType.PEN
         );
 
-        when(financialMovementRepository.findByUser_IdOrderByDateDesc(userId))
+        when(financialMovementRepository.findByUser_Id(userId))
                 .thenReturn(List.of(movement));
         when(financialMovementMapper.toRegisterFinancialMovementResponse(movement))
                 .thenReturn(expectedResponse);
 
         // Act
-        List<RegisterFinancialMovementResponse> result = financialMovementService.getMovementsByUserIdFiltered(userId, category.getName(), category.getId());
+        List<TransactionResponse> result = financialMovementService
+                .getMovementsByUserIdFiltered(userId, movementTypeName, categoryId);
 
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
-        RegisterFinancialMovementResponse res = result.get(0);
+        TransactionResponse res = result.get(0);
         assertEquals(25.5f, res.amount());
         assertEquals(LocalDate.of(2024, 6, 6), res.date());
-        assertEquals("Transporte", res.categoryResponse().name());
-        assertEquals("Gastos en movilidad", res.categoryResponse().description());
-        assertEquals(MovementType.OUTCOME, res.movementType());
-        assertEquals(CurrencyType.PEN, res.currencyType());
+        assertEquals(MovementType.OUTCOME, res.movementName());
+        assertEquals("Transporte", res.categoryName());
+        assertEquals("Gastos en movilidad", res.amount());
+        assertEquals(CurrencyType.PEN, res.currencyName());
     }
+
 
     @Test
     @DisplayName("US16-CP08 - No hay transacciones registradas para el usuario")
