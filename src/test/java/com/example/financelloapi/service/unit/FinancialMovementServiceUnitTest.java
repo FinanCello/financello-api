@@ -250,6 +250,7 @@ public class FinancialMovementServiceUnitTest {
     }
 
     //US08 : Planificar presupuesto mensual
+
     @Test
     @DisplayName("US08-CP01 - Registro de Movimiento Financiero falla por duplicado")
     void registerMovement_fails_whenDuplicateMovementExists() {
@@ -341,7 +342,6 @@ public class FinancialMovementServiceUnitTest {
     }
 
     //US10 - Historial de transacciones
-
     @Test
     @DisplayName("US10-CP01 - Visualización exitosa del historial de transacciones")
     void getMovementsByUserIdFiltered_returnsTransactions_whenUserHasMovements() {
@@ -387,7 +387,7 @@ public class FinancialMovementServiceUnitTest {
         TransactionResponse res = result.get(0);
         assertEquals(25.5f, res.amount());
         assertEquals(LocalDate.of(2024, 6, 6), res.date());
-        assertEquals(MovementType.OUTCOME, res.movementName());
+        assertEquals(MovementType.OUTCOME, res.movementName();
         assertEquals("Transporte", res.categoryName());
         assertEquals("Gastos en movilidad", res.amount());
         assertEquals(CurrencyType.PEN, res.currencyName());
@@ -395,7 +395,7 @@ public class FinancialMovementServiceUnitTest {
 
 
     @Test
-    @DisplayName("US16-CP08 - No hay transacciones registradas para el usuario")
+    @DisplayName("US10-CP02 - No hay transacciones registradas para el usuario")
     void getMovementsByUserIdFiltered_returnsEmptyList_whenNoTransactions() {
         // Arrange
         Integer userId = 1;
@@ -413,7 +413,7 @@ public class FinancialMovementServiceUnitTest {
     }
 
     @Test
-    @DisplayName("US16-CP09 - Error al cargar historial por fallo en el servidor")
+    @DisplayName("US10-CP03 - Error al cargar historial por fallo en el servidor")
     void getMovementsByUserIdFiltered_throwsException_whenServerFails() {
         // Arrange
         Integer userId = 1;
@@ -429,7 +429,4 @@ public class FinancialMovementServiceUnitTest {
         );
         assertEquals("Error al cargar historial", ex.getMessage());
     }
-
-
-
 }
