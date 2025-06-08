@@ -336,5 +336,5 @@ public class FinancialMovementServiceUnitTest {
         );
         verify(financialMovementRepository, never()).save(any());
     }
-    
+
 }
