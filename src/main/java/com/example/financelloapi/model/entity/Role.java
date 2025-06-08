@@ -2,14 +2,16 @@ package com.example.financelloapi.model.entity;
 
 import com.example.financelloapi.model.enums.RoleType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
 @Entity
+@Builder
+@Data
+@AllArgsConstructor
 @Table(name = "roles")
 public class Role {
 
