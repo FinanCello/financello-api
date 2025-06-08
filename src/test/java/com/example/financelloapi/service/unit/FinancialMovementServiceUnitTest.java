@@ -6,14 +6,17 @@ import com.example.financelloapi.dto.test.RegisterFinancialMovementResponse;
 import com.example.financelloapi.exception.CategoryNotFoundException;
 import com.example.financelloapi.exception.CustomException;
 import com.example.financelloapi.mapper.FinancialMovementMapper;
+import com.example.financelloapi.model.entity.Budget;
 import com.example.financelloapi.model.entity.Category;
 import com.example.financelloapi.model.entity.FinancialMovement;
 import com.example.financelloapi.model.entity.User;
 import com.example.financelloapi.model.enums.CurrencyType;
 import com.example.financelloapi.model.enums.MovementType;
+import com.example.financelloapi.repository.BudgetRepository;
 import com.example.financelloapi.repository.CategoryRepository;
 import com.example.financelloapi.repository.FinancialMovementRepository;
 import com.example.financelloapi.repository.UserRepository;
+import com.example.financelloapi.service.BudgetService;
 import com.example.financelloapi.service.impl.FinancialMovementServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -243,5 +246,96 @@ public class FinancialMovementServiceUnitTest {
             MovementType.valueOf(invalidMovementType.toUpperCase());
         });
     }
+    @Test
+    @DisplayName("US08-CP01 - Registro de Movimiento Financiero falla por duplicado")
+    void registerMovement_fails_whenDuplicateMovementExists() {
+        // Arrange
+        Integer userId = 1;
+        LocalDate date = LocalDate.of(2024, 6, 5);
+
+        RegisterFinancialMovementRequest request = new RegisterFinancialMovementRequest(
+                100.0f,
+                date,
+                MovementType.INCOME,
+                10,
+                CurrencyType.USD
+        );
+
+        Category category = new Category();
+        category.setId(10);
+
+        User user = new User();
+        user.setId(userId);
+
+        FinancialMovement existingMovement = new FinancialMovement();
+        existingMovement.setAmount(100.0f);
+        existingMovement.setDate(date);
+        existingMovement.setMovementType(MovementType.INCOME);
+        existingMovement.setCategory(category);
+        existingMovement.setUser(user);
+
+        when(financialMovementRepository.findByUser_IdAndMovementType(userId, MovementType.INCOME)).thenReturn(List.of(existingMovement));
+        when(categoryRepository.findById(10)).thenReturn(Optional.of(category));
+        when(userRepository.getById(userId)).thenReturn(user);
+        when(financialMovementMapper.toEntity(request, category)).thenReturn(existingMovement);
+
+        // Act & Assert
+        assertThrows(CustomException.class, () ->
+                financialMovementService.registerMovement(userId, request)
+        );
+        verify(financialMovementRepository, never()).save(any());
+    }
+
+
+    @Test
+    @DisplayName("US08-CP02 - Registro de Movimiento Financiero falla por fecha pasada")
+    void registerMovement_fails_whenDateIsInPast() {
+        // Arrange
+        Integer userId = 1;
+        LocalDate pastDate = LocalDate.now().minusMonths(1);
+
+        RegisterFinancialMovementRequest request = new RegisterFinancialMovementRequest(
+                80.0f,
+                pastDate,
+                MovementType.INCOME,
+                10,
+                CurrencyType.USD
+        );
+
+        Category category = new Category();
+        category.setId(10);
+
+        when(categoryRepository.findById(10)).thenReturn(Optional.of(category));
+
+        // Act & Assert
+        assertThrows(CustomException.class, () ->
+                financialMovementService.registerMovement(userId, request)
+        );
+        verify(financialMovementRepository, never()).save(any());
+    }
+
+
+    @Test
+    @DisplayName("US08-CP03 - Registro de Movimiento Financiero falla por monto negativo")
+    void registerMovement_fails_whenAmountIsNegative() {
+        // Arrange
+        Integer userId = 1;
+        LocalDate date = LocalDate.now();
+
+        RegisterFinancialMovementRequest request = new RegisterFinancialMovementRequest(
+                -10.0f,
+                date,
+                MovementType.OUTCOME,
+                10,
+                CurrencyType.USD
+        );
+
+        // Act & Assert
+        assertThrows(CustomException.class, () ->
+                financialMovementService.registerMovement(userId, request)
+        );
+        verify(financialMovementRepository, never()).save(any());
+    }
+
 
 }
