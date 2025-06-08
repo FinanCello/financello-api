@@ -3,6 +3,7 @@ package com.example.financelloapi.service.unit;
 import com.example.financelloapi.dto.request.RegisterFinancialMovementRequest;
 import com.example.financelloapi.dto.test.CategoryResponse;
 import com.example.financelloapi.dto.test.RegisterFinancialMovementResponse;
+import com.example.financelloapi.dto.test.TransactionResponse;
 import com.example.financelloapi.exception.CategoryNotFoundException;
 import com.example.financelloapi.exception.CustomException;
 import com.example.financelloapi.mapper.FinancialMovementMapper;
@@ -17,6 +18,7 @@ import com.example.financelloapi.repository.CategoryRepository;
 import com.example.financelloapi.repository.FinancialMovementRepository;
 import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.service.BudgetService;
+import org.springframework.dao.DataAccessException;
 import com.example.financelloapi.service.impl.FinancialMovementServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -246,6 +248,8 @@ public class FinancialMovementServiceUnitTest {
             MovementType.valueOf(invalidMovementType.toUpperCase());
         });
     }
+
+    //US08 : Planificar presupuesto mensual
     @Test
     @DisplayName("US08-CP01 - Registro de Movimiento Financiero falla por duplicado")
     void registerMovement_fails_whenDuplicateMovementExists() {
@@ -314,7 +318,6 @@ public class FinancialMovementServiceUnitTest {
         verify(financialMovementRepository, never()).save(any());
     }
 
-
     @Test
     @DisplayName("US08-CP03 - Registro de Movimiento Financiero falla por monto negativo")
     void registerMovement_fails_whenAmountIsNegative() {
@@ -336,5 +339,90 @@ public class FinancialMovementServiceUnitTest {
         );
         verify(financialMovementRepository, never()).save(any());
     }
+
+    //US10 - Historial de transacciones
+    @Test
+    @DisplayName("US10-CP01 - Visualización exitosa del historial de transacciones")
+    void getTransactionHistory_returnsTransactions_whenUserHasMovements() {
+        // Arrange
+        Integer userId = 1;
+
+        Category category = new Category();
+        category.setId(15);
+        category.setName("Transporte");
+        category.setDescription("Gastos en movilidad");
+
+        FinancialMovement movement = new FinancialMovement();
+        movement.setAmount(25.5f);
+        movement.setDate(LocalDate.of(2024, 6, 6));
+        movement.setMovementType(MovementType.OUTCOME);
+        movement.setCategory(category);
+        movement.setCurrencyType(CurrencyType.PEN);
+
+        RegisterFinancialMovementResponse expectedResponse = new RegisterFinancialMovementResponse(
+                25.5f,
+                LocalDate.of(2024, 6, 6),
+                MovementType.OUTCOME,
+                new CategoryResponse("Transporte", "Gastos en movilidad"),
+                CurrencyType.PEN
+        );
+
+        when(financialMovementRepository.findByUser_IdOrderByDateDesc(userId))
+                .thenReturn(List.of(movement));
+        when(financialMovementMapper.toRegisterFinancialMovementResponse(movement))
+                .thenReturn(expectedResponse);
+
+        // Act
+        List<RegisterFinancialMovementResponse> result = financialMovementService.getMovementsByUserIdFiltered(userId, category.getName(), category.getId());
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        RegisterFinancialMovementResponse res = result.get(0);
+        assertEquals(25.5f, res.amount());
+        assertEquals(LocalDate.of(2024, 6, 6), res.date());
+        assertEquals("Transporte", res.categoryResponse().name());
+        assertEquals("Gastos en movilidad", res.categoryResponse().description());
+        assertEquals(MovementType.OUTCOME, res.movementType());
+        assertEquals(CurrencyType.PEN, res.currencyType());
+    }
+
+    @Test
+    @DisplayName("US16-CP08 - No hay transacciones registradas para el usuario")
+    void getMovementsByUserIdFiltered_returnsEmptyList_whenNoTransactions() {
+        // Arrange
+        Integer userId = 1;
+        String movementTypeName = null;
+        Integer categoryId = null;
+        when(financialMovementRepository.findByUser_Id(userId)).thenReturn(List.of());
+
+        // Act
+        List<TransactionResponse> result = financialMovementService
+                .getMovementsByUserIdFiltered(userId, movementTypeName, categoryId);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("US16-CP09 - Error al cargar historial por fallo en el servidor")
+    void getMovementsByUserIdFiltered_throwsException_whenServerFails() {
+        // Arrange
+        Integer userId = 1;
+        String movementTypeName = null;
+        Integer categoryId = null;
+
+        when(financialMovementRepository.findByUser_Id(userId))
+                .thenThrow(new DataAccessException("DB unavailable") {});
+
+        // Act & Assert
+        CustomException ex = assertThrows(CustomException.class, () ->
+                financialMovementService.getMovementsByUserIdFiltered(userId, movementTypeName, categoryId)
+        );
+        assertEquals("Error al cargar historial", ex.getMessage());
+    }
+
+
 
 }
