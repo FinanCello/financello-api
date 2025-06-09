@@ -1,6 +1,7 @@
 package com.example.financelloapi.api;
 
 import com.example.financelloapi.dto.request.AddSavingGoalRequest;
+import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
 import com.example.financelloapi.service.SavingGoalService;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,11 @@ public class SavingGoalController {
     public ResponseEntity<Void> delete(@PathVariable Integer goalId) {
         savingGoalService.deleteSavingGoal(goalId);
         return ResponseEntity.noContent().build();
+      
+    @PutMapping("/{goalId}")
+    public ResponseEntity<AddSavingGoalResponse> update(
+            @PathVariable Integer goalId,
+            @RequestBody UpdateSavingGoalRequest request) {
+        return ResponseEntity.ok(savingGoalService.updateSavingGoal(goalId, request));
     }
 }
