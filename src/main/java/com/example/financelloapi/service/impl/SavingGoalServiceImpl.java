@@ -1,11 +1,10 @@
 package com.example.financelloapi.service.impl;
 
 import com.example.financelloapi.dto.request.AddSavingGoalRequest;
+import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
-import com.example.financelloapi.exception.GoalContributionNotFoundException;
 import com.example.financelloapi.exception.TargetAmountLessThanCurrentAmountException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
-import com.example.financelloapi.model.entity.GoalContribution;
 import com.example.financelloapi.model.entity.SavingGoal;
 import com.example.financelloapi.repository.GoalContributionRepository;
 import com.example.financelloapi.repository.SavingGoalRepository;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -44,5 +42,29 @@ public class SavingGoalServiceImpl implements SavingGoalService{
 
         SavingGoal savedGoal = savingGoalRepository.save(goal);
         return savingGoalMapper.toResponse(savedGoal);
+    }
+
+    @Override
+    public AddSavingGoalResponse updateSavingGoal(Integer goalId,
+                                                  UpdateSavingGoalRequest request) {
+        // 1) Buscamos la meta por ID
+        SavingGoal goal = savingGoalRepository.findById(goalId)
+                .orElseThrow(() -> new NoSuchElementException("Meta no encontrada"));
+
+        // 2) Validaciones de negocio
+        if (request.targetAmount() == null || request.targetAmount() < 0.0f) {
+            throw new IllegalArgumentException("El monto debe ser mayor o igual a 0");
+        }
+        if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
+        }
+
+        // 3) Aplicamos cambios y guardamos
+        goal.setTargetAmount(request.targetAmount());
+        goal.setDueDate(request.dueDate());
+        SavingGoal updated = savingGoalRepository.save(goal);
+
+        // 4) Devolvemos DTO de respuesta
+        return savingGoalMapper.toResponse(updated);
     }
 }
