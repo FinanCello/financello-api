@@ -17,6 +17,7 @@ import com.example.financelloapi.model.enums.RoleType;
 import com.example.financelloapi.model.enums.UserType;
 import com.example.financelloapi.repository.RoleRepository;
 import com.example.financelloapi.repository.UserRepository;
+import com.example.financelloapi.security.JwtUtil;
 import com.example.financelloapi.service.impl.AuthServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,6 +48,12 @@ public class AuthServiceUnitTest {
 
     @Mock
     private RoleRepository roleRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtUtil jwtUtil;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -85,6 +93,11 @@ public class AuthServiceUnitTest {
         when(userMapper.toAuthResponse(any(User.class))).thenReturn(mockResponse);
 
         // Act
+        when(passwordEncoder.encode(request.password()))
+                .thenReturn(request.password());
+        when(jwtUtil.generateToken(anyString(), anyString()))
+                .thenReturn("fake-token");
+
         AuthResponse response = authService.register(request);
 
         // Assert
@@ -160,6 +173,24 @@ public class AuthServiceUnitTest {
         when(userMapper.toAuthResponse(user)).thenReturn(expectedResponse);
 
         // Act
+        // user.getPassword() debe ser el valor “almacenado”
+        when(passwordEncoder.encode(request.password()))
+                .thenReturn("encoded-" + request.password());
+        when(jwtUtil.generateToken(anyString(), anyString()))
+                .thenReturn("fake-jwt-token");
+
+        // El usuario de prueba debe llevar un role no-nulo
+        user.setRole(new Role(1, RoleType.BASIC));
+
+        // Mockeamos el matches para que devuelva true y no lance excepción
+        when(passwordEncoder.matches(request.password(), user.getPassword()))
+                .thenReturn(true);
+
+        // Si tu login genera token:
+        when(jwtUtil.generateToken(user.getEmail(), user.getRole().toString()))
+                .thenReturn("fake-token");
+
+
         AuthResponse actualResponse = authService.login(request);
 
         // Assert
@@ -174,8 +205,8 @@ public class AuthServiceUnitTest {
     @DisplayName("US02-CP02 - Login: Usuario no entontrado")
     void login_fails_whenUserNotFound() {
         // Arrange
-        LoginRequest request = new LoginRequest("noexistente@example.com", "password123");
 
+        LoginRequest request = new LoginRequest("noexistente@example.com", "password123");
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
 
         // Act & Assert
@@ -464,7 +495,8 @@ public class AuthServiceUnitTest {
                 "alice@example.com",
                 "Alice",
                 "Wonderland",
-                UserType.PERSONAL
+                UserType.PERSONAL,
+                "testToken123"
         );
 
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
@@ -474,6 +506,10 @@ public class AuthServiceUnitTest {
         when(userMapper.toAuthResponse(any(User.class))).thenReturn(mockResponse);
 
         // Act
+        when(passwordEncoder.encode(request.password()))
+                .thenReturn(request.password());
+        when(jwtUtil.generateToken(anyString(), anyString()))
+                .thenReturn("fake-token");
         AuthResponse response = authService.register(request);
 
         // Assert
