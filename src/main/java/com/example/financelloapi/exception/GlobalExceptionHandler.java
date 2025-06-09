@@ -82,6 +82,15 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(EmptyAmountException.class)
+    public ProblemDetail handleEmptyAmountException(EmptyAmountException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Cantidad vacía");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
     @ExceptionHandler(IncorrectDateException.class)
     public ProblemDetail handleIncorrectDateException(IncorrectDateException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
@@ -95,6 +104,24 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleTargetAmountException(TargetAmountLessThanCurrentAmountException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         pd.setTitle("Cantidad objetivo inválida");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(DuplicateLimitException.class)
+    public ProblemDetail handleDuplicateLimitException(DuplicateLimitException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Límite duplicado");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(InvalidLimitAmountException.class)
+    public ProblemDetail handleInvalidLimitAmountException(InvalidLimitAmountException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Cantidad de límite inválida");
         pd.setDetail(ex.getMessage());
         pd.setProperty("path", request.getDescription(false));
         return pd;
@@ -118,10 +145,19 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
-    @ExceptionHandler(Exception.class)
-    public ProblemDetail handleGenericException(Exception ex, WebRequest request) {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        pd.setTitle("Error interno");
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ProblemDetail handleRoleNotFoundException(RoleNotFoundException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle("Rol no encontrado");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(SavingGoalHasContributionsException.class)
+    public ProblemDetail handleSavingGoalHasContributionsException(SavingGoalHasContributionsException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        pd.setTitle("No se puede eliminar meta");
         pd.setDetail(ex.getMessage());
         pd.setProperty("path", request.getDescription(false));
         return pd;
@@ -140,6 +176,15 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         pd.setTitle("Recurso no encontrado");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleGenericException(Exception ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        pd.setTitle("Error interno");
         pd.setDetail(ex.getMessage());
         pd.setProperty("path", request.getDescription(false));
         return pd;
