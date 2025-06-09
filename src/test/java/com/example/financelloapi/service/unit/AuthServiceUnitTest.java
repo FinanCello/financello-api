@@ -436,4 +436,81 @@ public class AuthServiceUnitTest {
         assertNull(resp.role(), "Se esperaba null cuando el usuario no tiene rol definido");
     }
 
+    // US19: Asignar rol a un usuario
+    @Test
+    @DisplayName("US19-CP01 - Asignación automática de rol exitosa")
+    void register_autoAssignBasicRole_success() {
+        // Arrange
+        RegisterRequest request = new RegisterRequest(
+                "alice@example.com",
+                "securePass!",
+                "Alice",
+                "Wonderland",
+                UserType.PERSONAL  // el campo userType no afecta la asignación de RoleType
+        );
+
+        User userToSave = new User();
+        userToSave.setEmail(request.email());
+        userToSave.setFirstName(request.firstName());
+        userToSave.setLastName(request.lastName());
+        userToSave.setPassword(request.password());
+        // el role se asigna dentro de register(), así que aquí lo simulamos:
+        Role basicRole = new Role(1, RoleType.BASIC);
+        userToSave.setRole(basicRole);
+
+        AuthResponse mockResponse = new AuthResponse(
+                "alice@example.com",
+                "Alice",
+                "Wonderland",
+                UserType.PERSONAL
+        );
+
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(userRepository.findAll()).thenReturn(Collections.emptyList());
+        when(roleRepository.findByRoleType(RoleType.BASIC)).thenReturn(Optional.of(basicRole));
+        when(userRepository.save(any(User.class))).thenReturn(userToSave);
+        when(userMapper.toAuthResponse(any(User.class))).thenReturn(mockResponse);
+
+        // Act
+        AuthResponse response = authService.register(request);
+
+        // Assert
+        assertNotNull(response);
+        // Verificamos que, al guardar, se haya asignado RoleType.BASIC
+        verify(userRepository).save(argThat(u ->
+                u.getRole() != null &&
+                        u.getRole().getRoleType() == RoleType.BASIC
+        ));
+    }
+
+    @Test
+    @DisplayName("US19-CP02 - Asignación automática de rol falla")
+    void register_autoAssignRoleFailure_throwsCustomException() {
+        // Arrange
+        RegisterRequest request = new RegisterRequest(
+                "bob@example.com",
+                "anotherPass!",
+                "Bob",
+                "Builder",
+                UserType.PERSONAL
+        );
+
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(userRepository.findAll()).thenReturn(Collections.emptyList());
+        // Simulamos fallo en la búsqueda del role BASIC
+        when(roleRepository.findByRoleType(RoleType.BASIC)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        CustomException ex = assertThrows(
+                CustomException.class,
+                () -> authService.register(request),
+                "Se esperaba CustomException cuando no se encuentra el role básico"
+        );
+        assertEquals("No se pudo asignar rol automático", ex.getMessage());
+
+        // Nos aseguramos de que no intente guardar el usuario
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+
 }

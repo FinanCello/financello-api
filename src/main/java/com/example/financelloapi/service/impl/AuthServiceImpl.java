@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
         user.setUserType(request.userType());
 
         // Asignar rol por defecto (BASIC)
-        Role defaultRole = roleRepository.findByRoleType(RoleType.BASIC).orElseThrow(() -> new CustomException("Default role BASIC not found"));
+        Role defaultRole = roleRepository.findByRoleType(RoleType.BASIC).orElseThrow(() -> new CustomException("No se pudo asignar rol automático"));
 
         user.setRole(defaultRole);
         userRepository.save(user);
