@@ -2,10 +2,9 @@ package com.example.financelloapi.service.impl;
 
 import com.example.financelloapi.dto.request.AddSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
-import com.example.financelloapi.exception.GoalContributionNotFoundException;
+import com.example.financelloapi.exception.SavingGoalHasContributionsException;
 import com.example.financelloapi.exception.TargetAmountLessThanCurrentAmountException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
-import com.example.financelloapi.model.entity.GoalContribution;
 import com.example.financelloapi.model.entity.SavingGoal;
 import com.example.financelloapi.repository.GoalContributionRepository;
 import com.example.financelloapi.repository.SavingGoalRepository;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -44,5 +42,19 @@ public class SavingGoalServiceImpl implements SavingGoalService{
 
         SavingGoal savedGoal = savingGoalRepository.save(goal);
         return savingGoalMapper.toResponse(savedGoal);
+    }
+
+    @Override
+    public void deleteSavingGoal(Integer goalId) {
+        SavingGoal goal = savingGoalRepository.findById(goalId)
+                .orElseThrow(() -> new IllegalArgumentException("Meta no encontrada: " + goalId));
+
+        // TA01: validar que no tenga aportes
+        if (goal.getCurrentAmount() != null && goal.getCurrentAmount() > 0.0f) {
+            throw new SavingGoalHasContributionsException(goalId);
+        }
+
+        // TA02: eliminación
+        savingGoalRepository.delete(goal);
     }
 }

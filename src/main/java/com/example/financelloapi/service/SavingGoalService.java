@@ -5,4 +5,6 @@ import com.example.financelloapi.dto.test.AddSavingGoalResponse;
 
 public interface SavingGoalService {
     AddSavingGoalResponse addSavingGoal(AddSavingGoalRequest addSavingGoalRequest);
+
+    void deleteSavingGoal(Integer goalId);
 }
