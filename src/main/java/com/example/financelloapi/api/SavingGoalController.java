@@ -19,6 +19,11 @@ public class SavingGoalController {
         return ResponseEntity.ok(savingGoalService.addSavingGoal(request));
     }
 
+    @DeleteMapping("/{goalId}")
+    public ResponseEntity<Void> delete(@PathVariable Integer goalId) {
+        savingGoalService.deleteSavingGoal(goalId);
+        return ResponseEntity.noContent().build();
+      
     @PutMapping("/{goalId}")
     public ResponseEntity<AddSavingGoalResponse> update(
             @PathVariable Integer goalId,
