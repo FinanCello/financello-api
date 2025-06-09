@@ -1,4 +1,3 @@
-// src/test/java/com/example/financelloapi/service/unit/AuthServiceUnitTest.java
 package com.example.financelloapi.service.unit;
 
 import com.example.financelloapi.dto.request.LoginRequest;
@@ -19,6 +18,7 @@ import com.example.financelloapi.model.enums.UserType;
 import com.example.financelloapi.repository.RoleRepository;
 import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.service.impl.AuthServiceImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +34,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+
 
 public class AuthServiceUnitTest {
 
@@ -53,6 +54,7 @@ public class AuthServiceUnitTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
+
     // US01: Registrar usuario
     @Test
     @DisplayName("US01-CP01 - Registro exitoso")
@@ -65,7 +67,7 @@ public class AuthServiceUnitTest {
         user.setPassword("password123");
         user.setRole(new Role(1, RoleType.BASIC));
 
-        AuthResponse mockResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL);
+        AuthResponse mockResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL, "encodeToken");
 
         RegisterRequest request = new RegisterRequest(
                 "juan@example.com",
@@ -152,7 +154,7 @@ public class AuthServiceUnitTest {
         user.setLastName("Pérez");
         user.setUserType(UserType.PERSONAL);
 
-        AuthResponse expectedResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL);
+        AuthResponse expectedResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL,"encodeToken");
 
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
         when(userMapper.toAuthResponse(user)).thenReturn(expectedResponse);
@@ -512,5 +514,76 @@ public class AuthServiceUnitTest {
         verify(userRepository, never()).save(any(User.class));
     }
 
+    @Test
+    @DisplayName("US21-CP01 - Acceso permitido: ADMIN puede ver usuarios")
+    void getAllUsersWithRoles_allowsAdminAccess() {
+        Integer currentUserId = 1;
 
+        Role adminRole = new Role();
+        adminRole.setRoleType(RoleType.ADMIN);
+        User currentUser = new User();
+        currentUser.setId(currentUserId);
+        currentUser.setRole(adminRole);
+
+        User other = new User();
+        other.setId(2);
+        other.setFirstName("Ana");
+        other.setLastName("Lopez");
+        other.setEmail("ana@example.com");
+        other.setRole(adminRole);
+
+        when(userRepository.findById(currentUserId)).thenReturn(Optional.of(currentUser));
+        when(userRepository.findAll()).thenReturn(List.of(currentUser, other));
+
+        List<UserWithRoleResponse> result = authService.getAllUsersWithRoles();
+
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    @DisplayName("US21-CP02 - Acceso denegado: USER intenta ver usuarios")
+    void getAllUsersWithRoles_deniesNonAdmin() {
+        Integer currentUserId = 2;
+
+        Role basicRole = new Role();
+        basicRole.setRoleType(RoleType.BASIC);
+
+        User currentUser = new User();
+        currentUser.setId(currentUserId);
+        currentUser.setRole(basicRole);
+
+        when(userRepository.findById(currentUserId)).thenReturn(Optional.of(currentUser));
+
+        CustomException ex = assertThrows(CustomException.class, () ->
+                authService.getUserProfileAuthSecurity(currentUserId)
+        );
+        assertEquals("Acceso denegado", ex.getMessage());
+
+    }
+
+    @Test
+    @DisplayName("US21-CP03 - Error: Usuario no encontrado")
+    void getAllUsersWithRoles_userNotFound() {
+        when(userRepository.findById(10)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () ->
+                authService.getUserProfile(10)
+        );
+    }
+
+    @Test
+    @DisplayName("CP04 - Error: Rol no asignado")
+    void getAllUsersWithRoles_roleNull() {
+        Integer currentUserId = 3;
+
+        User currentUser = new User();
+        currentUser.setId(currentUserId);
+        currentUser.setRole(null);
+
+        when(userRepository.findById(currentUserId)).thenReturn(Optional.of(currentUser));
+
+        assertThrows(CustomException.class, () ->
+                authService.getAllUsersWithRolesAuthSecurity()
+        );
+    }
 }
