@@ -70,7 +70,7 @@ public class SavingGoalServiceImpl implements SavingGoalService{
             throw new IllegalArgumentException("El monto debe ser mayor o igual a 0");
         }
         if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
+            throw new IllegalArgumentException("Fecha no válida");
         }
 
         // 3) Aplicamos cambios y guardamos
