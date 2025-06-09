@@ -5,17 +5,19 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
 
+@Service
 public class JwtUtil {
 
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final long EXPIRATION_TIME = 864_000_000;
 
-    public static String generateToken (String email, String role) {
+    public String generateToken (String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", "ROLE_" + role)

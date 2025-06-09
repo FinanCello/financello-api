@@ -4,7 +4,7 @@ import com.example.financelloapi.dto.request.LoginRequest;
 import com.example.financelloapi.dto.request.RegisterRequest;
 import com.example.financelloapi.dto.request.UpdateProfileRequest;
 import com.example.financelloapi.dto.test.AuthResponse;
-import com.example.financelloapi.dto.test.UserProfileResponse;  // Importamos el DTO de respuesta de perfil
+import com.example.financelloapi.dto.test.UserProfileResponse;
 import com.example.financelloapi.dto.test.UserWithRoleResponse;
 import com.example.financelloapi.exception.CustomException;
 import com.example.financelloapi.exception.EmptyException;
@@ -13,6 +13,7 @@ import com.example.financelloapi.exception.UserNotFoundException;
 import com.example.financelloapi.mapper.UserMapper;
 import com.example.financelloapi.model.entity.User;
 import com.example.financelloapi.repository.UserRepository;
+import com.example.financelloapi.security.JwtUtil;
 import com.example.financelloapi.service.AuthService;
 import com.example.financelloapi.model.enums.RoleType;
 import com.example.financelloapi.repository.RoleRepository;
@@ -20,6 +21,7 @@ import com.example.financelloapi.model.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,52 +34,67 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
-        if (request.firstName().trim().isEmpty() || request.lastName().trim().isEmpty() || request.email().trim().isEmpty() || request.password().trim().isEmpty() || request.userType()==null) {
-            throw new EmptyException("Fill all blank spaces");
-        }
-        if (userRepository.existsByEmail(request.email())) {
-            throw new UserAlreadyExistsException(request.email());
-        }
+            if (request.firstName().trim().isEmpty() || request.lastName().trim().isEmpty() ||
+                    request.email().trim().isEmpty() || request.password().trim().isEmpty() ||
+                    request.userType() == null) {
+                throw new EmptyException("Fill all blank spaces");
+            }
 
-        boolean nameExists = userRepository
-                .findAll()
-                .stream()
-                .anyMatch(user ->
-                        user.getFirstName().equalsIgnoreCase(request.firstName()) &&
-                                user.getLastName().equalsIgnoreCase(request.lastName())
-                );
+            if (userRepository.existsByEmail(request.email())) {
+                throw new UserAlreadyExistsException(request.email());
+            }
 
-        if (nameExists) {
-            throw new CustomException("Username already exists");
-        }
+            boolean nameExists = userRepository.findAll().stream().anyMatch(user ->
+                    user.getFirstName().equalsIgnoreCase(request.firstName()) &&
+                            user.getLastName().equalsIgnoreCase(request.lastName())
+            );
 
-        User user = new User();
-        user.setEmail(request.email());
-        user.setPassword(request.password());
-        user.setFirstName(request.firstName());
-        user.setLastName(request.lastName());
-        user.setUserType(request.userType());
+            if (nameExists) {
+                throw new CustomException("Username already exists");
+            }
 
-        // Asignar rol por defecto (BASIC)
-        Role defaultRole = roleRepository.findByRoleType(RoleType.BASIC).orElseThrow(() -> new CustomException("Default role BASIC not found"));
+            User user = new User();
+            user.setEmail(request.email());
+            user.setPassword(request.password());
+            user.setFirstName(request.firstName());
+            user.setLastName(request.lastName());
+            user.setUserType(request.userType());
 
-        user.setRole(defaultRole);
-        userRepository.save(user);
+            Role defaultRole = roleRepository.findByRoleType(RoleType.BASIC)
+                    .orElseThrow(() -> new CustomException("Default role BASIC not found"));
 
-        return userMapper.toAuthResponse(user);
+            user.setRole(defaultRole);
+
+            User savedUser = userRepository.save(user);
+            String token = jwtUtil.generateToken(savedUser.getEmail(),savedUser.getRole().toString());
+
+            return new AuthResponse(savedUser.getEmail(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getUserType(), token);
+
     }
+
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.email()).orElseThrow(() -> new UserNotFoundException(request.email()));
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UserNotFoundException(request.email()));
 
-        if (!user.getPassword().equals(request.password())) {
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new CustomException("Incorrect password");
         }
 
-        return userMapper.toAuthResponse(user);
+        String encodeToken = jwtUtil.generateToken(user.getEmail(),user.getRole().toString());
+
+        return new AuthResponse(
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getUserType(),
+                encodeToken
+        );
     }
 
     @Override

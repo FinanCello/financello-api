@@ -67,7 +67,7 @@ public class AuthServiceUnitTest {
         user.setPassword("password123");
         user.setRole(new Role(1, RoleType.BASIC));
 
-        AuthResponse mockResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL);
+        AuthResponse mockResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL, "encodeToken");
 
         RegisterRequest request = new RegisterRequest(
                 "juan@example.com",
@@ -154,7 +154,7 @@ public class AuthServiceUnitTest {
         user.setLastName("Pérez");
         user.setUserType(UserType.PERSONAL);
 
-        AuthResponse expectedResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL);
+        AuthResponse expectedResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL,"encodeToken");
 
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
         when(userMapper.toAuthResponse(user)).thenReturn(expectedResponse);
