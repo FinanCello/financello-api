@@ -26,31 +26,19 @@ public class SavingGoalServiceImpl implements SavingGoalService{
 
     @Override
     public AddSavingGoalResponse addSavingGoal(AddSavingGoalRequest request) {
-        Optional<SavingGoal> goalOpt = savingGoalRepository.findByName(request.name());
-        if (goalOpt.isEmpty()) {
-            throw new NoSuchElementException("Meta no encontrada");
-        }
-        SavingGoal goal = goalOpt.get();
+        SavingGoal goal = savingGoalRepository.findByName(request.name())
+                .orElseThrow(() -> new NoSuchElementException("Meta no encontrada"));
 
+        if (request.targetAmount() <= 0.0f) {
+            throw new IllegalArgumentException("El monto debe ser mayor a 0");
+        }
         if (request.targetAmount() <= goal.getCurrentAmount()) {
             throw new TargetAmountLessThanCurrentAmountException();
         }
-        if (request.targetAmount() <= 0.0f) {
-            throw new IllegalArgumentException("El monto debe ser mayor a 0");
-        }
-        if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
-        }
-
-        if (request.targetAmount() <= 0.0f) {
-            throw new IllegalArgumentException("El monto debe ser mayor a 0");
-        }
 
         if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
         }
-        SavingGoal existingGoal = savingGoalRepository.findByName(request.name())
-                .orElseThrow(() -> new NoSuchElementException("Meta no encontrada"));
 
         goal.setTargetAmount(request.targetAmount());
 

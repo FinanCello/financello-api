@@ -18,6 +18,8 @@ import com.example.financelloapi.model.enums.RoleType;
 import com.example.financelloapi.repository.RoleRepository;
 import com.example.financelloapi.model.entity.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -78,6 +80,19 @@ public class AuthServiceImpl implements AuthService {
         return userMapper.toAuthResponse(user);
     }
 
+    @Override
+    public UserProfileResponse getUserProfileAuthSecurity(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Error al cargar perfil"));
+
+        if (user.getRole() == null || user.getRole().getRoleType() != RoleType.ADMIN) {
+            throw new CustomException("Acceso denegado");
+        }
+
+        return new UserProfileResponse(user);
+    }
+
+
     // Implementación para obtener el perfil del usuario
     @Override
     public UserProfileResponse getUserProfile(Integer userId) {
@@ -119,6 +134,46 @@ public class AuthServiceImpl implements AuthService {
         User saved = userRepository.save(user);
 
         return new UserProfileResponse(saved);
+    }
+
+    @Override
+    public String getCurrentUserEmail() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new CustomException("No autenticado");
+        }
+        return authentication.getName();
+    }
+
+    @Override
+    public List<UserWithRoleResponse> getAllUsersWithRolesAuthSecurity() {
+        String currentEmail = getCurrentUserEmail();
+        User currentUser = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
+
+        if (currentUser.getRole() == null) {
+            throw new CustomException("Rol no asignado");
+        }
+
+        if (currentUser.getRole().getRoleType() != RoleType.ADMIN) {
+            throw new CustomException("Acceso denegado");
+        }
+
+        List<User> usuarios = userRepository.findAll();
+
+        return usuarios.stream()
+                .map(u -> {
+                    Role role = u.getRole();
+                    RoleType roleType = (role != null) ? role.getRoleType() : null;
+                    return new UserWithRoleResponse(
+                            u.getId(),
+                            u.getFirstName(),
+                            u.getLastName(),
+                            u.getEmail(),
+                            roleType
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     @Override

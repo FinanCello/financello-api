@@ -50,19 +50,19 @@ public class SavingGoalServiceUnitTest {
 
         SavingGoal goalEntity = new SavingGoal();
         goalEntity.setName("Viaje a Japón");
-        goalEntity.setTargetAmount(1000.0f);
+        goalEntity.setTargetAmount(900.0f); // monto actual menor que nuevo target
         goalEntity.setDueDate(dueDate);
-        goalEntity.setCurrentAmount(0.0f);
+        goalEntity.setCurrentAmount(100.0f);
 
         SavingGoal savedGoal = new SavingGoal();
         savedGoal.setName("Viaje a Japón");
         savedGoal.setTargetAmount(1000.0f);
         savedGoal.setDueDate(dueDate);
-        savedGoal.setCurrentAmount(0.0f);
+        savedGoal.setCurrentAmount(100.0f);
 
         AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse("Viaje a Japón", 1000.0f, dueDate);
 
-        when(savingGoalMapper.toEntity(request)).thenReturn(goalEntity);
+        when(savingGoalRepository.findByName(request.name())).thenReturn(Optional.of(goalEntity));
         when(savingGoalRepository.save(goalEntity)).thenReturn(savedGoal);
         when(savingGoalMapper.toResponse(savedGoal)).thenReturn(expectedResponse);
 
@@ -75,10 +75,11 @@ public class SavingGoalServiceUnitTest {
         assertEquals(1000.0f, actualResponse.targetAmount());
         assertEquals(dueDate, actualResponse.dueDate());
 
-        verify(savingGoalMapper).toEntity(request);
+        verify(savingGoalRepository).findByName(request.name());
         verify(savingGoalRepository).save(goalEntity);
         verify(savingGoalMapper).toResponse(savedGoal);
     }
+
 
     @Test
     @DisplayName("US06-CP02 - Falla si el monto objetivo es menor al monto actual")
@@ -87,6 +88,12 @@ public class SavingGoalServiceUnitTest {
         AddSavingGoalRequest request = new AddSavingGoalRequest(
                 "Comprar laptop", 500.0f, 600.0f, LocalDate.of(2025, 10, 1)
         );
+
+        SavingGoal existingGoal = new SavingGoal();
+        existingGoal.setName("Comprar laptop");
+        existingGoal.setCurrentAmount(600.0f);  // mayor que el targetAmount 500.0f
+
+        when(savingGoalRepository.findByName("Comprar laptop")).thenReturn(Optional.of(existingGoal));
 
         // Act & Assert
         assertThrows(TargetAmountLessThanCurrentAmountException.class, () -> {
@@ -97,6 +104,7 @@ public class SavingGoalServiceUnitTest {
         verify(savingGoalRepository, never()).save(any());
         verify(savingGoalMapper, never()).toResponse(any());
     }
+
 
     @Test
     @DisplayName("US06-CP04 - Error si la meta no existe")
@@ -115,22 +123,36 @@ public class SavingGoalServiceUnitTest {
     @Test
     @DisplayName("US06-CP03 - Error si el monto objetivo es cero")
     void addSavingGoal_zeroAmount_error() {
-        AddSavingGoalRequest request = new AddSavingGoalRequest("CoronelLeoncioPrado", 1000.0f, 1000.0f, LocalDate.now());
+        AddSavingGoalRequest request = new AddSavingGoalRequest("CoronelLeoncioPrado", 0.0f, 0.0f, LocalDate.now());
 
-        TargetAmountLessThanCurrentAmountException exception = assertThrows(
-                TargetAmountLessThanCurrentAmountException.class,
+        SavingGoal existingGoal = new SavingGoal();
+        existingGoal.setName("CoronelLeoncioPrado");
+        existingGoal.setCurrentAmount(0.0f);
+
+        when(savingGoalRepository.findByName("CoronelLeoncioPrado")).thenReturn(Optional.of(existingGoal));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
                 () -> savingGoalService.addSavingGoal(request)
         );
 
-        assertEquals("Target amount less than current amount", exception.getMessage());
+        assertEquals("El monto debe ser mayor a 0", exception.getMessage());
     }
+
 
     @Test
     @DisplayName("US06-CP05 - Error si la fecha es nula o pasada")
     void addSavingGoal_invalidDate_error() {
 
-        SavingGoal goalMock = new SavingGoal();
-        when(savingGoalMapper.toEntity(any())).thenReturn(goalMock);
+        SavingGoal existingGoalNullDate = new SavingGoal();
+        existingGoalNullDate.setName("Meta sin fecha");
+        existingGoalNullDate.setCurrentAmount(0.0f);
+        when(savingGoalRepository.findByName("Meta sin fecha")).thenReturn(Optional.of(existingGoalNullDate));
+
+        SavingGoal existingGoalPastDate = new SavingGoal();
+        existingGoalPastDate.setName("Meta fecha pasada");
+        existingGoalPastDate.setCurrentAmount(0.0f);
+        when(savingGoalRepository.findByName("Meta fecha pasada")).thenReturn(Optional.of(existingGoalPastDate));
 
         AddSavingGoalRequest requestNullDate = new AddSavingGoalRequest(
                 "Meta sin fecha", 1000.0f, 100.0f, null
@@ -152,4 +174,5 @@ public class SavingGoalServiceUnitTest {
         verify(savingGoalMapper, never()).toEntity(any());
         verify(savingGoalRepository, never()).save(any());
     }
+
 }

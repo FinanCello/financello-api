@@ -23,7 +23,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain springSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain springSecurityFilterChai(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf ->csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

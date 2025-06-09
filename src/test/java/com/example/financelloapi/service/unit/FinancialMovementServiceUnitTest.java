@@ -56,7 +56,7 @@ public class FinancialMovementServiceUnitTest {
     void registerMovement_success() {
         // Arrange
         Integer userId = 1;
-        LocalDate date = LocalDate.of(2024, 6, 5);
+        LocalDate date = LocalDate.now();
 
         RegisterFinancialMovementRequest request = new RegisterFinancialMovementRequest(100.0f, date, MovementType.INCOME, 10, CurrencyType.USD);
 
@@ -193,12 +193,12 @@ public class FinancialMovementServiceUnitTest {
 
         when(financialMovementRepository.findByUser_IdAndMovementType(userId, MovementType.INCOME)).thenReturn(List.of(movement));
         when(financialMovementMapper.toRegisterFinancialMovementResponse(movement)).thenReturn(new RegisterFinancialMovementResponse(
-                        movement.getAmount(),
-                        movement.getDate(),
-                        movement.getMovementType(),
-                        new CategoryResponse(category.getName(), category.getDescription()),
-                        movement.getCurrencyType()
-                ));
+                movement.getAmount(),
+                movement.getDate(),
+                movement.getMovementType(),
+                new CategoryResponse(category.getName(), category.getDescription()),
+                movement.getCurrencyType()
+        ));
 
         List<RegisterFinancialMovementResponse> result = financialMovementService.filterMovements(userId, null, MovementType.INCOME);
 
@@ -225,12 +225,12 @@ public class FinancialMovementServiceUnitTest {
 
         when(financialMovementRepository.findByUser_IdAndCategory_Id(userId, 20)).thenReturn(List.of(movement));
         when(financialMovementMapper.toRegisterFinancialMovementResponse(movement)).thenReturn(new RegisterFinancialMovementResponse(
-                        movement.getAmount(),
-                        movement.getDate(),
-                        movement.getMovementType(),
-                        new CategoryResponse(category.getName(), category.getDescription()),
-                        movement.getCurrencyType()
-                ));
+                movement.getAmount(),
+                movement.getDate(),
+                movement.getMovementType(),
+                new CategoryResponse(category.getName(), category.getDescription()),
+                movement.getCurrencyType()
+        ));
 
         List<RegisterFinancialMovementResponse> result = financialMovementService.filterMovements(userId, 20, null);
 
@@ -310,7 +310,15 @@ public class FinancialMovementServiceUnitTest {
         Category category = new Category();
         category.setId(10);
 
+        User user = new User();
+        user.setId(userId);
+
+        FinancialMovement movement = new FinancialMovement();
+        movement.setCategory(category);
+
         when(categoryRepository.findById(10)).thenReturn(Optional.of(category));
+        when(financialMovementMapper.toEntity(request, category)).thenReturn(movement);
+        when(userRepository.getById(userId)).thenReturn(user);
 
         // Act & Assert
         assertThrows(CustomException.class, () ->
@@ -318,6 +326,7 @@ public class FinancialMovementServiceUnitTest {
         );
         verify(financialMovementRepository, never()).save(any());
     }
+
 
     @Test
     @DisplayName("US08-CP03 - Registro de Movimiento Financiero falla por monto negativo")
@@ -372,7 +381,8 @@ public class FinancialMovementServiceUnitTest {
                 CurrencyType.PEN
         );
 
-        when(financialMovementRepository.findByUser_Id(userId))
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(financialMovementRepository.findByUser_IdOrderByDateDesc(userId))
                 .thenReturn(List.of(movement));
         when(financialMovementMapper.toRegisterFinancialMovementResponse(movement))
                 .thenReturn(expectedResponse);
@@ -387,11 +397,11 @@ public class FinancialMovementServiceUnitTest {
         TransactionResponse res = result.get(0);
         assertEquals(25.5f, res.amount());
         assertEquals(LocalDate.of(2024, 6, 6), res.date());
-        assertEquals(MovementType.OUTCOME, res.movementName();
+        assertEquals("OUTCOME", res.movementName());
         assertEquals("Transporte", res.categoryName());
-        assertEquals("Gastos en movilidad", res.amount());
-        assertEquals(CurrencyType.PEN, res.currencyName());
+        assertEquals("PEN", res.currencyName());
     }
+
 
 
     @Test
@@ -401,6 +411,8 @@ public class FinancialMovementServiceUnitTest {
         Integer userId = 1;
         String movementTypeName = null;
         Integer categoryId = null;
+
+        when(userRepository.existsById(userId)).thenReturn(true);
         when(financialMovementRepository.findByUser_Id(userId)).thenReturn(List.of());
 
         // Act
@@ -412,6 +424,7 @@ public class FinancialMovementServiceUnitTest {
         assertTrue(result.isEmpty());
     }
 
+
     @Test
     @DisplayName("US10-CP03 - Error al cargar historial por fallo en el servidor")
     void getMovementsByUserIdFiltered_throwsException_whenServerFails() {
@@ -420,7 +433,8 @@ public class FinancialMovementServiceUnitTest {
         String movementTypeName = null;
         Integer categoryId = null;
 
-        when(financialMovementRepository.findByUser_Id(userId))
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(financialMovementRepository.findByUser_IdOrderByDateDesc(userId))
                 .thenThrow(new DataAccessException("DB unavailable") {});
 
         // Act & Assert
@@ -429,9 +443,5 @@ public class FinancialMovementServiceUnitTest {
         );
         assertEquals("Error al cargar historial", ex.getMessage());
     }
+
 }
-
-
-
-
-

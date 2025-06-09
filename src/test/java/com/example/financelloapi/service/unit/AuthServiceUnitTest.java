@@ -54,6 +54,7 @@ public class AuthServiceUnitTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
     }
+
     // US01: Registrar usuario
     @Test
     @DisplayName("US01-CP01 - Registro exitoso")
@@ -213,7 +214,7 @@ public class AuthServiceUnitTest {
         mockUser.setRole(new Role(1, RoleType.BASIC));
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-      
+
         // Act (CUANDO)
         UserProfileResponse response = authService.getUserProfile(userId);
 
@@ -223,8 +224,8 @@ public class AuthServiceUnitTest {
         assertEquals("Pérez", response.lastName());
         assertEquals("juan.perez@example.com", response.email());
     }
-  
-   @Test
+
+    @Test
     @DisplayName("US17-CP02 - Obtener perfil inexistente")
     void getUserProfile_notFound() {
         // Arrange (DADO)
@@ -436,8 +437,8 @@ public class AuthServiceUnitTest {
         assertEquals("tomas.ruiz@example.com", resp.email());
         assertNull(resp.role(), "Se esperaba null cuando el usuario no tiene rol definido");
     }
-  
-  @Test
+
+    @Test
     @DisplayName("US21-CP01 - Acceso permitido: ADMIN puede ver usuarios")
     void getAllUsersWithRoles_allowsAdminAccess() {
         Integer currentUserId = 1;
@@ -478,9 +479,10 @@ public class AuthServiceUnitTest {
         when(userRepository.findById(currentUserId)).thenReturn(Optional.of(currentUser));
 
         CustomException ex = assertThrows(CustomException.class, () ->
-                authService.getUserProfile(currentUserId)
+                authService.getUserProfileAuthSecurity(currentUserId)
         );
         assertEquals("Acceso denegado", ex.getMessage());
+
     }
 
     @Test
@@ -505,7 +507,7 @@ public class AuthServiceUnitTest {
         when(userRepository.findById(currentUserId)).thenReturn(Optional.of(currentUser));
 
         assertThrows(CustomException.class, () ->
-                authService.getAllUsersWithRoles()
+                authService.getAllUsersWithRolesAuthSecurity()
         );
     }
 }
