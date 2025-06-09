@@ -39,42 +39,41 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse register(RegisterRequest request) {
-            if (request.firstName().trim().isEmpty() || request.lastName().trim().isEmpty() ||
-                    request.email().trim().isEmpty() || request.password().trim().isEmpty() ||
-                    request.userType() == null) {
-                throw new EmptyException("Fill all blank spaces");
-            }
+        if (request.firstName().trim().isEmpty() || request.lastName().trim().isEmpty() ||
+                request.email().trim().isEmpty() || request.password().trim().isEmpty() ||
+                request.userType() == null) {
+            throw new EmptyException("Fill all blank spaces");
+        }
 
-            if (userRepository.existsByEmail(request.email())) {
-                throw new UserAlreadyExistsException(request.email());
-            }
+        if (userRepository.existsByEmail(request.email())) {
+            throw new UserAlreadyExistsException(request.email());
+        }
 
-            boolean nameExists = userRepository.findAll().stream().anyMatch(user ->
-                    user.getFirstName().equalsIgnoreCase(request.firstName()) &&
-                            user.getLastName().equalsIgnoreCase(request.lastName())
-            );
+        boolean nameExists = userRepository.findAll().stream().anyMatch(user ->
+                user.getFirstName().equalsIgnoreCase(request.firstName()) &&
+                        user.getLastName().equalsIgnoreCase(request.lastName())
+        );
 
-            if (nameExists) {
-                throw new CustomException("Username already exists");
-            }
+        if (nameExists) {
+            throw new CustomException("Username already exists");
+        }
 
-            User user = new User();
-            user.setEmail(request.email());
-            user.setPassword(request.password());
-            user.setFirstName(request.firstName());
-            user.setLastName(request.lastName());
-            user.setUserType(request.userType());
+        User user = new User();
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setUserType(request.userType());
 
-            Role defaultRole = roleRepository.findByRoleType(RoleType.BASIC)
-                    .orElseThrow(() -> new CustomException("Default role BASIC not found"));
+        Role defaultRole = roleRepository.findByRoleType(RoleType.BASIC)
+                .orElseThrow(() -> new CustomException("Default role BASIC not found"));
 
-            user.setRole(defaultRole);
+        user.setRole(defaultRole);
 
-            User savedUser = userRepository.save(user);
-            String token = jwtUtil.generateToken(savedUser.getEmail(),savedUser.getRole().toString());
+        User savedUser = userRepository.save(user);
+        String token = jwtUtil.generateToken(savedUser.getEmail(),savedUser.getRole().toString());
 
-            return new AuthResponse(savedUser.getEmail(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getUserType(), token);
-
+        return new AuthResponse(savedUser.getEmail(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getUserType(), token);
     }
 
     @Override

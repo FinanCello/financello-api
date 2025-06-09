@@ -57,10 +57,10 @@ public class SavingGoalServiceImpl implements SavingGoalService{
 
         // TA02: eliminación
         savingGoalRepository.delete(goal);
+    }
       
     @Override
-    public AddSavingGoalResponse updateSavingGoal(Integer goalId,
-                                                  UpdateSavingGoalRequest request) {
+    public AddSavingGoalResponse updateSavingGoal(Integer goalId, UpdateSavingGoalRequest request) {
         // 1) Buscamos la meta por ID
         SavingGoal goal = savingGoalRepository.findById(goalId)
                 .orElseThrow(() -> new NoSuchElementException("Meta no encontrada"));

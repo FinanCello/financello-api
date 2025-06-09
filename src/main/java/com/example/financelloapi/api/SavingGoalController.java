@@ -6,11 +6,13 @@ import com.example.financelloapi.dto.test.AddSavingGoalResponse;
 import com.example.financelloapi.service.SavingGoalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/goals")
+@PreAuthorize("hasRole('BASIC')")
 public class SavingGoalController {
     private final SavingGoalService savingGoalService;
 
@@ -23,6 +25,7 @@ public class SavingGoalController {
     public ResponseEntity<Void> delete(@PathVariable Integer goalId) {
         savingGoalService.deleteSavingGoal(goalId);
         return ResponseEntity.noContent().build();
+    }
       
     @PutMapping("/{goalId}")
     public ResponseEntity<AddSavingGoalResponse> update(
