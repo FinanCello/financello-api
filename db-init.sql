@@ -1,9 +1,9 @@
 CREATE TABLE IF NOT EXISTS roles (
-                                     id   SERIAL PRIMARY KEY,
-                                     name VARCHAR(50) NOT NULL UNIQUE
+                                     role_id SERIAL PRIMARY KEY,
+                                     role_type VARCHAR(255) NOT NULL UNIQUE
 );
 
-INSERT INTO roles (name) VALUES
-                             ('ADMIN'),
-                             ('BASIC')
-ON CONFLICT (name) DO NOTHING;
+INSERT INTO roles (role_id, role_type) VALUES
+                                           (1, 'ADMIN'),
+                                           (2, 'BASIC')
+ON CONFLICT (role_id, role_type) DO NOTHING;
