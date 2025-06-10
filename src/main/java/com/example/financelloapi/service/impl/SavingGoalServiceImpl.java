@@ -3,6 +3,7 @@ package com.example.financelloapi.service.impl;
 import com.example.financelloapi.dto.request.AddSavingGoalRequest;
 import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
+import com.example.financelloapi.exception.DuplicateResourceException;
 import com.example.financelloapi.exception.SavingGoalHasContributionsException;
 import com.example.financelloapi.exception.TargetAmountLessThanCurrentAmountException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
@@ -25,24 +26,20 @@ public class SavingGoalServiceImpl implements SavingGoalService{
 
     @Override
     public AddSavingGoalResponse addSavingGoal(AddSavingGoalRequest request) {
-        SavingGoal goal = savingGoalRepository.findByName(request.name())
-                .orElseThrow(() -> new NoSuchElementException("Meta no encontrada"));
-
-        if (request.targetAmount() <= 0.0f) {
-            throw new IllegalArgumentException("El monto debe ser mayor a 0");
-        }
-        if (request.targetAmount() <= goal.getCurrentAmount()) {
-            throw new TargetAmountLessThanCurrentAmountException();
+        // 1) Validación: si ya existe una meta con el mismo nombre, error 400
+        if (savingGoalRepository.findByName(request.name()).isPresent()) {
+            throw new DuplicateResourceException("Ya existe una meta con ese nombre");
         }
 
-        if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
-        }
-
+        // 2) Si pasó, creamos la nueva meta
+        SavingGoal goal = new SavingGoal();
+        goal.setName(request.name());
         goal.setTargetAmount(request.targetAmount());
-
-        SavingGoal savedGoal = savingGoalRepository.save(goal);
-        return savingGoalMapper.toResponse(savedGoal);
+        goal.setDueDate(request.dueDate());
+        // inicializamos currentAmount a cero, asignamos el usuario, etc.
+        goal.setCurrentAmount(0.0f);
+        SavingGoal saved = savingGoalRepository.save(goal);
+        return savingGoalMapper.toResponse(saved);
     }
 
     @Override
