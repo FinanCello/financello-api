@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -26,8 +27,25 @@ public class SavingGoalServiceImpl implements SavingGoalService{
 
     @Override
     public AddSavingGoalResponse addSavingGoal(AddSavingGoalRequest request) {
+
+        if (request.targetAmount() <= 0) {
+            throw new IllegalArgumentException("El monto debe ser mayor a 0");
+        }
+
+        if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
+        }
+
         // 1) Validación: si ya existe una meta con el mismo nombre, error 400
-        if (savingGoalRepository.findByName(request.name()).isPresent()) {
+        Optional<SavingGoal> existingGoalOpt = savingGoalRepository.findByName(request.name());
+
+        if (existingGoalOpt.isPresent()) {
+            SavingGoal existingGoal = existingGoalOpt.get();
+
+            if (request.targetAmount() < existingGoal.getCurrentAmount()) {
+                throw new TargetAmountLessThanCurrentAmountException();
+            }
+
             throw new DuplicateResourceException("Ya existe una meta con ese nombre");
         }
 

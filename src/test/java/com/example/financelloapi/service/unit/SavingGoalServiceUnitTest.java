@@ -46,39 +46,37 @@ public class SavingGoalServiceUnitTest {
     @Test
     @DisplayName("US06-CP01 - Registro de Meta de Ahorro Exitoso")
     void addSavingGoal_success() {
-        // Arrange
+
         LocalDate dueDate = LocalDate.of(2025, 12, 31);
         AddSavingGoalRequest request = new AddSavingGoalRequest("Viaje a Japón", 1000.0f, 100.0f, dueDate);
 
-        SavingGoal goalEntity = new SavingGoal();
-        goalEntity.setName("Viaje a Japón");
-        goalEntity.setTargetAmount(900.0f); // monto actual menor que nuevo target
-        goalEntity.setDueDate(dueDate);
-        goalEntity.setCurrentAmount(100.0f);
+        SavingGoal goalToSave = new SavingGoal();
+        goalToSave.setName("Viaje a Japón");
+        goalToSave.setTargetAmount(1000.0f);
+        goalToSave.setDueDate(dueDate);
+        goalToSave.setCurrentAmount(0.0f);
 
         SavingGoal savedGoal = new SavingGoal();
         savedGoal.setName("Viaje a Japón");
         savedGoal.setTargetAmount(1000.0f);
         savedGoal.setDueDate(dueDate);
-        savedGoal.setCurrentAmount(100.0f);
+        savedGoal.setCurrentAmount(0.0f);
 
         AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse("Viaje a Japón", 1000.0f, dueDate);
 
-        when(savingGoalRepository.findByName(request.name())).thenReturn(Optional.of(goalEntity));
-        when(savingGoalRepository.save(goalEntity)).thenReturn(savedGoal);
+        when(savingGoalRepository.findByName(request.name())).thenReturn(Optional.empty());
+        when(savingGoalRepository.save(any(SavingGoal.class))).thenReturn(savedGoal);
         when(savingGoalMapper.toResponse(savedGoal)).thenReturn(expectedResponse);
 
-        // Act
         AddSavingGoalResponse actualResponse = savingGoalService.addSavingGoal(request);
 
-        // Assert
         assertNotNull(actualResponse);
-        assertEquals("Viaje a Japón", actualResponse.name());
-        assertEquals(1000.0f, actualResponse.targetAmount());
-        assertEquals(dueDate, actualResponse.dueDate());
+        assertEquals(expectedResponse.name(), actualResponse.name());
+        assertEquals(expectedResponse.targetAmount(), actualResponse.targetAmount());
+        assertEquals(expectedResponse.dueDate(), actualResponse.dueDate());
 
         verify(savingGoalRepository).findByName(request.name());
-        verify(savingGoalRepository).save(goalEntity);
+        verify(savingGoalRepository).save(any(SavingGoal.class));
         verify(savingGoalMapper).toResponse(savedGoal);
     }
 
@@ -107,21 +105,6 @@ public class SavingGoalServiceUnitTest {
         verify(savingGoalMapper, never()).toResponse(any());
     }
 
-
-    @Test
-    @DisplayName("US06-CP04 - Error si la meta no existe")
-    void addSavingGoal_goalNotFound_error() {
-        when(savingGoalRepository.findByName("MetaInexistente")).thenReturn(Optional.empty());
-
-        AddSavingGoalRequest request = new AddSavingGoalRequest("MetaInexistente", 1000.0f, 100.0f, LocalDate.now());
-
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () ->
-                savingGoalService.addSavingGoal(request)
-        );
-
-        assertEquals("Meta no encontrada", exception.getMessage());
-    }
-
     @Test
     @DisplayName("US06-CP03 - Error si el monto objetivo es cero")
     void addSavingGoal_zeroAmount_error() {
@@ -143,7 +126,7 @@ public class SavingGoalServiceUnitTest {
 
 
     @Test
-    @DisplayName("US06-CP05 - Error si la fecha es nula o pasada")
+    @DisplayName("US06-CP04 - Error si la fecha es nula o pasada")
     void addSavingGoal_invalidDate_error() {
 
         SavingGoal existingGoalNullDate = new SavingGoal();
