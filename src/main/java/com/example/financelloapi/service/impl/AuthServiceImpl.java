@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(defaultRole);
 
         User savedUser = userRepository.save(user);
-        String token = jwtUtil.generateToken(savedUser.getEmail(),savedUser.getRole().getRoleType().name());
+        String token = jwtUtil.generateToken(savedUser.getEmail(),savedUser.getRole().toString());
 
         return new AuthResponse(savedUser.getEmail(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getUserType(), token);
     }
@@ -85,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException("Incorrect password");
         }
 
-        String encodeToken = jwtUtil.generateToken(user.getEmail(),user.getRole().getRoleType().name());
+        String encodeToken = jwtUtil.generateToken(user.getEmail(),user.getRole().toString());
 
         return new AuthResponse(
                 user.getEmail(),

@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/spending-limit")
-@PreAuthorize("hasAuthority('BASIC')")
+@PreAuthorize("hasRole('BASIC')")
 public class SpendingLimitController {
     private final SpendingLimitService spendingLimitService;
 
