@@ -1,0 +1,764 @@
+{
+	"info": {
+		"_postman_id": "04abd26e-0618-41a0-8bb5-0788b6435bfd",
+		"name": "Financello",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43659828",
+		"_collection_link": "https://liamquinoneff-2005859.postman.co/workspace/Liam-Quino-Neff's-Workspace~5d764719-53d3-4290-836b-7618e7b43f1f/collection/43659828-04abd26e-0618-41a0-8bb5-0788b6435bfd?action=share&source=collection_link&creator=43659828"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"johndoe@email.com\",\r\n    \"password\": \"password123\",\r\n    \"userType\": \"PERSONAL\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\":\"johndoe@email.com\",\r\n    \"password\":\"password123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Roles",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckAzZDFkOWMxMl0pIiwiaWF0IjoxNzQ5NTcyNzE4LCJleHAiOjE3NTA0MzY3MTh9.eNWAIfTtjD21ZXBTXYKtuOpp-4kJOxMFElHxhERF0jU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/roles/1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"roles",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View User Roles",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckAxMDQxOWMwM10pIiwiaWF0IjoxNzQ5NTczMjU3LCJleHAiOjE3NTA0MzcyNTd9.5S_JJDyHW6U8sh7LfqQGuiPCcgDoizYIhm7l4G2Fj7c",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/auth/users",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTIsIHJvbGVUeXBlPUJBU0lDLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckAyMGNjZDZkMl0pIiwiaWF0IjoxNzQ5NTA2NjA1LCJleHAiOjE3NTAzNzA2MDV9.y9fK6q7ugCZcO4SnbMj5sSx-p26yOYrqBQDrMfbQGaI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/auth/profile/2",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"profile",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTIsIHJvbGVUeXBlPUJBU0lDLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckAyMGNjZDZkMl0pIiwiaWF0IjoxNzQ5NTA2NjA1LCJleHAiOjE3NTAzNzA2MDV9.y9fK6q7ugCZcO4SnbMj5sSx-p26yOYrqBQDrMfbQGaI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstName\": \"Edit\",\r\n    \"lastName\": \"Edicion\",\r\n    \"email\": \"editado@correo.com\",\r\n    \"password\": \"123\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/auth/profile/3",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"auth",
+						"profile",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Category",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA2OWJhYTVhOF0pIiwiaWF0IjoxNzQ5NTY1NTY0LCJleHAiOjE3NTA0Mjk1NjR9.Z52Q33yim7I2ROAQsHm-3VMWwkq4DmrlPdK1YUI5YKE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Transporte\",\r\n    \"description\": \"Gastos de transporte\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/categories?userId=1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"categories"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Categories",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTIsIHJvbGVUeXBlPUJBU0lDLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckAyMGNjZDZkMl0pIiwiaWF0IjoxNzQ5NTA2NjA1LCJleHAiOjE3NTAzNzA2MDV9.y9fK6q7ugCZcO4SnbMj5sSx-p26yOYrqBQDrMfbQGaI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/categories/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"categories",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Category",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTIsIHJvbGVUeXBlPUJBU0lDLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckAyMGNjZDZkMl0pIiwiaWF0IjoxNzQ5NTA2NjA1LCJleHAiOjE3NTAzNzA2MDV9.y9fK6q7ugCZcO4SnbMj5sSx-p26yOYrqBQDrMfbQGaI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Ocio\",\r\n    \"description\": \"Gastos de entretenimiento\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/categories/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"categories",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Category",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTIsIHJvbGVUeXBlPUJBU0lDLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckAyMGNjZDZkMl0pIiwiaWF0IjoxNzQ5NTA2NjA1LCJleHAiOjE3NTAzNzA2MDV9.y9fK6q7ugCZcO4SnbMj5sSx-p26yOYrqBQDrMfbQGaI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/categories/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"categories",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Goal",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA3MThjNTk4M10pIiwiaWF0IjoxNzQ5NTc3ODUxLCJleHAiOjE3NTA0NDE4NTF9.RQbx2v1yKbqkR_yLDaZzTAp9cEZHC15ZnFowO2EreBk",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"PC\",\r\n    \"targetAmount\": 500.99,\r\n    \"currentAmount\": 230.50,\r\n    \"dueDate\":\"2025-02-05\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/goals/add",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"goals",
+						"add"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Goal",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA0M2YyMWZiM10pIiwiaWF0IjoxNzQ5NTc0NDY3LCJleHAiOjE3NTA0Mzg0Njd9.q8Y0FaCsyWx2godIL7xVBxwEsOVycZ2lVV-23F4Smog",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"targetAmount\": 850.0,\r\n  \"dueDate\": \"2025-12-28\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/goals/2",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"goals",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Goal",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA0M2YyMWZiM10pIiwiaWF0IjoxNzQ5NTc0NDY3LCJleHAiOjE3NTA0Mzg0Njd9.q8Y0FaCsyWx2godIL7xVBxwEsOVycZ2lVV-23F4Smog",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"targetAmount\": 750.0,\r\n  \"dueDate\": \"2025-12-31\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "{{base_url}}/goals/2",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"goals",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Contribution",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA2OWJhYTVhOF0pIiwiaWF0IjoxNzQ5NTY1NTY0LCJleHAiOjE3NTA0Mjk1NjR9.Z52Q33yim7I2ROAQsHm-3VMWwkq4DmrlPdK1YUI5YKE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"goalId\": 2,\r\n    \"amount\": 10,\r\n    \"date\": \"2025-02-05\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/contribution/register",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"contribution",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contribution History",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA2OWJhYTVhOF0pIiwiaWF0IjoxNzQ5NTY1NTY0LCJleHAiOjE3NTA0Mjk1NjR9.Z52Q33yim7I2ROAQsHm-3VMWwkq4DmrlPdK1YUI5YKE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/contribution/history",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"contribution",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contribution History by Date",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA2OWJhYTVhOF0pIiwiaWF0IjoxNzQ5NTY1NTY0LCJleHAiOjE3NTA0Mjk1NjR9.Z52Q33yim7I2ROAQsHm-3VMWwkq4DmrlPdK1YUI5YKE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/contribution/history/date?date=2025-02-05",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"contribution",
+						"history",
+						"date"
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "2025-02-05"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Movement",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckAyMWRkMDQ0NF0pIiwiaWF0IjoxNzQ5NTY5NDMwLCJleHAiOjE3NTA0MzM0MzB9.8nAZZzIE5HVSIIRwwhO6x-Nl_MUpbsN_9zXBoOpJ5VE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"amount\": 30,\r\n    \"date\": \"2025-10-08\",\r\n    \"movementType\": \"INCOME\",\r\n    \"categoryId\": 2,\r\n    \"currencyType\": \"PEN\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/movements/register?userId=1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"movements",
+						"register"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Budget planning",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA2OWJhYTVhOF0pIiwiaWF0IjoxNzQ5NTY1NTY0LCJleHAiOjE3NTA0Mjk1NjR9.Z52Q33yim7I2ROAQsHm-3VMWwkq4DmrlPdK1YUI5YKE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userId\": 1,\r\n  \"period\": \"2027-Q3\",\r\n  \"totalIncomePlanned\": 4500.0,\r\n  \"totalOutcomePlanned\": 1800.0\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/budgets",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"budgets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Financial History",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA2NzM1ZDZiZV0pIiwiaWF0IjoxNzQ5NTg1NjEwLCJleHAiOjE3NTA0NDk2MTB9.9D24Ho-FoNo9McWRAJ0HzTvcERg3OojpZ4yfF-D7w44",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/users/1/movements",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"users",
+						"1",
+						"movements"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Spending Limit",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckAzZDFkOWMxMl0pIiwiaWF0IjoxNzQ5NTcyNzE4LCJleHAiOjE3NTA0MzY3MTh9.eNWAIfTtjD21ZXBTXYKtuOpp-4kJOxMFElHxhERF0jU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/spending-limit?userId=1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"spending-limit"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Spending Limit Alert",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA2OWJhYTVhOF0pIiwiaWF0IjoxNzQ5NTY1NTY0LCJleHAiOjE3NTA0Mjk1NjR9.Z52Q33yim7I2ROAQsHm-3VMWwkq4DmrlPdK1YUI5YKE",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/spending-limit/alerts?userId=1",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"spending-limit",
+						"alerts"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080/api/v1",
+			"type": "string"
+		}
+	]
+}

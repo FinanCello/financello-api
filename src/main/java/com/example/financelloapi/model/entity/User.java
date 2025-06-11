@@ -4,50 +4,51 @@ import com.example.financelloapi.model.enums.UserType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+
+import java.util.List;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "users")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    // @OneToMany(fetch = FetchType.LAZY, mappedBy = "user"): Cambié a mappedBy para indicar la relación inversa
+    // List<>: Relación de un usuario con varios movimientos financieros
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "budget_id")
-    private Budget budget;
+    private List<Budget> budgets;
 
-    @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "role_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "goal_id")
-    private SavingGoal goal;
+    private List<SavingGoal> goals;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "limit_id")
-    private SpendingLimit limit;
+    private List<SpendingLimit> limits;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "category_id")
-    private Category category;
+    private List<Category> categories;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "movement_id")
-    private FinancialMovement movement;
+    private List<FinancialMovement> movements;
 
     @Size(max = 150)
     @NotNull
