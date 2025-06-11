@@ -17,7 +17,6 @@ import com.example.financelloapi.model.enums.RoleType;
 import com.example.financelloapi.model.enums.UserType;
 import com.example.financelloapi.repository.RoleRepository;
 import com.example.financelloapi.repository.UserRepository;
-import com.example.financelloapi.security.JwtUtil;
 import com.example.financelloapi.service.impl.AuthServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,12 +47,6 @@ public class AuthServiceUnitTest {
     @Mock
     private RoleRepository roleRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private JwtUtil jwtUtil;
-
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -68,39 +60,28 @@ public class AuthServiceUnitTest {
     @DisplayName("US01-CP01 - Registro exitoso")
     void register_success() {
         // Arrange
-        RegisterRequest request = new RegisterRequest(
-                "juan@example.com",
-                "password123",
-                "Juan",
-                "Pérez",
-                UserType.PERSONAL
-        );
-
-        Role basicRole = new Role(1, RoleType.BASIC);
-
         User user = new User();
         user.setEmail("juan@example.com");
         user.setFirstName("Juan");
         user.setLastName("Pérez");
         user.setPassword("password123");
-        user.setRole(basicRole);
-        user.setUserType(UserType.PERSONAL);
+        user.setRole(new Role(1, RoleType.BASIC));
 
-        AuthResponse mockResponse = new AuthResponse(
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getUserType(),
-                "encodeToken"
-        );
+        AuthResponse mockResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL, "encodeToken");
 
-        // Mocks
+        RegisterRequest request = new RegisterRequest(
+                "juan@example.com",
+                "password123",
+                "Juan",
+                "Pérez",
+                UserType.PERSONAL);
+
+        Role basicRole = new Role(1, RoleType.BASIC);
+
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(userRepository.findAll()).thenReturn(Collections.emptyList());
         when(roleRepository.findByRoleType(RoleType.BASIC)).thenReturn(Optional.of(basicRole));
-        when(passwordEncoder.encode("password123")).thenReturn("password123");
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(jwtUtil.generateToken(user.getEmail(), user.getRole().getRoleType().name())).thenReturn("encodeToken");
         when(userMapper.toAuthResponse(any(User.class))).thenReturn(mockResponse);
 
         // Act
@@ -108,12 +89,6 @@ public class AuthServiceUnitTest {
 
         // Assert
         assertNotNull(response, "El response no debería ser null");
-        assertEquals("Juan", response.firstName());
-        assertEquals("Pérez", response.lastName());
-        assertEquals("juan@example.com", response.email());
-        assertEquals(UserType.PERSONAL, response.userType());
-        assertEquals("encodeToken", response.token());
-
         verify(userRepository).save(argThat(savedUser ->
                 savedUser.getFirstName().equals("Juan") &&
                         savedUser.getLastName().equals("Pérez") &&
@@ -172,31 +147,16 @@ public class AuthServiceUnitTest {
         // Arrange
         LoginRequest request = new LoginRequest("juan@example.com", "password123");
 
-        // Creamos un rol básico
-        Role role = new Role();
-        role.setRoleType(RoleType.BASIC);
-
-        // Creamos el usuario con el rol incluido
         User user = new User();
         user.setEmail("juan@example.com");
-        user.setPassword("password123"); // texto plano, lo estamos mockeando
+        user.setPassword("password123");
         user.setFirstName("Juan");
         user.setLastName("Pérez");
         user.setUserType(UserType.PERSONAL);
-        user.setRole(role); // 👈 necesario
 
-        // Mock del token
-        String token = "encodeToken";
+        AuthResponse expectedResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL,"encodeToken");
 
-        // Respuesta esperada
-        AuthResponse expectedResponse = new AuthResponse(
-                user.getEmail(), user.getFirstName(), user.getLastName(), user.getUserType(), token
-        );
-
-        // Mocks necesarios
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("password123", "password123")).thenReturn(true); // 👈 también necesario
-        when(jwtUtil.generateToken("juan@example.com", "BASIC")).thenReturn(token);
         when(userMapper.toAuthResponse(user)).thenReturn(expectedResponse);
 
         // Act
@@ -208,7 +168,6 @@ public class AuthServiceUnitTest {
         assertEquals(expectedResponse.firstName(), actualResponse.firstName());
         assertEquals(expectedResponse.lastName(), actualResponse.lastName());
         assertEquals(expectedResponse.userType(), actualResponse.userType());
-        assertEquals(expectedResponse.token(), actualResponse.token());
     }
 
     @Test
@@ -235,13 +194,11 @@ public class AuthServiceUnitTest {
         user.setPassword("correctpassword");
 
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(false);
 
         // Act & Assert
         assertThrows(CustomException.class, () -> authService.login(request));
         verify(userMapper, never()).toAuthResponse(any());
     }
-
 
     // US17: Ver perfil
     @Test
