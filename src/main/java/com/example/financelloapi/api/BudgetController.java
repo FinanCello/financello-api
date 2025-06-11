@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/budgets")
-@PreAuthorize("hasRole('BASIC')")
+@PreAuthorize("hasAuthority('BASIC')")
 public class BudgetController {
     @Autowired
     private BudgetService budgetService;

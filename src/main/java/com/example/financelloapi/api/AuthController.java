@@ -33,7 +33,7 @@ public class AuthController {
     }
 
     // Endpoint para obtener el perfil de usuario
-    @PreAuthorize("hasRole('BASIC')")
+    @PreAuthorize("hasAuthority('BASIC')")
     @GetMapping("/profile/{userId}")
     public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable Integer userId) {
         UserProfileResponse profile = authService.getUserProfile(userId);
@@ -41,14 +41,14 @@ public class AuthController {
     }
 
     // Endpoint para actualizar los datos del perfil
-    @PreAuthorize("hasRole('BASIC')")
+    @PreAuthorize("hasAuthority('BASIC')")
     @PutMapping("/profile/{userId}")
     public ResponseEntity<UserProfileResponse> updateUserProfile(@PathVariable Integer userId, @RequestBody UpdateProfileRequest updateRequest) {
         UserProfileResponse updatedProfile = authService.updateUserProfile(userId, updateRequest);
         return ResponseEntity.ok(updatedProfile);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<List<UserWithRoleResponse>> getAllUsersWithRoles() {
                 List<UserWithRoleResponse> lista = authService.getAllUsersWithRoles();

@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/contribution")
-@PreAuthorize("hasRole('BASIC')")
+@PreAuthorize("hasAuthority('BASIC')")
 public class GoalContributionController {
     private final GoalContributionService goalContributionService;
 

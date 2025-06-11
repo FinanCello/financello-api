@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/movements")
-@PreAuthorize("hasRole('BASIC')")
+@PreAuthorize("hasAuthority('BASIC')")
 @RequiredArgsConstructor
 public class FinancialMovementController {
 

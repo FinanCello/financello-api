@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/goals")
-@PreAuthorize("hasRole('BASIC')")
+@PreAuthorize("hasAuthority('BASIC')")
 public class SavingGoalController {
     private final SavingGoalService savingGoalService;
 

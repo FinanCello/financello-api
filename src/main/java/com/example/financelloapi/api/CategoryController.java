@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/categories")
-@PreAuthorize("hasAnyRole('BASIC')")
+@PreAuthorize("hasAuthority('BASIC')")
 public class CategoryController {
     private final CategoryService categoryService;
 
