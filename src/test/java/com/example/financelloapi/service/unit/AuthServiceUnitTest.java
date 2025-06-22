@@ -17,6 +17,7 @@ import com.example.financelloapi.model.enums.RoleType;
 import com.example.financelloapi.model.enums.UserType;
 import com.example.financelloapi.repository.RoleRepository;
 import com.example.financelloapi.repository.UserRepository;
+import com.example.financelloapi.security.JwtUtil;
 import com.example.financelloapi.service.impl.AuthServiceImpl;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,6 +49,12 @@ public class AuthServiceUnitTest {
     @Mock
     private RoleRepository roleRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtUtil jwtUtil;
+
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -64,10 +72,9 @@ public class AuthServiceUnitTest {
         user.setEmail("juan@example.com");
         user.setFirstName("Juan");
         user.setLastName("Pérez");
-        user.setPassword("password123");
+        user.setPassword("encodedPassword123");
         user.setRole(new Role(1, RoleType.BASIC));
-
-        AuthResponse mockResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL, "encodeToken");
+        user.setUserType(UserType.PERSONAL);
 
         RegisterRequest request = new RegisterRequest(
                 "juan@example.com",
@@ -81,19 +88,25 @@ public class AuthServiceUnitTest {
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(userRepository.findAll()).thenReturn(Collections.emptyList());
         when(roleRepository.findByRoleType(RoleType.BASIC)).thenReturn(Optional.of(basicRole));
+        when(passwordEncoder.encode(request.password())).thenReturn("encodedPassword123");
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(userMapper.toAuthResponse(any(User.class))).thenReturn(mockResponse);
+        when(jwtUtil.generateToken(anyString(), anyString())).thenReturn("encodeToken");
 
         // Act
         AuthResponse response = authService.register(request);
 
         // Assert
         assertNotNull(response, "El response no debería ser null");
+        assertEquals("juan@example.com", response.email());
+        assertEquals("Juan", response.firstName());
+        assertEquals("Pérez", response.lastName());
+        assertEquals(UserType.PERSONAL, response.userType());
+        assertEquals("encodeToken", response.token());
         verify(userRepository).save(argThat(savedUser ->
                 savedUser.getFirstName().equals("Juan") &&
                         savedUser.getLastName().equals("Pérez") &&
                         savedUser.getEmail().equals("juan@example.com") &&
-                        savedUser.getPassword().equals("password123") &&
+                        savedUser.getPassword().equals("encodedPassword123") &&
                         savedUser.getRole().getRoleType() == RoleType.BASIC
         ));
     }
@@ -149,25 +162,26 @@ public class AuthServiceUnitTest {
 
         User user = new User();
         user.setEmail("juan@example.com");
-        user.setPassword("password123");
+        user.setPassword("encodedPassword123");
         user.setFirstName("Juan");
         user.setLastName("Pérez");
         user.setUserType(UserType.PERSONAL);
-
-        AuthResponse expectedResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL,"encodeToken");
+        user.setRole(new Role(1, RoleType.BASIC));
 
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
-        when(userMapper.toAuthResponse(user)).thenReturn(expectedResponse);
+        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
+        when(jwtUtil.generateToken(user.getEmail(), user.getRole().toString())).thenReturn("encodeToken");
 
         // Act
         AuthResponse actualResponse = authService.login(request);
 
         // Assert
         assertNotNull(actualResponse);
-        assertEquals(expectedResponse.email(), actualResponse.email());
-        assertEquals(expectedResponse.firstName(), actualResponse.firstName());
-        assertEquals(expectedResponse.lastName(), actualResponse.lastName());
-        assertEquals(expectedResponse.userType(), actualResponse.userType());
+        assertEquals("juan@example.com", actualResponse.email());
+        assertEquals("Juan", actualResponse.firstName());
+        assertEquals("Pérez", actualResponse.lastName());
+        assertEquals(UserType.PERSONAL, actualResponse.userType());
+        assertEquals("encodeToken", actualResponse.token());
     }
 
     @Test
@@ -180,7 +194,7 @@ public class AuthServiceUnitTest {
 
         // Act & Assert
         assertThrows(UserNotFoundException.class, () -> authService.login(request));
-        verify(userMapper, never()).toAuthResponse(any());
+        verify(passwordEncoder, never()).matches(anyString(), anyString());
     }
 
     @Test
@@ -191,13 +205,14 @@ public class AuthServiceUnitTest {
 
         User user = new User();
         user.setEmail("juan@example.com");
-        user.setPassword("correctpassword");
+        user.setPassword("encodedPassword123");
 
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(false);
 
         // Act & Assert
         assertThrows(CustomException.class, () -> authService.login(request));
-        verify(userMapper, never()).toAuthResponse(any());
+        verify(jwtUtil, never()).generateToken(anyString(), anyString());
     }
 
     // US17: Ver perfil
