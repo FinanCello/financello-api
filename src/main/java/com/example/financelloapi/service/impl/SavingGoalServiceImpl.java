@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -25,24 +26,39 @@ public class SavingGoalServiceImpl implements SavingGoalService{
 
     @Override
     public AddSavingGoalResponse addSavingGoal(AddSavingGoalRequest request) {
-        SavingGoal goal = savingGoalRepository.findByName(request.name())
-                .orElseThrow(() -> new NoSuchElementException("Meta no encontrada"));
-
+        // 1. Validaciones básicas de request
         if (request.targetAmount() <= 0.0f) {
             throw new IllegalArgumentException("El monto debe ser mayor a 0");
         }
-        if (request.targetAmount() <= goal.getCurrentAmount()) {
-            throw new TargetAmountLessThanCurrentAmountException();
-        }
-
         if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
         }
 
-        goal.setTargetAmount(request.targetAmount());
+        // 2. Vemos si ya existe una meta con ese nombre
+        Optional<SavingGoal> existingOpt = savingGoalRepository.findByName(request.name());
+        if (existingOpt.isPresent()) {
+            SavingGoal existing = existingOpt.get();
+            // 2.1. Si el nuevo target es ≤ current, lanzo la excepción esperada
+            if (request.targetAmount() <= existing.getCurrentAmount()) {
+                throw new TargetAmountLessThanCurrentAmountException();
+            }
+            // 2.2. Si es >, actualizo la meta existente
+            existing.setTargetAmount(request.targetAmount());
+            existing.setDueDate(request.dueDate());
+            SavingGoal updated = savingGoalRepository.save(existing);
+            return savingGoalMapper.toResponse(updated);
+        }
 
-        SavingGoal savedGoal = savingGoalRepository.save(goal);
-        return savingGoalMapper.toResponse(savedGoal);
+        // 3. Si no existe, creo una nueva
+        SavingGoal goal = new SavingGoal();
+        goal.setName(request.name());
+        goal.setTargetAmount(request.targetAmount());
+        goal.setDueDate(request.dueDate());
+        goal.setCurrentAmount(0.0f);
+        // goal.setUser(...); // si aplica
+
+        SavingGoal saved = savingGoalRepository.save(goal);
+        return savingGoalMapper.toResponse(saved);
     }
 
     @Override

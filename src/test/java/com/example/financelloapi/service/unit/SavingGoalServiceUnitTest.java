@@ -1,7 +1,9 @@
 package com.example.financelloapi.service.unit;
 
 import com.example.financelloapi.dto.request.AddSavingGoalRequest;
+import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
+import com.example.financelloapi.exception.SavingGoalHasContributionsException;
 import com.example.financelloapi.exception.TargetAmountLessThanCurrentAmountException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
 import com.example.financelloapi.model.entity.SavingGoal;
@@ -44,39 +46,37 @@ public class SavingGoalServiceUnitTest {
     @Test
     @DisplayName("US06-CP01 - Registro de Meta de Ahorro Exitoso")
     void addSavingGoal_success() {
-        // Arrange
+
         LocalDate dueDate = LocalDate.of(2025, 12, 31);
         AddSavingGoalRequest request = new AddSavingGoalRequest("Viaje a Japón", 1000.0f, 100.0f, dueDate);
 
-        SavingGoal goalEntity = new SavingGoal();
-        goalEntity.setName("Viaje a Japón");
-        goalEntity.setTargetAmount(900.0f); // monto actual menor que nuevo target
-        goalEntity.setDueDate(dueDate);
-        goalEntity.setCurrentAmount(100.0f);
+        SavingGoal goalToSave = new SavingGoal();
+        goalToSave.setName("Viaje a Japón");
+        goalToSave.setTargetAmount(1000.0f);
+        goalToSave.setDueDate(dueDate);
+        goalToSave.setCurrentAmount(0.0f);
 
         SavingGoal savedGoal = new SavingGoal();
         savedGoal.setName("Viaje a Japón");
         savedGoal.setTargetAmount(1000.0f);
         savedGoal.setDueDate(dueDate);
-        savedGoal.setCurrentAmount(100.0f);
+        savedGoal.setCurrentAmount(0.0f);
 
         AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse("Viaje a Japón", 1000.0f, dueDate);
 
-        when(savingGoalRepository.findByName(request.name())).thenReturn(Optional.of(goalEntity));
-        when(savingGoalRepository.save(goalEntity)).thenReturn(savedGoal);
+        when(savingGoalRepository.findByName(request.name())).thenReturn(Optional.empty());
+        when(savingGoalRepository.save(any(SavingGoal.class))).thenReturn(savedGoal);
         when(savingGoalMapper.toResponse(savedGoal)).thenReturn(expectedResponse);
 
-        // Act
         AddSavingGoalResponse actualResponse = savingGoalService.addSavingGoal(request);
 
-        // Assert
         assertNotNull(actualResponse);
-        assertEquals("Viaje a Japón", actualResponse.name());
-        assertEquals(1000.0f, actualResponse.targetAmount());
-        assertEquals(dueDate, actualResponse.dueDate());
+        assertEquals(expectedResponse.name(), actualResponse.name());
+        assertEquals(expectedResponse.targetAmount(), actualResponse.targetAmount());
+        assertEquals(expectedResponse.dueDate(), actualResponse.dueDate());
 
         verify(savingGoalRepository).findByName(request.name());
-        verify(savingGoalRepository).save(goalEntity);
+        verify(savingGoalRepository).save(any(SavingGoal.class));
         verify(savingGoalMapper).toResponse(savedGoal);
     }
 
@@ -105,21 +105,6 @@ public class SavingGoalServiceUnitTest {
         verify(savingGoalMapper, never()).toResponse(any());
     }
 
-
-    @Test
-    @DisplayName("US06-CP04 - Error si la meta no existe")
-    void addSavingGoal_goalNotFound_error() {
-        when(savingGoalRepository.findByName("MetaInexistente")).thenReturn(Optional.empty());
-
-        AddSavingGoalRequest request = new AddSavingGoalRequest("MetaInexistente", 1000.0f, 100.0f, LocalDate.now());
-
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () ->
-                savingGoalService.addSavingGoal(request)
-        );
-
-        assertEquals("Meta no encontrada", exception.getMessage());
-    }
-
     @Test
     @DisplayName("US06-CP03 - Error si el monto objetivo es cero")
     void addSavingGoal_zeroAmount_error() {
@@ -141,7 +126,7 @@ public class SavingGoalServiceUnitTest {
 
 
     @Test
-    @DisplayName("US06-CP05 - Error si la fecha es nula o pasada")
+    @DisplayName("US06-CP04 - Error si la fecha es nula o pasada")
     void addSavingGoal_invalidDate_error() {
 
         SavingGoal existingGoalNullDate = new SavingGoal();
@@ -173,6 +158,143 @@ public class SavingGoalServiceUnitTest {
 
         verify(savingGoalMapper, never()).toEntity(any());
         verify(savingGoalRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("US14-CP01 - Edición de meta de ahorro")
+    void whenUpdateWithValidData_thenReturnsUpdatedResponse() {
+        // dado
+        Integer goalId = 1;
+        SavingGoal existing = new SavingGoal();
+        existing.setId(goalId);
+        existing.setCurrentAmount(100f);
+
+        UpdateSavingGoalRequest req = new UpdateSavingGoalRequest(200f, LocalDate.now().plusDays(5));
+        // Asegúrate de convertir el ID a String si tu DTO lo pide así
+        AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse(
+                String.valueOf(goalId),
+                req.targetAmount(),
+                req.dueDate()
+        );
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
+        when(savingGoalRepository.save(existing)).thenReturn(existing);
+        when(savingGoalMapper.toResponse(existing)).thenReturn(expectedResponse);
+
+        // cuando
+        AddSavingGoalResponse actual = savingGoalService.updateSavingGoal(goalId, req);
+
+        // entonces
+        assertEquals(expectedResponse, actual);
+        verify(savingGoalRepository).save(existing);
+    }
+
+    @Test
+    @DisplayName("US14-CP02 - Fecha no válida")
+    void whenUpdateWithPastDate_thenThrowsIllegalArgumentException() {
+        // dado
+        Integer goalId = 2;
+        SavingGoal existing = new SavingGoal();
+        existing.setId(goalId);
+        existing.setCurrentAmount(0f);
+
+        // ¡Fíjate en el nombre correcto aquí!
+        UpdateSavingGoalRequest req = new UpdateSavingGoalRequest(
+                100f,
+                LocalDate.now().minusDays(1)
+        );
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
+
+        // cuando / entonces
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> savingGoalService.updateSavingGoal(goalId, req)
+        );
+        assertEquals("La fecha de vencimiento debe ser hoy o futura", ex.getMessage());
+        verify(savingGoalRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("US14-CP03 - Meta no encontrada")
+
+    void whenUpdateNonExistingGoal_thenThrowsNoSuchElementException() {
+        // dado
+        Integer goalId = 3;
+        UpdateSavingGoalRequest req = new UpdateSavingGoalRequest(
+                100f,
+                LocalDate.now().plusDays(1)
+        );
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.empty());
+
+        // cuando / entonces
+        NoSuchElementException ex = assertThrows(
+                NoSuchElementException.class,
+                () -> savingGoalService.updateSavingGoal(goalId, req)
+        );
+        assertEquals("Meta no encontrada", ex.getMessage());
+        verify(savingGoalRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("US15-CP01 - Eliminación de meta de ahorro exitosa")
+    void whenDeleteWithNoContributions_thenDeletesSuccessfully() {
+        // dado
+        Integer goalId = 10;
+        SavingGoal existing = new SavingGoal();
+        existing.setId(goalId);
+        existing.setCurrentAmount(0.0f);
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
+
+        // cuando
+        assertDoesNotThrow(() -> savingGoalService.deleteSavingGoal(goalId));
+
+        // entonces
+        verify(savingGoalRepository).delete(existing);
+    }
+
+    @Test
+    @DisplayName("US15-CP02 - Error al eliminar meta con aportes registrados")
+    void whenDeleteWithContributions_thenThrowsSavingGoalHasContributionsException() {
+        // dado
+        Integer goalId = 11;
+        SavingGoal existing = new SavingGoal();
+        existing.setId(goalId);
+        existing.setCurrentAmount(50.0f);
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
+
+        // cuando / entonces
+        SavingGoalHasContributionsException ex = assertThrows(
+                SavingGoalHasContributionsException.class,
+                () -> savingGoalService.deleteSavingGoal(goalId)
+        );
+        assertEquals(
+                "No se puede eliminar la meta " + goalId + ": tiene aportes registrados",
+                ex.getMessage()
+        );
+        verify(savingGoalRepository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("US15-CP03 - Meta no existe")
+    void whenDeleteNonExistingGoal_thenThrowsIllegalArgumentException() {
+        // dado
+        Integer goalId = 12;
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.empty());
+
+        // cuando / entonces
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> savingGoalService.deleteSavingGoal(goalId)
+        );
+        assertTrue(
+                ex.getMessage().contains("Meta no encontrada"),
+                "Se esperaba mensaje de 'Meta no encontrada', pero fue: " + ex.getMessage()
+        );
+        verify(savingGoalRepository, never()).delete(any());
     }
 
 }
