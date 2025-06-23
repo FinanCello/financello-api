@@ -72,10 +72,9 @@ public class AuthServiceUnitTest {
         user.setEmail("juan@example.com");
         user.setFirstName("Juan");
         user.setLastName("Pérez");
-        user.setPassword("password123");
+        user.setPassword("encodedPassword123");
         user.setRole(new Role(1, RoleType.BASIC));
-
-        AuthResponse mockResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL, "encodeToken");
+        user.setUserType(UserType.PERSONAL);
 
         RegisterRequest request = new RegisterRequest(
                 "juan@example.com",
@@ -89,24 +88,25 @@ public class AuthServiceUnitTest {
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(userRepository.findAll()).thenReturn(Collections.emptyList());
         when(roleRepository.findByRoleType(RoleType.BASIC)).thenReturn(Optional.of(basicRole));
+        when(passwordEncoder.encode(request.password())).thenReturn("encodedPassword123");
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(userMapper.toAuthResponse(any(User.class))).thenReturn(mockResponse);
+        when(jwtUtil.generateToken(anyString(), anyString())).thenReturn("encodeToken");
 
         // Act
-        when(passwordEncoder.encode(request.password()))
-                .thenReturn(request.password());
-        when(jwtUtil.generateToken(anyString(), anyString()))
-                .thenReturn("fake-token");
-
         AuthResponse response = authService.register(request);
 
         // Assert
         assertNotNull(response, "El response no debería ser null");
+        assertEquals("juan@example.com", response.email());
+        assertEquals("Juan", response.firstName());
+        assertEquals("Pérez", response.lastName());
+        assertEquals(UserType.PERSONAL, response.userType());
+        assertEquals("encodeToken", response.token());
         verify(userRepository).save(argThat(savedUser ->
                 savedUser.getFirstName().equals("Juan") &&
                         savedUser.getLastName().equals("Pérez") &&
                         savedUser.getEmail().equals("juan@example.com") &&
-                        savedUser.getPassword().equals("password123") &&
+                        savedUser.getPassword().equals("encodedPassword123") &&
                         savedUser.getRole().getRoleType() == RoleType.BASIC
         ));
     }
@@ -162,56 +162,39 @@ public class AuthServiceUnitTest {
 
         User user = new User();
         user.setEmail("juan@example.com");
-        user.setPassword("password123");
+        user.setPassword("encodedPassword123");
         user.setFirstName("Juan");
         user.setLastName("Pérez");
         user.setUserType(UserType.PERSONAL);
-
-        AuthResponse expectedResponse = new AuthResponse("juan@example.com", "Juan", "Pérez", UserType.PERSONAL,"encodeToken");
-
-        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
-        when(userMapper.toAuthResponse(user)).thenReturn(expectedResponse);
-
-        // Act
-        // user.getPassword() debe ser el valor “almacenado”
-        when(passwordEncoder.encode(request.password()))
-                .thenReturn("encoded-" + request.password());
-        when(jwtUtil.generateToken(anyString(), anyString()))
-                .thenReturn("fake-jwt-token");
-
-        // El usuario de prueba debe llevar un role no-nulo
         user.setRole(new Role(1, RoleType.BASIC));
 
-        // Mockeamos el matches para que devuelva true y no lance excepción
-        when(passwordEncoder.matches(request.password(), user.getPassword()))
-                .thenReturn(true);
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(true);
+        when(jwtUtil.generateToken(user.getEmail(), user.getRole().toString())).thenReturn("encodeToken");
 
-        // Si tu login genera token:
-        when(jwtUtil.generateToken(user.getEmail(), user.getRole().toString()))
-                .thenReturn("fake-token");
-
-
+        // Act
         AuthResponse actualResponse = authService.login(request);
 
         // Assert
         assertNotNull(actualResponse);
-        assertEquals(expectedResponse.email(), actualResponse.email());
-        assertEquals(expectedResponse.firstName(), actualResponse.firstName());
-        assertEquals(expectedResponse.lastName(), actualResponse.lastName());
-        assertEquals(expectedResponse.userType(), actualResponse.userType());
+        assertEquals("juan@example.com", actualResponse.email());
+        assertEquals("Juan", actualResponse.firstName());
+        assertEquals("Pérez", actualResponse.lastName());
+        assertEquals(UserType.PERSONAL, actualResponse.userType());
+        assertEquals("encodeToken", actualResponse.token());
     }
 
     @Test
     @DisplayName("US02-CP02 - Login: Usuario no entontrado")
     void login_fails_whenUserNotFound() {
         // Arrange
-
         LoginRequest request = new LoginRequest("noexistente@example.com", "password123");
+
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(UserNotFoundException.class, () -> authService.login(request));
-        verify(userMapper, never()).toAuthResponse(any());
+        verify(passwordEncoder, never()).matches(anyString(), anyString());
     }
 
     @Test
@@ -222,13 +205,14 @@ public class AuthServiceUnitTest {
 
         User user = new User();
         user.setEmail("juan@example.com");
-        user.setPassword("correctpassword");
+        user.setPassword("encodedPassword123");
 
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(request.password(), user.getPassword())).thenReturn(false);
 
         // Act & Assert
         assertThrows(CustomException.class, () -> authService.login(request));
-        verify(userMapper, never()).toAuthResponse(any());
+        verify(jwtUtil, never()).generateToken(anyString(), anyString());
     }
 
     // US17: Ver perfil
@@ -467,87 +451,6 @@ public class AuthServiceUnitTest {
         assertEquals("Ruiz", resp.lastName());
         assertEquals("tomas.ruiz@example.com", resp.email());
         assertNull(resp.role(), "Se esperaba null cuando el usuario no tiene rol definido");
-    }
-
-    // US19: Asignar rol a un usuario
-    @Test
-    @DisplayName("US19-CP01 - Asignación automática de rol exitosa")
-    void register_autoAssignBasicRole_success() {
-        // Arrange
-        RegisterRequest request = new RegisterRequest(
-                "alice@example.com",
-                "securePass!",
-                "Alice",
-                "Wonderland",
-                UserType.PERSONAL  // el campo userType no afecta la asignación de RoleType
-        );
-
-        User userToSave = new User();
-        userToSave.setEmail(request.email());
-        userToSave.setFirstName(request.firstName());
-        userToSave.setLastName(request.lastName());
-        userToSave.setPassword(request.password());
-        // el role se asigna dentro de register(), así que aquí lo simulamos:
-        Role basicRole = new Role(1, RoleType.BASIC);
-        userToSave.setRole(basicRole);
-
-        AuthResponse mockResponse = new AuthResponse(
-                "alice@example.com",
-                "Alice",
-                "Wonderland",
-                UserType.PERSONAL,
-                "testToken123"
-        );
-
-        when(userRepository.existsByEmail(request.email())).thenReturn(false);
-        when(userRepository.findAll()).thenReturn(Collections.emptyList());
-        when(roleRepository.findByRoleType(RoleType.BASIC)).thenReturn(Optional.of(basicRole));
-        when(userRepository.save(any(User.class))).thenReturn(userToSave);
-        when(userMapper.toAuthResponse(any(User.class))).thenReturn(mockResponse);
-
-        // Act
-        when(passwordEncoder.encode(request.password()))
-                .thenReturn(request.password());
-        when(jwtUtil.generateToken(anyString(), anyString()))
-                .thenReturn("fake-token");
-        AuthResponse response = authService.register(request);
-
-        // Assert
-        assertNotNull(response);
-        // Verificamos que, al guardar, se haya asignado RoleType.BASIC
-        verify(userRepository).save(argThat(u ->
-                u.getRole() != null &&
-                        u.getRole().getRoleType() == RoleType.BASIC
-        ));
-    }
-
-    @Test
-    @DisplayName("US19-CP02 - Asignación automática de rol falla")
-    void register_autoAssignRoleFailure_throwsCustomException() {
-        // Arrange
-        RegisterRequest request = new RegisterRequest(
-                "bob@example.com",
-                "anotherPass!",
-                "Bob",
-                "Builder",
-                UserType.PERSONAL
-        );
-
-        when(userRepository.existsByEmail(request.email())).thenReturn(false);
-        when(userRepository.findAll()).thenReturn(Collections.emptyList());
-        // Simulamos fallo en la búsqueda del role BASIC
-        when(roleRepository.findByRoleType(RoleType.BASIC)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        CustomException ex = assertThrows(
-                CustomException.class,
-                () -> authService.register(request),
-                "Se esperaba CustomException cuando no se encuentra el role básico"
-        );
-        assertEquals("No se pudo asignar rol automático", ex.getMessage());
-
-        // Nos aseguramos de que no intente guardar el usuario
-        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test

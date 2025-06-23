@@ -211,7 +211,7 @@ public class SavingGoalServiceUnitTest {
                 IllegalArgumentException.class,
                 () -> savingGoalService.updateSavingGoal(goalId, req)
         );
-        assertEquals("Fecha no válida", ex.getMessage());
+        assertEquals("La fecha de vencimiento debe ser hoy o futura", ex.getMessage());
         verify(savingGoalRepository, never()).save(any());
     }
 

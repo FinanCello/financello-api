@@ -41,7 +41,7 @@ public class CategoryServiceUnitTest {
 
     //POST
     @Test
-    @DisplayName("US03-CP01 - Crear categoría valida")
+    @DisplayName("CP01 - Crear categoría valida")
     void createCategory_valid_returnCreated() {
         Integer userId = 1;
         CategoryRequest request = new CategoryRequest("Ocio", "Gastos en actividades de ocio");
@@ -63,7 +63,7 @@ public class CategoryServiceUnitTest {
     }
 
     @Test
-    @DisplayName("US03-CP02 - Crear categoría con nombre duplicado")
+    @DisplayName("CP02 - Crear categoría con nombre duplicado")
     void createCategory_duplicatedCategory_throwException() {
         Integer userId = 1;
         User user = new User();
@@ -77,7 +77,7 @@ public class CategoryServiceUnitTest {
     }
 
     @Test
-    @DisplayName("US03-CP03 - Crear categoría cuando el usuario no existe")
+    @DisplayName("CP03 - Crear categoría cuando el usuario no existe")
     void createCategory_userNotFound_throwException() {
         Integer userId = 1;
         User user = new User();
@@ -92,7 +92,7 @@ public class CategoryServiceUnitTest {
 
     //DELETE
     @Test
-    @DisplayName("US13-CP01 - Eliminar categoría existente")
+    @DisplayName("CP04 - Eliminar categoría existente")
     void deleteCategory_valid_executesDelete() {
         Integer categoryId = 1;
         Category category = new Category();
@@ -107,7 +107,7 @@ public class CategoryServiceUnitTest {
     }
 
     @Test
-    @DisplayName("US13-CP02 - Eliminar categoría inexistente")
+    @DisplayName("CP05 - Eliminar categoría inexistente")
     void deleteCategory_notFound_throwException() {
         Integer categoryId = 1;
         Category category = new Category();
@@ -120,7 +120,7 @@ public class CategoryServiceUnitTest {
     }
 
     @Test
-    @DisplayName("US13-CP03 - Eliminar categoría asociada a movimientos financieros")
+    @DisplayName("CP06 - Eliminar categoría asociada a movimientos financieros")
     void deleteCategory_associated_throwException() {
         Integer categoryId = 1;
         Category category = new Category();
@@ -135,7 +135,7 @@ public class CategoryServiceUnitTest {
 
     //UPDATE
     @Test
-    @DisplayName("US12-CP01 - Editar categoría existente")
+    @DisplayName("CP07 - Editar categoría existente")
     void updateCategory_valid_returnUpdated() {
         Integer categoryId = 1;
         CategoryRequest request = new CategoryRequest("Ocio", "Gastos en actividades de ocio");
@@ -169,7 +169,7 @@ public class CategoryServiceUnitTest {
     }
 
     @Test
-    @DisplayName("US12-CP02 - Editar categoría inexistente")
+    @DisplayName("CP08 - Editar categoría inexistente")
     void updateCategory_notFound_returnUpdated() {
         Integer categoryId = 1;
         CategoryRequest request = new CategoryRequest("Ocio", "Gastos en actividades de ocio");
@@ -190,7 +190,7 @@ public class CategoryServiceUnitTest {
     }
 
     @Test
-    @DisplayName("US12-CP03 - Editar categoría repetida")
+    @DisplayName("CP09 - Editar categoría repetida")
     void updateCategory_duplicatedCategory_throwException() {
         Integer categoryId = 1;
         CategoryRequest request = new CategoryRequest("Ocio", "Gastos en actividades de ocio");
@@ -213,7 +213,7 @@ public class CategoryServiceUnitTest {
 
     //GET
     @Test
-    @DisplayName("US13-CP04 - Obtener lista de categorías")
+    @DisplayName("CP10 - Obtener lista de categorías")
     void listCategories_valid_returnList() {
         Integer userId = 1;
         User user = new User();
@@ -235,7 +235,7 @@ public class CategoryServiceUnitTest {
     }
 
     @Test
-    @DisplayName("US13-CP05 - Obtener lista de categorías con usuario inexistente")
+    @DisplayName("CP11 - Obtener lista de categorías con usuario inexistente")
     void listCategories_userNotFound_returnList() {
         Integer userId = 1;
         User user = new User();
