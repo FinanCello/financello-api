@@ -14,7 +14,8 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*")); // Permitir cualquier origen (solo para desarrollo)
+        config.setAllowedOriginPatterns(List.of("*"));// Permitir cualquier origen (solo para desarrollo)
+        //config.setAllowedOriginPatterns(List.of("http://localhost:4200"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); // métodos permitidos
         config.setAllowedHeaders(List.of("*")); // cualquier cabecera (como Authorization)
         config.setAllowCredentials(true); // necesario si usas JWT o cookies

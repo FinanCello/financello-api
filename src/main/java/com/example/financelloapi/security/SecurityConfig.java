@@ -25,6 +25,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain springSecurityFilterChai(HttpSecurity http) throws Exception {
         return http
+                .cors(cors -> {}) // <--- Habilita CORS usando tu CorsConfig
                 .csrf(csrf ->csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
