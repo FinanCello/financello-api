@@ -25,9 +25,12 @@ public class SavingGoalMapper {
 
     public AddSavingGoalResponse toResponse(SavingGoal entity) {
         return new AddSavingGoalResponse(
+                entity.getId(),
                 entity.getName(),
                 entity.getTargetAmount(),
-                entity.getDueDate()
+                entity.getCurrentAmount(),
+                entity.getDueDate(),
+                entity.getUser() != null ? entity.getUser().getId() : null
         );
     }
 }

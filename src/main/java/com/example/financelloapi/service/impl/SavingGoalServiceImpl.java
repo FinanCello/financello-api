@@ -4,12 +4,10 @@ import com.example.financelloapi.dto.request.AddSavingGoalRequest;
 import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
 import com.example.financelloapi.exception.SavingGoalHasContributionsException;
-import com.example.financelloapi.exception.TargetAmountLessThanCurrentAmountException;
 import com.example.financelloapi.exception.UserDoesntExistException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
 import com.example.financelloapi.model.entity.SavingGoal;
 import com.example.financelloapi.model.entity.User;
-import com.example.financelloapi.repository.GoalContributionRepository;
 import com.example.financelloapi.repository.SavingGoalRepository;
 import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.service.SavingGoalService;
@@ -25,7 +23,6 @@ import java.util.Optional;
 @Service
 public class SavingGoalServiceImpl implements SavingGoalService{
     private final SavingGoalRepository savingGoalRepository;
-    private final GoalContributionRepository goalContributionRepository;
     private final SavingGoalMapper savingGoalMapper;
     private final UserRepository userRepository;
 
@@ -74,11 +71,15 @@ public class SavingGoalServiceImpl implements SavingGoalService{
                 .orElseThrow(() -> new NoSuchElementException("Meta no encontrada"));
 
         // 2) Validaciones de negocio
-        if (request.targetAmount() == null || request.targetAmount() < 0.0f) {
-            throw new IllegalArgumentException("El monto debe ser mayor o igual a 0");
+        if (request.targetAmount() == null || request.targetAmount() <= 0.0f) {
+            throw new IllegalArgumentException("El monto objetivo debe ser mayor a 0");
         }
         if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
+        }
+        // Validar que el nuevo monto objetivo no sea menor al monto actual
+        if (goal.getCurrentAmount() != null && request.targetAmount() < goal.getCurrentAmount()) {
+            throw new IllegalArgumentException("El monto objetivo no puede ser menor al monto actual acumulado");
         }
 
         // 3) Aplicamos cambios y guardamos
@@ -97,7 +98,7 @@ public class SavingGoalServiceImpl implements SavingGoalService{
                 .orElseThrow(() -> new UserDoesntExistException("Usuario no encontrado: " + userId));
 
         // recoge todas las metas de ese usuario
-        List<SavingGoal> goals = savingGoalRepository.findByUser_Id(userId);
+        List<SavingGoal> goals = savingGoalRepository.findByUserId(userId);
         return goals.stream()
                 .map(savingGoalMapper::toResponse)
                 .toList();

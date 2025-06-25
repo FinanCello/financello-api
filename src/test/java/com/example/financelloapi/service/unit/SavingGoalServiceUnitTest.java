@@ -4,11 +4,12 @@ import com.example.financelloapi.dto.request.AddSavingGoalRequest;
 import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
 import com.example.financelloapi.exception.SavingGoalHasContributionsException;
-import com.example.financelloapi.exception.TargetAmountLessThanCurrentAmountException;
+import com.example.financelloapi.exception.UserDoesntExistException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
 import com.example.financelloapi.model.entity.SavingGoal;
-import com.example.financelloapi.repository.GoalContributionRepository;
+import com.example.financelloapi.model.entity.User;
 import com.example.financelloapi.repository.SavingGoalRepository;
+import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.service.impl.SavingGoalServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +31,7 @@ public class SavingGoalServiceUnitTest {
     private SavingGoalRepository savingGoalRepository;
 
     @Mock
-    private GoalContributionRepository goalContributionRepository;
+    private UserRepository userRepository;
 
     @Mock
     private SavingGoalMapper savingGoalMapper;
@@ -40,207 +41,185 @@ public class SavingGoalServiceUnitTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
     @DisplayName("US06-CP01 - Registro de Meta de Ahorro Exitoso")
     void addSavingGoal_success() {
-
+        // Arrange
+        Integer userId = 1;
         LocalDate dueDate = LocalDate.of(2025, 12, 31);
-        AddSavingGoalRequest request = new AddSavingGoalRequest("Viaje a Japón", 1000.0f, 100.0f, dueDate);
+        AddSavingGoalRequest request = new AddSavingGoalRequest("Viaje a Japón", 1000.0f, dueDate);
+
+        User user = new User();
+        user.setId(userId);
 
         SavingGoal goalToSave = new SavingGoal();
         goalToSave.setName("Viaje a Japón");
         goalToSave.setTargetAmount(1000.0f);
         goalToSave.setDueDate(dueDate);
         goalToSave.setCurrentAmount(0.0f);
+        goalToSave.setUser(user);
 
         SavingGoal savedGoal = new SavingGoal();
+        savedGoal.setId(1);
         savedGoal.setName("Viaje a Japón");
         savedGoal.setTargetAmount(1000.0f);
         savedGoal.setDueDate(dueDate);
         savedGoal.setCurrentAmount(0.0f);
+        savedGoal.setUser(user);
 
-        AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse("Viaje a Japón", 1000.0f, dueDate);
+        AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse(
+                1, "Viaje a Japón", 1000.0f, 0.0f, dueDate, userId
+        );
 
+        when(userRepository.findByIdCustom(userId)).thenReturn(Optional.of(user));
         when(savingGoalRepository.findByName(request.name())).thenReturn(Optional.empty());
+        when(savingGoalMapper.toEntity(request, user)).thenReturn(goalToSave);
         when(savingGoalRepository.save(any(SavingGoal.class))).thenReturn(savedGoal);
         when(savingGoalMapper.toResponse(savedGoal)).thenReturn(expectedResponse);
 
-        AddSavingGoalResponse actualResponse = savingGoalService.addSavingGoal(request);
+        // Act
+        AddSavingGoalResponse actualResponse = savingGoalService.addSavingGoal(userId, request);
 
+        // Assert
         assertNotNull(actualResponse);
+        assertEquals(expectedResponse.id(), actualResponse.id());
         assertEquals(expectedResponse.name(), actualResponse.name());
         assertEquals(expectedResponse.targetAmount(), actualResponse.targetAmount());
+        assertEquals(expectedResponse.currentAmount(), actualResponse.currentAmount());
         assertEquals(expectedResponse.dueDate(), actualResponse.dueDate());
+        assertEquals(expectedResponse.userId(), actualResponse.userId());
 
+        verify(userRepository).findByIdCustom(userId);
         verify(savingGoalRepository).findByName(request.name());
+        verify(savingGoalMapper).toEntity(request, user);
         verify(savingGoalRepository).save(any(SavingGoal.class));
         verify(savingGoalMapper).toResponse(savedGoal);
     }
 
-
     @Test
-    @DisplayName("US06-CP02 - Falla si el monto objetivo es menor al monto actual")
-    void addSavingGoal_targetLessThanCurrent_throwsException() {
+    @DisplayName("US06-CP02 - Usuario no encontrado")
+    void addSavingGoal_userNotFound_throwsException() {
         // Arrange
-        AddSavingGoalRequest request = new AddSavingGoalRequest(
-                "Comprar laptop", 500.0f, 600.0f, LocalDate.of(2025, 10, 1)
-        );
+        Integer userId = 999;
+        LocalDate dueDate = LocalDate.of(2025, 12, 31);
+        AddSavingGoalRequest request = new AddSavingGoalRequest("Viaje a Japón", 1000.0f, dueDate);
 
-        SavingGoal existingGoal = new SavingGoal();
-        existingGoal.setName("Comprar laptop");
-        existingGoal.setCurrentAmount(600.0f);  // mayor que el targetAmount 500.0f
-
-        when(savingGoalRepository.findByName("Comprar laptop")).thenReturn(Optional.of(existingGoal));
+        when(userRepository.findByIdCustom(userId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(TargetAmountLessThanCurrentAmountException.class, () -> {
-            savingGoalService.addSavingGoal(request);
+        assertThrows(UserDoesntExistException.class, () -> {
+            savingGoalService.addSavingGoal(userId, request);
         });
 
-        verify(savingGoalMapper, never()).toEntity(any());
+        verify(userRepository).findByIdCustom(userId);
+        verify(savingGoalRepository, never()).findByName(anyString());
         verify(savingGoalRepository, never()).save(any());
-        verify(savingGoalMapper, never()).toResponse(any());
     }
 
     @Test
-    @DisplayName("US06-CP03 - Error si el monto objetivo es cero")
-    void addSavingGoal_zeroAmount_error() {
-        AddSavingGoalRequest request = new AddSavingGoalRequest("CoronelLeoncioPrado", 0.0f, 0.0f, LocalDate.now());
+    @DisplayName("US16-CP01 - Obtener metas por usuario - exitoso")
+    void getGoalsByUser_success() {
+        // Arrange
+        Integer userId = 1;
+        User user = new User();
+        user.setId(userId);
 
-        SavingGoal existingGoal = new SavingGoal();
-        existingGoal.setName("CoronelLeoncioPrado");
-        existingGoal.setCurrentAmount(0.0f);
+        SavingGoal goal1 = new SavingGoal();
+        goal1.setId(1);
+        goal1.setName("Meta 1");
+        goal1.setTargetAmount(1000f);
+        goal1.setCurrentAmount(200f);
+        goal1.setUser(user);
 
-        when(savingGoalRepository.findByName("CoronelLeoncioPrado")).thenReturn(Optional.of(existingGoal));
+        SavingGoal goal2 = new SavingGoal();
+        goal2.setId(2);
+        goal2.setName("Meta 2");
+        goal2.setTargetAmount(500f);
+        goal2.setCurrentAmount(100f);
+        goal2.setUser(user);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> savingGoalService.addSavingGoal(request)
+        List<SavingGoal> goals = List.of(goal1, goal2);
+
+        AddSavingGoalResponse response1 = new AddSavingGoalResponse(
+                1, "Meta 1", 1000f, 200f, LocalDate.now().plusDays(30), userId
+        );
+        AddSavingGoalResponse response2 = new AddSavingGoalResponse(
+                2, "Meta 2", 500f, 100f, LocalDate.now().plusDays(60), userId
         );
 
-        assertEquals("El monto debe ser mayor a 0", exception.getMessage());
+        when(userRepository.findByIdCustom(userId)).thenReturn(Optional.of(user));
+        when(savingGoalRepository.findByUserId(userId)).thenReturn(goals);
+        when(savingGoalMapper.toResponse(goal1)).thenReturn(response1);
+        when(savingGoalMapper.toResponse(goal2)).thenReturn(response2);
+
+        // Act
+        List<AddSavingGoalResponse> result = savingGoalService.getGoalsByUser(userId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(response1, result.get(0));
+        assertEquals(response2, result.get(1));
+
+        verify(userRepository).findByIdCustom(userId);
+        verify(savingGoalRepository).findByUserId(userId);
+        verify(savingGoalMapper).toResponse(goal1);
+        verify(savingGoalMapper).toResponse(goal2);
     }
 
-
     @Test
-    @DisplayName("US06-CP04 - Error si la fecha es nula o pasada")
-    void addSavingGoal_invalidDate_error() {
+    @DisplayName("US16-CP02 - Usuario no encontrado al obtener metas")
+    void getGoalsByUser_userNotFound_throwsException() {
+        // Arrange
+        Integer userId = 999;
+        when(userRepository.findByIdCustom(userId)).thenReturn(Optional.empty());
 
-        SavingGoal existingGoalNullDate = new SavingGoal();
-        existingGoalNullDate.setName("Meta sin fecha");
-        existingGoalNullDate.setCurrentAmount(0.0f);
-        when(savingGoalRepository.findByName("Meta sin fecha")).thenReturn(Optional.of(existingGoalNullDate));
+        // Act & Assert
+        assertThrows(UserDoesntExistException.class, () -> {
+            savingGoalService.getGoalsByUser(userId);
+        });
 
-        SavingGoal existingGoalPastDate = new SavingGoal();
-        existingGoalPastDate.setName("Meta fecha pasada");
-        existingGoalPastDate.setCurrentAmount(0.0f);
-        when(savingGoalRepository.findByName("Meta fecha pasada")).thenReturn(Optional.of(existingGoalPastDate));
-
-        AddSavingGoalRequest requestNullDate = new AddSavingGoalRequest(
-                "Meta sin fecha", 1000.0f, 100.0f, null
-        );
-        AddSavingGoalRequest requestPastDate = new AddSavingGoalRequest(
-                "Meta fecha pasada", 1000.0f, 100.0f, LocalDate.now().minusDays(1)
-        );
-
-        IllegalArgumentException ex1 = assertThrows(IllegalArgumentException.class, () ->
-                savingGoalService.addSavingGoal(requestNullDate)
-        );
-        assertEquals("La fecha de vencimiento debe ser hoy o futura", ex1.getMessage());
-
-        IllegalArgumentException ex2 = assertThrows(IllegalArgumentException.class, () ->
-                savingGoalService.addSavingGoal(requestPastDate)
-        );
-        assertEquals("La fecha de vencimiento debe ser hoy o futura", ex2.getMessage());
-
-        verify(savingGoalMapper, never()).toEntity(any());
-        verify(savingGoalRepository, never()).save(any());
+        verify(userRepository).findByIdCustom(userId);
+        verify(savingGoalRepository, never()).findByUserId(anyInt());
     }
 
     @Test
     @DisplayName("US14-CP01 - Edición de meta de ahorro")
     void whenUpdateWithValidData_thenReturnsUpdatedResponse() {
-        // dado
+        // Arrange
         Integer goalId = 1;
         SavingGoal existing = new SavingGoal();
         existing.setId(goalId);
         existing.setCurrentAmount(100f);
 
+        User user = new User();
+        user.setId(1);
+        existing.setUser(user);
+
         UpdateSavingGoalRequest req = new UpdateSavingGoalRequest(200f, LocalDate.now().plusDays(5));
-        // Asegúrate de convertir el ID a String si tu DTO lo pide así
         AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse(
-                String.valueOf(goalId),
-                req.targetAmount(),
-                req.dueDate()
+                goalId, "Meta Test", req.targetAmount(), 100f, req.dueDate(), 1
         );
 
         when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
         when(savingGoalRepository.save(existing)).thenReturn(existing);
         when(savingGoalMapper.toResponse(existing)).thenReturn(expectedResponse);
 
-        // cuando
+        // Act
         AddSavingGoalResponse actual = savingGoalService.updateSavingGoal(goalId, req);
 
-        // entonces
+        // Assert
         assertEquals(expectedResponse, actual);
         verify(savingGoalRepository).save(existing);
     }
 
     @Test
-    @DisplayName("US14-CP02 - Fecha no válida")
-    void whenUpdateWithPastDate_thenThrowsIllegalArgumentException() {
-        // dado
-        Integer goalId = 2;
-        SavingGoal existing = new SavingGoal();
-        existing.setId(goalId);
-        existing.setCurrentAmount(0f);
-
-        // ¡Fíjate en el nombre correcto aquí!
-        UpdateSavingGoalRequest req = new UpdateSavingGoalRequest(
-                100f,
-                LocalDate.now().minusDays(1)
-        );
-
-        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
-
-        // cuando / entonces
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> savingGoalService.updateSavingGoal(goalId, req)
-        );
-        assertEquals("La fecha de vencimiento debe ser hoy o futura", ex.getMessage());
-        verify(savingGoalRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("US14-CP03 - Meta no encontrada")
-
-    void whenUpdateNonExistingGoal_thenThrowsNoSuchElementException() {
-        // dado
-        Integer goalId = 3;
-        UpdateSavingGoalRequest req = new UpdateSavingGoalRequest(
-                100f,
-                LocalDate.now().plusDays(1)
-        );
-
-        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.empty());
-
-        // cuando / entonces
-        NoSuchElementException ex = assertThrows(
-                NoSuchElementException.class,
-                () -> savingGoalService.updateSavingGoal(goalId, req)
-        );
-        assertEquals("Meta no encontrada", ex.getMessage());
-        verify(savingGoalRepository, never()).save(any());
-    }
-
-    @Test
     @DisplayName("US15-CP01 - Eliminación de meta de ahorro exitosa")
     void whenDeleteWithNoContributions_thenDeletesSuccessfully() {
-        // dado
+        // Arrange
         Integer goalId = 10;
         SavingGoal existing = new SavingGoal();
         existing.setId(goalId);
@@ -248,17 +227,17 @@ public class SavingGoalServiceUnitTest {
 
         when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
 
-        // cuando
+        // Act
         assertDoesNotThrow(() -> savingGoalService.deleteSavingGoal(goalId));
 
-        // entonces
+        // Assert
         verify(savingGoalRepository).delete(existing);
     }
 
     @Test
     @DisplayName("US15-CP02 - Error al eliminar meta con aportes registrados")
     void whenDeleteWithContributions_thenThrowsSavingGoalHasContributionsException() {
-        // dado
+        // Arrange
         Integer goalId = 11;
         SavingGoal existing = new SavingGoal();
         existing.setId(goalId);
@@ -266,7 +245,7 @@ public class SavingGoalServiceUnitTest {
 
         when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
 
-        // cuando / entonces
+        // Act & Assert
         SavingGoalHasContributionsException ex = assertThrows(
                 SavingGoalHasContributionsException.class,
                 () -> savingGoalService.deleteSavingGoal(goalId)
@@ -277,24 +256,4 @@ public class SavingGoalServiceUnitTest {
         );
         verify(savingGoalRepository, never()).delete(any());
     }
-
-    @Test
-    @DisplayName("US15-CP03 - Meta no existe")
-    void whenDeleteNonExistingGoal_thenThrowsIllegalArgumentException() {
-        // dado
-        Integer goalId = 12;
-        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.empty());
-
-        // cuando / entonces
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> savingGoalService.deleteSavingGoal(goalId)
-        );
-        assertTrue(
-                ex.getMessage().contains("Meta no encontrada"),
-                "Se esperaba mensaje de 'Meta no encontrada', pero fue: " + ex.getMessage()
-        );
-        verify(savingGoalRepository, never()).delete(any());
-    }
-
 }

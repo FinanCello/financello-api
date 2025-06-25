@@ -2,4 +2,11 @@ package com.example.financelloapi.dto.test;
 
 import java.time.LocalDate;
 
-public record AddSavingGoalResponse(String name, Float targetAmount, LocalDate dueDate) {}
+public record AddSavingGoalResponse(
+        Integer id,
+        String name, 
+        Float targetAmount, 
+        Float currentAmount,
+        LocalDate dueDate,
+        Integer userId
+) {}
