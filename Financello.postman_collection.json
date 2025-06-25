@@ -365,6 +365,45 @@
 			"item": [
 				{
 					"name": "Create Goal",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('targetAmount');",
+									"    pm.expect(jsonData).to.have.property('currentAmount');",
+									"    pm.expect(jsonData).to.have.property('dueDate');",
+									"    pm.expect(jsonData).to.have.property('userId');",
+									"});",
+									"",
+									"pm.test(\"Current amount is initialized to 0\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.currentAmount).to.eql(0.0);",
+									"});",
+									"",
+									"pm.test(\"User ID matches request\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.userId).to.eql(1);",
+									"});",
+									"",
+									"// Store goal ID for future requests",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"goal_id\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -380,7 +419,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"PC\",\r\n    \"targetAmount\": 500.99,\r\n    \"currentAmount\": 230.50,\r\n    \"dueDate\":\"2026-02-05\"\r\n}",
+							"raw": "{\r\n    \"name\": \"PC Gaming Setup\",\r\n    \"targetAmount\": 1500.00,\r\n    \"dueDate\": \"2026-06-30\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -388,13 +427,19 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/goals/add",
+							"raw": "{{base_url}}/goals/add?userId=1",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"goals",
 								"add"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
 							]
 						}
 					},
@@ -452,18 +497,89 @@
 						},
 						"method": "DELETE",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"targetAmount\": 750.0,\r\n  \"dueDate\": \"2025-12-31\"\r\n}\r\n"
-						},
 						"url": {
-							"raw": "{{base_url}}/goals/1",
+							"raw": "{{base_url}}/goals/{{goal_id}}",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"goals",
-								"1"
+								"{{goal_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Goals by User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"All goals have required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        jsonData.forEach(function(goal) {",
+									"            pm.expect(goal).to.have.property('id');",
+									"            pm.expect(goal).to.have.property('name');",
+									"            pm.expect(goal).to.have.property('targetAmount');",
+									"            pm.expect(goal).to.have.property('currentAmount');",
+									"            pm.expect(goal).to.have.property('dueDate');",
+									"            pm.expect(goal).to.have.property('userId');",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"All goals belong to user 1\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        jsonData.forEach(function(goal) {",
+									"            pm.expect(goal.userId).to.eql(1);",
+									"        });",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/goals/user?userId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"goals",
+								"user"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
 							]
 						}
 					},
