@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -34,6 +35,12 @@ public class FinancialMovementController {
     public ResponseEntity<List<RegisterFinancialMovementResponse>> filter(@RequestParam Integer userId, @RequestParam(required = false) Integer categoryId, @RequestParam(required = false) MovementType type) {
         List<RegisterFinancialMovementResponse> result = financialMovementService.filterMovements(userId, categoryId, type);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadExcel(@RequestParam("file") MultipartFile file) {
+        financialMovementService.importFromExcel(file);
+        return ResponseEntity.ok("Movimientos financieros importados correctamente desde Excel.");
     }
 
 }

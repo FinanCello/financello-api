@@ -1,3 +1,3 @@
 package com.example.financelloapi.dto.test;
 
-public record CategorySimpleResponse(String name) { }
+public record CategorySimpleResponse(Integer id, String name) { }

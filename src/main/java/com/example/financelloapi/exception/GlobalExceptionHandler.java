@@ -16,8 +16,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ProblemDetail handleUserAlreadyExistsException(UserAlreadyExistsException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Usuario duplicado");
-        pd.setDetail(ex.getMessage());
+        pd.setTitle(ex.getMessage());
+        pd.setDetail("Usuario duplicado");
         pd.setProperty("path", request.getDescription(false));
         return pd;
     }
@@ -49,8 +49,8 @@ public class GlobalExceptionHandler {
                 .orElse("Error de validación");
 
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Error de validación");
-        pd.setDetail(firstErrorMessage);
+        pd.setTitle(firstErrorMessage);
+        pd.setDetail("Error de validación");
         pd.setProperty("path", request.getDescription(false));
         return pd;
     }
@@ -58,8 +58,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserDoesntExistException.class)
     public ProblemDetail handleUserDoesntExistException(UserDoesntExistException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Usuario no existe");
-        pd.setDetail(ex.getMessage());
+        pd.setTitle(ex.getMessage());
+        pd.setDetail("Usuario no existe");
         pd.setProperty("path", request.getDescription(false));
         return pd;
     }
@@ -67,8 +67,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RoleDoesntExistException.class)
     public ProblemDetail handleRoleDoesntExistException(RoleDoesntExistException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Rol no existe");
-        pd.setDetail(ex.getMessage());
+        pd.setTitle(ex.getMessage());
+        pd.setDetail("Rol no existe");
         pd.setProperty("path", request.getDescription(false));
         return pd;
     }
@@ -76,8 +76,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmptyException.class)
     public ProblemDetail handleEmptyException(EmptyException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Contenido vacío");
-        pd.setDetail(ex.getMessage());
+        pd.setTitle(ex.getMessage());
+        pd.setDetail("Contenido vacío");
         pd.setProperty("path", request.getDescription(false));
         return pd;
     }
@@ -103,8 +103,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(GoalContributionNotFoundException.class)
     public ProblemDetail handleGoalContributionNotFoundException(GoalContributionNotFoundException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        pd.setTitle("Contribución a meta no encontrada");
-        pd.setDetail(ex.getMessage());
+        pd.setTitle(ex.getMessage());
+        pd.setDetail("Contribución a meta no encontrada");
         pd.setProperty("path", request.getDescription(false));
         return pd;
     }
@@ -112,8 +112,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-        pd.setTitle("Usuario no encontrado");
-        pd.setDetail(ex.getMessage());
+        pd.setTitle(ex.getMessage());
+        pd.setDetail("Usuario no encontrado");
         pd.setProperty("path", request.getDescription(false));
         return pd;
     }
