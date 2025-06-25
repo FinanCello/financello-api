@@ -73,7 +73,7 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.save(user);
         String token = jwtUtil.generateToken(savedUser.getEmail(),savedUser.getRole().toString());
 
-        return new AuthResponse(savedUser.getEmail(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getUserType(), token);
+        return new AuthResponse(savedUser.getId(), savedUser.getEmail(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getUserType(), token);
     }
 
     @Override
@@ -88,6 +88,7 @@ public class AuthServiceImpl implements AuthService {
         String encodeToken = jwtUtil.generateToken(user.getEmail(),user.getRole().toString());
 
         return new AuthResponse(
+                user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),

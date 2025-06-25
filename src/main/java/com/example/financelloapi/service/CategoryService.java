@@ -78,7 +78,7 @@ public class CategoryService {
 
 
     public CategorySimpleResponse getCategory(Category category) {
-        return new CategorySimpleResponse(category.getName());
+        return new CategorySimpleResponse(category.getId(), category.getName());
     }
 
     public List<CategorySimpleResponse> getCategoryNamesByUserId(Integer userId) {
