@@ -9,16 +9,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/goals")
 @PreAuthorize("hasRole('BASIC')")
 public class SavingGoalController {
+
     private final SavingGoalService savingGoalService;
 
-    @PostMapping("/add")
-    public ResponseEntity<AddSavingGoalResponse> add(@RequestBody AddSavingGoalRequest request) {
-        return ResponseEntity.ok(savingGoalService.addSavingGoal(request));
+    // → ahora recibimos el userId por path
+    @PostMapping("/add/{userId}")
+    public ResponseEntity<AddSavingGoalResponse> add(
+            @PathVariable Integer userId,
+            @RequestBody AddSavingGoalRequest request) {
+        return ResponseEntity.ok(
+                savingGoalService.addSavingGoal(userId, request)
+        );
+    }
+
+    // opcional: endpoint para listar por usuario
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<AddSavingGoalResponse>> listByUser(
+            @PathVariable Integer userId) {
+        return ResponseEntity.ok(
+                savingGoalService.getGoalsByUser(userId)
+        );
     }
 
     @DeleteMapping("/{goalId}")
