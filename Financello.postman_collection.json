@@ -389,16 +389,15 @@
 									"    pm.expect(jsonData.currentAmount).to.eql(0.0);",
 									"});",
 									"",
-									"pm.test(\"User ID is present\", function () {",
+									"pm.test(\"User ID matches request\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.userId).to.be.a('number');",
+									"    pm.expect(jsonData.userId).to.eql(1);",
 									"});",
 									"",
 									"// Store goal ID for future requests",
 									"if (pm.response.code === 201) {",
 									"    var jsonData = pm.response.json();",
 									"    pm.environment.set(\"goal_id\", jsonData.id);",
-									"    pm.environment.set(\"current_user_id\", jsonData.userId);",
 									"}"
 								],
 								"type": "text/javascript"
@@ -428,14 +427,19 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/goals/add/{{current_user_id}}",
+							"raw": "{{base_url}}/goals/add?userId=1",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"goals",
-								"add",
-								"{{current_user_id}}"
+								"add"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
 							]
 						}
 					},
@@ -493,10 +497,6 @@
 						},
 						"method": "DELETE",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"targetAmount\": 750.0,\r\n  \"dueDate\": \"2025-12-31\"\r\n}\r\n"
-						},
 						"url": {
 							"raw": "{{base_url}}/goals/{{goal_id}}",
 							"host": [
@@ -540,12 +540,11 @@
 									"    }",
 									"});",
 									"",
-									"pm.test(\"All goals belong to the correct user\", function () {",
+									"pm.test(\"All goals belong to user 1\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    var expectedUserId = parseInt(pm.variables.get(\"current_user_id\"));",
 									"    if (jsonData.length > 0) {",
 									"        jsonData.forEach(function(goal) {",
-									"            pm.expect(goal.userId).to.eql(expectedUserId);",
+									"            pm.expect(goal.userId).to.eql(1);",
 									"        });",
 									"    }",
 									"});"
@@ -568,14 +567,19 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/goals/user/{{current_user_id}}",
+							"raw": "{{base_url}}/goals/user?userId=1",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"goals",
-								"user",
-								"{{current_user_id}}"
+								"user"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
 							]
 						}
 					},

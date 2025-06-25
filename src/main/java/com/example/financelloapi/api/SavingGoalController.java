@@ -19,20 +19,20 @@ public class SavingGoalController {
 
     private final SavingGoalService savingGoalService;
 
-    // → ahora recibimos el userId por path
-    @PostMapping("/add/{userId}")
+    // Crear nueva meta de ahorro
+    @PostMapping("/add")
     public ResponseEntity<AddSavingGoalResponse> add(
-            @PathVariable Integer userId,
+            @RequestParam Integer userId,
             @RequestBody AddSavingGoalRequest request) {
         return ResponseEntity.ok(
                 savingGoalService.addSavingGoal(userId, request)
         );
     }
 
-    // opcional: endpoint para listar por usuario
-    @GetMapping("/user/{userId}")
+    // Listar metas por usuario
+    @GetMapping("/user")
     public ResponseEntity<List<AddSavingGoalResponse>> listByUser(
-            @PathVariable Integer userId) {
+            @RequestParam Integer userId) {
         return ResponseEntity.ok(
                 savingGoalService.getGoalsByUser(userId)
         );
