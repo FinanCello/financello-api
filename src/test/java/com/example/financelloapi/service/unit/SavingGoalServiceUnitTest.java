@@ -8,6 +8,7 @@ import com.example.financelloapi.exception.UserDoesntExistException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
 import com.example.financelloapi.model.entity.SavingGoal;
 import com.example.financelloapi.model.entity.User;
+import com.example.financelloapi.model.enums.SavingGoalProgress;
 import com.example.financelloapi.repository.SavingGoalRepository;
 import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.service.impl.SavingGoalServiceImpl;
@@ -71,7 +72,7 @@ public class SavingGoalServiceUnitTest {
         savedGoal.setUser(user);
 
         AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse(
-                1, "Viaje a Japón", 1000.0f, 0.0f, dueDate, userId
+                1, "Viaje a Japón", 1000.0f, 0.0f, dueDate, userId, SavingGoalProgress.IN_PROGRESS
         );
 
         when(userRepository.findByIdCustom(userId)).thenReturn(Optional.of(user));
@@ -91,6 +92,8 @@ public class SavingGoalServiceUnitTest {
         assertEquals(expectedResponse.currentAmount(), actualResponse.currentAmount());
         assertEquals(expectedResponse.dueDate(), actualResponse.dueDate());
         assertEquals(expectedResponse.userId(), actualResponse.userId());
+        assertEquals(expectedResponse.progress(), actualResponse.progress());
+        assertEquals(SavingGoalProgress.IN_PROGRESS, actualResponse.progress());
 
         verify(userRepository).findByIdCustom(userId);
         verify(savingGoalRepository).findByName(request.name());
@@ -144,10 +147,10 @@ public class SavingGoalServiceUnitTest {
         List<SavingGoal> goals = List.of(goal1, goal2);
 
         AddSavingGoalResponse response1 = new AddSavingGoalResponse(
-                1, "Meta 1", 1000f, 200f, LocalDate.now().plusDays(30), userId
+                1, "Meta 1", 1000f, 200f, LocalDate.now().plusDays(30), userId, SavingGoalProgress.IN_PROGRESS
         );
         AddSavingGoalResponse response2 = new AddSavingGoalResponse(
-                2, "Meta 2", 500f, 100f, LocalDate.now().plusDays(60), userId
+                2, "Meta 2", 500f, 100f, LocalDate.now().plusDays(60), userId, SavingGoalProgress.IN_PROGRESS
         );
 
         when(userRepository.findByIdCustom(userId)).thenReturn(Optional.of(user));
@@ -201,7 +204,7 @@ public class SavingGoalServiceUnitTest {
 
         UpdateSavingGoalRequest req = new UpdateSavingGoalRequest(200f, LocalDate.now().plusDays(5));
         AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse(
-                goalId, "Meta Test", req.targetAmount(), 100f, req.dueDate(), 1
+                goalId, "Meta Test", req.targetAmount(), 100f, req.dueDate(), 1, SavingGoalProgress.IN_PROGRESS
         );
 
         when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));

@@ -1,5 +1,6 @@
 package com.example.financelloapi.dto.test;
 
+import com.example.financelloapi.model.enums.SavingGoalProgress;
 import java.time.LocalDate;
 
 public record AddSavingGoalResponse(
@@ -8,5 +9,6 @@ public record AddSavingGoalResponse(
         Float targetAmount, 
         Float currentAmount,
         LocalDate dueDate,
-        Integer userId
+        Integer userId,
+        SavingGoalProgress progress
 ) {}
