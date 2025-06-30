@@ -40,8 +40,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse register(RegisterRequest request) {
         if (request.firstName().trim().isEmpty() || request.lastName().trim().isEmpty() ||
-                request.email().trim().isEmpty() || request.password().trim().isEmpty() ||
-                request.userType() == null) {
+                request.email().trim().isEmpty() || request.password().trim().isEmpty()) {
             throw new EmptyException("Fill all blank spaces");
         }
 
@@ -63,7 +62,6 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
-        user.setUserType(request.userType());
 
         Role defaultRole = roleRepository.findByRoleType(RoleType.BASIC)
                 .orElseThrow(() -> new CustomException("Default role BASIC not found"));
@@ -73,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
         User savedUser = userRepository.save(user);
         String token = jwtUtil.generateToken(savedUser.getEmail(),savedUser.getRole().toString());
 
-        return new AuthResponse(savedUser.getId(), savedUser.getEmail(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getUserType(), token);
+        return new AuthResponse(savedUser.getId(), savedUser.getEmail(), savedUser.getFirstName(), savedUser.getLastName(), token);
     }
 
     @Override
@@ -92,7 +90,6 @@ public class AuthServiceImpl implements AuthService {
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getUserType(),
                 encodeToken
         );
     }

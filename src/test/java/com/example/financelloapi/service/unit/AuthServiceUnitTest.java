@@ -14,7 +14,6 @@ import com.example.financelloapi.mapper.UserMapper;
 import com.example.financelloapi.model.entity.Role;
 import com.example.financelloapi.model.entity.User;
 import com.example.financelloapi.model.enums.RoleType;
-import com.example.financelloapi.model.enums.UserType;
 import com.example.financelloapi.repository.RoleRepository;
 import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.security.JwtUtil;
@@ -74,14 +73,12 @@ public class AuthServiceUnitTest {
         user.setLastName("Pérez");
         user.setPassword("encodedPassword123");
         user.setRole(new Role(1, RoleType.BASIC));
-        user.setUserType(UserType.PERSONAL);
 
         RegisterRequest request = new RegisterRequest(
                 "juan@example.com",
                 "password123",
                 "Juan",
-                "Pérez",
-                UserType.PERSONAL);
+                "Pérez");
 
         Role basicRole = new Role(1, RoleType.BASIC);
 
@@ -100,7 +97,6 @@ public class AuthServiceUnitTest {
         assertEquals("juan@example.com", response.email());
         assertEquals("Juan", response.firstName());
         assertEquals("Pérez", response.lastName());
-        assertEquals(UserType.PERSONAL, response.userType());
         assertEquals("encodeToken", response.token());
         verify(userRepository).save(argThat(savedUser ->
                 savedUser.getFirstName().equals("Juan") &&
@@ -115,7 +111,7 @@ public class AuthServiceUnitTest {
     @DisplayName("US01-CP02 - Email ya exsistente")
     void register_fails_whenEmailAlreadyExists() {
         // Arrange
-        RegisterRequest request = new RegisterRequest("juan@example.com", "password123", "Juan", "Pérez", UserType.PERSONAL);
+        RegisterRequest request = new RegisterRequest("juan@example.com", "password123", "Juan", "Pérez");
 
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
@@ -128,7 +124,7 @@ public class AuthServiceUnitTest {
     @DisplayName("US01-CP03 - Usuario ya exsistente")
     void register_fails_whenUsernameAlreadyExists() {
         // Arrange
-        RegisterRequest request = new RegisterRequest("juan@example.com", "password123", "Juan", "Pérez", UserType.PERSONAL);
+        RegisterRequest request = new RegisterRequest("juan@example.com", "password123", "Juan", "Pérez");
 
         User existingUser = new User();
         existingUser.setFirstName("Juan");
@@ -146,7 +142,7 @@ public class AuthServiceUnitTest {
     @DisplayName("US01-CP04 - Registro: Campo vacío")
     void register_fails_whenFieldsAreEmpty() {
         // Arrange
-        RegisterRequest request = new RegisterRequest(" ", " ", "", "", null);
+        RegisterRequest request = new RegisterRequest(" ", " ", "", "");
 
         // Act & Assert
         assertThrows(EmptyException.class, () -> authService.register(request));
@@ -165,7 +161,6 @@ public class AuthServiceUnitTest {
         user.setPassword("encodedPassword123");
         user.setFirstName("Juan");
         user.setLastName("Pérez");
-        user.setUserType(UserType.PERSONAL);
         user.setRole(new Role(1, RoleType.BASIC));
 
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(user));
@@ -180,7 +175,6 @@ public class AuthServiceUnitTest {
         assertEquals("juan@example.com", actualResponse.email());
         assertEquals("Juan", actualResponse.firstName());
         assertEquals("Pérez", actualResponse.lastName());
-        assertEquals(UserType.PERSONAL, actualResponse.userType());
         assertEquals("encodeToken", actualResponse.token());
     }
 
