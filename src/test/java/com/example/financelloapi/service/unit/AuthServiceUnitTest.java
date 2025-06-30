@@ -272,6 +272,8 @@ public class AuthServiceUnitTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
         // Simular que no existe otro usuario con el email nuevo
         when(userRepository.findByEmail("maria.new@example.com")).thenReturn(Optional.empty());
+        // Simular encriptación de contraseña
+        when(passwordEncoder.encode("newpass")).thenReturn("encodedNewPass");
         // Simular guardado exitoso
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -289,8 +291,9 @@ public class AuthServiceUnitTest {
                         "María".equals(user.getFirstName()) &&
                         "García".equals(user.getLastName()) &&
                         "maria.new@example.com".equals(user.getEmail()) &&
-                        "newpass".equals(user.getPassword())
+                        "encodedNewPass".equals(user.getPassword())
         ));
+        verify(passwordEncoder, times(1)).encode("newpass");
     }
 
     @Test
@@ -330,8 +333,8 @@ public class AuthServiceUnitTest {
     }
 
     @Test
-    @DisplayName("US18-CP03 - Editar perfil: Campo vacío")
-    void updateUserProfile_emptyField() {
+    @DisplayName("US18-CP03 - Editar perfil: Todos los campos vacíos")
+    void updateUserProfile_allFieldsEmpty() {
         // Arrange (DADO)
         Integer userId = 4;
         User existingUser = new User();
@@ -343,9 +346,9 @@ public class AuthServiceUnitTest {
 
         UpdateProfileRequest badRequest = new UpdateProfileRequest();
         badRequest.setFirstName("");  // campo vacío
-        badRequest.setLastName("Martínez");
-        badRequest.setEmail("ana@example.com");
-        badRequest.setPassword("newpass");
+        badRequest.setLastName("");   // campo vacío
+        badRequest.setEmail("");      // campo vacío
+        badRequest.setPassword("");   // campo vacío
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
 
@@ -353,10 +356,49 @@ public class AuthServiceUnitTest {
         EmptyException ex = assertThrows(
                 EmptyException.class,
                 () -> authService.updateUserProfile(userId, badRequest),
-                "Se esperaba EmptyException cuando algún campo esté vacío"
+                "Se esperaba EmptyException cuando todos los campos estén vacíos"
         );
-        assertEquals("Campo obligatorio", ex.getMessage());
+        assertEquals("Debe proporcionar al menos un campo para actualizar", ex.getMessage());
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("US18-CP04 - Editar perfil: Solo algunos campos (exitoso)")
+    void updateUserProfile_partialUpdate_success() {
+        // Arrange (DADO)
+        Integer userId = 5;
+        User existingUser = new User();
+        existingUser.setId(userId);
+        existingUser.setFirstName("Carlos");
+        existingUser.setLastName("Mendoza");
+        existingUser.setEmail("carlos@example.com");
+        existingUser.setPassword("oldPassword");
+
+        UpdateProfileRequest partialRequest = new UpdateProfileRequest();
+        partialRequest.setFirstName("CarlosUpdated");  // Solo actualizar nombre
+        // lastName, email, password permanecen null
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act (CUANDO)
+        UserProfileResponse updatedResponse = authService.updateUserProfile(userId, partialRequest);
+
+        // Assert (ENTONCES)
+        assertNotNull(updatedResponse);
+        assertEquals("CarlosUpdated", updatedResponse.firstName());
+        assertEquals("Mendoza", updatedResponse.lastName());  // Sin cambios
+        assertEquals("carlos@example.com", updatedResponse.email());  // Sin cambios
+
+        verify(userRepository, times(1)).save(argThat(user ->
+                user.getId().equals(userId) &&
+                        "CarlosUpdated".equals(user.getFirstName()) &&
+                        "Mendoza".equals(user.getLastName()) &&
+                        "carlos@example.com".equals(user.getEmail()) &&
+                        "oldPassword".equals(user.getPassword())  // Sin cambios
+        ));
+        // No debe llamar passwordEncoder si no se proporciona nueva contraseña
+        verify(passwordEncoder, never()).encode(anyString());
     }
 
     //US20: Ver lista de usuarios con rol

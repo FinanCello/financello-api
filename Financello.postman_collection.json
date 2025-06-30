@@ -189,6 +189,44 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Edit Profile - Partial Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"NuevoNombre\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/profile/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								"1"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
