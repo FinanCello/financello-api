@@ -27,5 +27,6 @@ services:
       POSTGRES_PASSWORD: adminadmin
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./src/main/resources/data-test.sql:/docker-entrypoint-initdb.d/data-test.sql:ro
 volumes:
   postgres-data:
