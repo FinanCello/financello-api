@@ -269,11 +269,13 @@ public class AuthServiceUnitTest {
         existingUser.setEmail("maria.old@example.com");
         existingUser.setPassword("oldpass");
 
-        UpdateProfileRequest updateRequest = new UpdateProfileRequest();
-        updateRequest.setFirstName("María");
-        updateRequest.setLastName("García");
-        updateRequest.setEmail("maria.new@example.com");
-        updateRequest.setPassword("newpass");
+        UpdateProfileRequest updateRequest = new UpdateProfileRequest(
+                "María",
+                "García",
+                "maria.new@example.com",
+                "newpass"
+        );
+
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
         // Simular que no existe otro usuario con el email nuevo
@@ -316,11 +318,13 @@ public class AuthServiceUnitTest {
         otherUser.setId(10);
         otherUser.setEmail("nuevo@example.com");
 
-        UpdateProfileRequest request = new UpdateProfileRequest();
-        request.setFirstName("Pedro");
-        request.setLastName("López");
-        request.setEmail("nuevo@example.com");  // duplicado
-        request.setPassword("secret");
+        UpdateProfileRequest request = new UpdateProfileRequest(
+                "Pedro",
+                "López",
+                "nuevo@example.com",
+                "secret"
+        );
+
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
         when(userRepository.findByEmail("nuevo@example.com")).thenReturn(Optional.of(otherUser));
@@ -347,11 +351,13 @@ public class AuthServiceUnitTest {
         existingUser.setEmail("ana@example.com");
         existingUser.setPassword("secret");
 
-        UpdateProfileRequest badRequest = new UpdateProfileRequest();
-        badRequest.setFirstName("");  // campo vacío
-        badRequest.setLastName("Martínez");
-        badRequest.setEmail("ana@example.com");
-        badRequest.setPassword("newpass");
+        UpdateProfileRequest badRequest = new UpdateProfileRequest(
+                "",                      // firstName vacío
+                "Martínez",              // lastName
+                "ana@example.com",       // email
+                "newpass"                // password
+        );
+
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
 

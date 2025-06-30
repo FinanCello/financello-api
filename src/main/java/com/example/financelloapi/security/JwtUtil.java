@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 public class JwtUtil {
 
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final long EXPIRATION_TIME = 864_000_000;
 
     public String generateToken (String email, String role) {
@@ -27,7 +27,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public static Authentication getAuthentication (String token) {
+    public Authentication getAuthentication (String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(SECRET_KEY)
                 .build()

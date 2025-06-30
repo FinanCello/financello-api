@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
         user.setRole(defaultRole);
 
         User savedUser = userRepository.save(user);
-        String token = jwtUtil.generateToken(savedUser.getEmail(),savedUser.getRole().toString());
+        String token = jwtUtil.generateToken(savedUser.getEmail(),savedUser.getRole().getRoleType().name());
 
         return new AuthResponse(savedUser.getId(), savedUser.getEmail(), savedUser.getFirstName(), savedUser.getLastName(), savedUser.getUserType(), token);
     }
@@ -85,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException("Incorrect password");
         }
 
-        String encodeToken = jwtUtil.generateToken(user.getEmail(),user.getRole().toString());
+        String encodeToken = jwtUtil.generateToken(user.getEmail(),user.getRole().getRoleType().name());
 
         return new AuthResponse(
                 user.getId(),
@@ -127,31 +127,37 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Error al cargar perfil"));
 
-        // 2) Validamos que ninguno de los campos venga vacío o en blanco
-        if (updateRequest.getFirstName() == null || updateRequest.getFirstName().isBlank()
-                || updateRequest.getLastName()  == null || updateRequest.getLastName().isBlank()
-                || updateRequest.getEmail()     == null || updateRequest.getEmail().isBlank()
-                || updateRequest.getPassword()  == null || updateRequest.getPassword().isBlank()) {
+        // 2) Validamos que los campos obligatorios no estén vacíos
+        if (updateRequest.firstName() == null || updateRequest.firstName().isBlank()
+                || updateRequest.lastName() == null || updateRequest.lastName().isBlank()
+                || updateRequest.email() == null || updateRequest.email().isBlank()) {
             throw new EmptyException("Campo obligatorio");
         }
 
-        // 3) Verificamos que el email nuevo no esté registrado en otro usuario
-        userRepository.findByEmail(updateRequest.getEmail())
+        // 3) Verificamos que el email nuevo no esté usado por otro usuario
+        userRepository.findByEmail(updateRequest.email())
                 .ifPresent(otro -> {
                     if (!otro.getId().equals(userId)) {
                         throw new CustomException("Email ya registrado");
                     }
                 });
 
-        // 4) Si llega hasta aquí, actualizamos campos y guardamos
-        user.setFirstName(updateRequest.getFirstName());
-        user.setLastName(updateRequest.getLastName());
-        user.setEmail(updateRequest.getEmail());
-        user.setPassword(updateRequest.getPassword());
-        User saved = userRepository.save(user);
+        // 4) Actualizamos los campos
+        user.setFirstName(updateRequest.firstName());
+        user.setLastName(updateRequest.lastName());
+        user.setEmail(updateRequest.email());
 
+        // 5) Si se envió una nueva contraseña válida, la encriptamos
+        if (updateRequest.password() != null && !updateRequest.password().isBlank()) {
+            String encoded = passwordEncoder.encode(updateRequest.password());
+            user.setPassword(encoded);
+        }
+
+        // 6) Guardamos y devolvemos el perfil actualizado
+        User saved = userRepository.save(user);
         return new UserProfileResponse(saved);
     }
+
 
     @Override
     public String getCurrentUserEmail() {
