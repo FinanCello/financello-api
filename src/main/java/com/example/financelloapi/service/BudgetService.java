@@ -1,8 +1,12 @@
 package com.example.financelloapi.service;
 
 import com.example.financelloapi.dto.request.BudgetRequest;
-import com.example.financelloapi.model.entity.Budget;
+import com.example.financelloapi.dto.response.BudgetResponse;
+
+import java.util.List;
 
 public interface BudgetService {
-    Budget createBudget(BudgetRequest request);
+    BudgetResponse createBudget(Integer userId, BudgetRequest request);
+    List<BudgetResponse> getBudgetsByUserId(Integer userId);
+    BudgetResponse getBudgetById(Integer budgetId);
 }
