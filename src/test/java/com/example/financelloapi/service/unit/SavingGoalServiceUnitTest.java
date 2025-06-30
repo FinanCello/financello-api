@@ -4,6 +4,7 @@ import com.example.financelloapi.dto.request.AddSavingGoalRequest;
 import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
 import com.example.financelloapi.exception.SavingGoalHasContributionsException;
+import com.example.financelloapi.exception.TargetAmountLessThanCurrentAmountException;
 import com.example.financelloapi.exception.UserDoesntExistException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
 import com.example.financelloapi.model.entity.SavingGoal;
@@ -258,5 +259,91 @@ public class SavingGoalServiceUnitTest {
                 ex.getMessage()
         );
         verify(savingGoalRepository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("US14-CP03 - Error al editar meta con target_amount menor al current_amount")
+    void updateSavingGoal_targetLessThanCurrent_throwsException() {
+        // Arrange
+        Integer goalId = 1;
+        SavingGoal existing = new SavingGoal();
+        existing.setId(goalId);
+        existing.setCurrentAmount(500f); // Ya tiene $500 acumulados
+        existing.setTargetAmount(1000f);
+
+        UpdateSavingGoalRequest request = new UpdateSavingGoalRequest(
+                300f, // Intentar reducir a $300 (menor que los $500 actuales)
+                LocalDate.now().plusMonths(6)
+        );
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
+
+        // Act & Assert
+        TargetAmountLessThanCurrentAmountException exception = assertThrows(
+            TargetAmountLessThanCurrentAmountException.class, 
+            () -> savingGoalService.updateSavingGoal(goalId, request)
+        );
+
+        assertTrue(exception.getMessage().contains("No se puede reducir la meta objetivo a $300.0"));
+        assertTrue(exception.getMessage().contains("ya se han acumulado $500.0"));
+
+        verify(savingGoalRepository).findById(goalId);
+        verify(savingGoalRepository, never()).save(any(SavingGoal.class));
+    }
+
+    @Test
+    @DisplayName("US14-CP04 - Error al editar meta con target_amount cero o negativo")
+    void updateSavingGoal_invalidTargetAmount_throwsException() {
+        // Arrange
+        Integer goalId = 1;
+        SavingGoal existing = new SavingGoal();
+        existing.setId(goalId);
+        existing.setCurrentAmount(100f);
+
+        UpdateSavingGoalRequest request = new UpdateSavingGoalRequest(
+                0f, // Monto inválido
+                LocalDate.now().plusMonths(6)
+        );
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class, 
+            () -> savingGoalService.updateSavingGoal(goalId, request)
+        );
+
+        assertEquals("El monto objetivo debe ser mayor a 0", exception.getMessage());
+
+        verify(savingGoalRepository).findById(goalId);
+        verify(savingGoalRepository, never()).save(any(SavingGoal.class));
+    }
+
+    @Test
+    @DisplayName("US14-CP05 - Error al editar meta con fecha pasada")
+    void updateSavingGoal_pastDate_throwsException() {
+        // Arrange
+        Integer goalId = 1;
+        SavingGoal existing = new SavingGoal();
+        existing.setId(goalId);
+        existing.setCurrentAmount(100f);
+
+        UpdateSavingGoalRequest request = new UpdateSavingGoalRequest(
+                1000f,
+                LocalDate.now().minusDays(1) // Fecha pasada
+        );
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class, 
+            () -> savingGoalService.updateSavingGoal(goalId, request)
+        );
+
+        assertEquals("La fecha de vencimiento debe ser hoy o futura", exception.getMessage());
+
+        verify(savingGoalRepository).findById(goalId);
+        verify(savingGoalRepository, never()).save(any(SavingGoal.class));
     }
 }
