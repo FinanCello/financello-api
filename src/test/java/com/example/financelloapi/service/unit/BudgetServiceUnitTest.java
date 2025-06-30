@@ -2,6 +2,7 @@ package com.example.financelloapi.service.unit;
 
 import com.example.financelloapi.dto.request.BudgetRequest;
 import com.example.financelloapi.dto.response.BudgetResponse;
+import com.example.financelloapi.dto.response.BudgetStatusResponse;
 import com.example.financelloapi.mapper.BudgetMapper;
 import com.example.financelloapi.model.entity.Budget;
 import com.example.financelloapi.model.entity.Role;
@@ -216,5 +217,55 @@ public class BudgetServiceUnitTest {
         assertEquals("Presupuesto no encontrado.", exception.getMessage());
         verify(budgetRepository, times(1)).findById(1);
         verify(budgetMapper, never()).toResponse(any());
+    }
+
+    @Test
+    @DisplayName("Obtener status de presupuesto - Debe calcular días restantes correctamente")
+    void getBudgetStatus_validBudgetId_returnsStatusWithCorrectDays() {
+        // Arrange
+        Budget budget = new Budget();
+        budget.setId(1);
+        budget.setName("Presupuesto Test");
+        budget.setPeriod("2025-06"); // Junio 2025
+        budget.setTotalIncomePlanned(5000.0f);
+        budget.setTotalOutcomePlanned(4000.0f);
+        budget.setUser(testUser);
+
+        BudgetStatusResponse expectedResponse = new BudgetStatusResponse(
+                1, "Presupuesto Test", "2025-06", 0, 5000.0f, 4000.0f, 5000.0f, 4000.0f
+        );
+
+        when(budgetRepository.findById(1)).thenReturn(Optional.of(budget));
+
+        // Act
+        BudgetStatusResponse result = budgetService.getBudgetStatus(1);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.budgetId());
+        assertEquals("Presupuesto Test", result.budgetName());
+        assertEquals("2025-06", result.period());
+        assertEquals(5000.0f, result.remainingIncomeNeeded());
+        assertEquals(4000.0f, result.remainingOutcomeAllowed());
+        assertEquals(5000.0f, result.totalIncomePlanned());
+        assertEquals(4000.0f, result.totalOutcomePlanned());
+        // Los días restantes pueden variar según la fecha actual, solo verificamos que no sea null
+        assertNotNull(result.daysRemaining());
+
+        verify(budgetRepository, times(1)).findById(1);
+    }
+
+    @Test
+    @DisplayName("Obtener status de presupuesto inexistente - Debe lanzar IllegalArgumentException")
+    void getBudgetStatus_budgetNotFound_throwsIllegalArgumentException() {
+        // Arrange
+        when(budgetRepository.findById(1)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
+            () -> budgetService.getBudgetStatus(1));
+        
+        assertEquals("Presupuesto no encontrado.", exception.getMessage());
+        verify(budgetRepository, times(1)).findById(1);
     }
 }

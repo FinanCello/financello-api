@@ -2,6 +2,7 @@ package com.example.financelloapi.api;
 
 import com.example.financelloapi.dto.request.BudgetRequest;
 import com.example.financelloapi.dto.response.BudgetResponse;
+import com.example.financelloapi.dto.response.BudgetStatusResponse;
 import com.example.financelloapi.service.BudgetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,10 @@ public class BudgetController {
     @GetMapping("/{budgetId}")
     public ResponseEntity<BudgetResponse> getBudgetById(@PathVariable Integer budgetId) {
         return ResponseEntity.ok(budgetService.getBudgetById(budgetId));
+    }
+
+    @GetMapping("/status/{budgetId}")
+    public ResponseEntity<BudgetStatusResponse> getBudgetStatus(@PathVariable Integer budgetId) {
+        return ResponseEntity.ok(budgetService.getBudgetStatus(budgetId));
     }
 }

@@ -1,17 +1,23 @@
 package com.example.financelloapi.service;
 
 import com.example.financelloapi.dto.request.CategoryRequest;
+import com.example.financelloapi.dto.response.CategoryTotalResponse;
+import com.example.financelloapi.dto.response.RecentMovementResponse;
 import com.example.financelloapi.dto.test.CategoryResponse;
 import com.example.financelloapi.exception.*;
 import com.example.financelloapi.dto.test.CategorySimpleResponse;
 import com.example.financelloapi.mapper.CategoryMapper;
 import com.example.financelloapi.model.entity.Category;
 import com.example.financelloapi.model.entity.User;
+import com.example.financelloapi.model.entity.FinancialMovement;
+import com.example.financelloapi.model.enums.MovementType;
 import com.example.financelloapi.repository.CategoryRepository;
 import com.example.financelloapi.repository.FinancialMovementRepository;
 import com.example.financelloapi.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -92,5 +98,69 @@ public class CategoryService {
                 .toList();
     }
 
+    // Nuevos métodos para el frontend
+    public CategoryTotalResponse getTotalExpensesByCategory(Integer userId, Integer categoryId) {
+        // Verificar que la categoría existe y pertenece al usuario
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException("Categoría no encontrada"));
+        
+        if (!category.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("La categoría no pertenece al usuario especificado");
+        }
 
+        Float totalExpenses = financialMovementRepository.sumAmountByCategoryAndMovementType(
+                categoryId, MovementType.OUTCOME, userId);
+        
+        return new CategoryTotalResponse(
+                categoryId,
+                category.getName(),
+                totalExpenses != null ? totalExpenses : 0.0f,
+                "OUTCOME"
+        );
+    }
+
+    public CategoryTotalResponse getTotalIncomesByCategory(Integer userId, Integer categoryId) {
+        // Verificar que la categoría existe y pertenece al usuario
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException("Categoría no encontrada"));
+        
+        if (!category.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("La categoría no pertenece al usuario especificado");
+        }
+
+        Float totalIncomes = financialMovementRepository.sumAmountByCategoryAndMovementType(
+                categoryId, MovementType.INCOME, userId);
+        
+        return new CategoryTotalResponse(
+                categoryId,
+                category.getName(),
+                totalIncomes != null ? totalIncomes : 0.0f,
+                "INCOME"
+        );
+    }
+
+    public List<RecentMovementResponse> getRecentMovementsByCategory(Integer userId, Integer categoryId, Integer limit) {
+        // Verificar que la categoría existe y pertenece al usuario
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException("Categoría no encontrada"));
+        
+        if (!category.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("La categoría no pertenece al usuario especificado");
+        }
+
+        Pageable pageable = PageRequest.of(0, limit != null ? limit : 10);
+        List<FinancialMovement> movements = financialMovementRepository
+                .findByCategory_IdAndCategory_User_IdOrderByDateDescIdDesc(categoryId, userId, pageable);
+
+        return movements.stream()
+                .map(movement -> new RecentMovementResponse(
+                        movement.getId(),
+                        movement.getAmount(),
+                        movement.getDate(),
+                        movement.getCategory().getName(),
+                        movement.getCategory().getDescription(),
+                        movement.getMovementType().toString()
+                ))
+                .toList();
+    }
 }
