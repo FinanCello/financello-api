@@ -31,4 +31,17 @@ public class SpendingLimitController {
         List<SpendingLimitAlertResponse> response = spendingLimitService.getAlerts(userId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<SpendingLimitResponse>> listLimits(@PathVariable Integer userId) {
+        List<SpendingLimitResponse> limits = spendingLimitService.listSpendingLimits(userId);
+        return ResponseEntity.ok(limits);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteLimit(@RequestParam Integer userId, @RequestParam Integer categoryId) {
+        spendingLimitService.deleteByCategory(userId, categoryId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
