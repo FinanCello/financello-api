@@ -1,0 +1,84 @@
+# =============================================================================
+# FINANCELLO API - APPLICATION PROPERTIES TEMPLATE
+# =============================================================================
+# This is a template file showing the required configuration structure.
+# Copy this file to 'application.properties' and replace the placeholder values
+# with your actual configuration before running the application.
+# =============================================================================
+
+spring.application.name=financello-api
+server.servlet.context-path=/api/v1
+server.port=8080
+
+# =============================================================================
+# DATABASE CONFIGURATION
+# =============================================================================
+# For local development (PostgreSQL)
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/financello_db}
+spring.datasource.username=${DB_USERNAME:postgres}
+spring.datasource.password=${DB_PASSWORD:your-database-password}
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# =============================================================================
+# JPA/HIBERNATE PROPERTIES
+# =============================================================================
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.properties.hibernate.default_schema=public
+
+# =============================================================================
+# DATA INITIALIZATION
+# =============================================================================
+# Configuration for loading test data
+# Values: never (don't load) | always (load every time)
+spring.sql.init.mode=never
+spring.sql.init.data-locations=classpath:data-test.sql
+
+# =============================================================================
+# DATABASE CONNECTION POOL
+# =============================================================================
+spring.datasource.hikari.connection-init-sql=SET NAMES 'UTF8'
+
+# =============================================================================
+# JWT SECURITY CONFIGURATION
+# =============================================================================
+# JWT Secret Key - MUST be at least 32 characters for HS256 algorithm
+# Generate a secure key: https://generate-random.org/api-key-generator
+jwt.secret.key=${JWT_SECRET_KEY:your-super-secret-jwt-key-at-least-32-characters-long}
+
+# JWT Token expiration time in milliseconds (default: 10 days = 864000000ms)
+jwt.expiration.time=${JWT_EXPIRATION_TIME:864000000}
+
+# =============================================================================
+# SECURITY CONFIGURATION
+# =============================================================================
+# Public endpoints that don't require authentication
+security.public-paths=/api/v1/auth/login,/api/v1/auth/signup
+
+# =============================================================================
+# ENVIRONMENT VARIABLES SETUP GUIDE
+# =============================================================================
+# For local development, you can set these environment variables:
+# 
+# Windows (Command Prompt):
+# set DB_URL=jdbc:postgresql://localhost:5432/financello_db
+# set DB_USERNAME=postgres
+# set DB_PASSWORD=your-local-password
+# set JWT_SECRET_KEY=your-32-character-secret-key-here
+# 
+# Windows (PowerShell):
+# $env:DB_URL="jdbc:postgresql://localhost:5432/financello_db"
+# $env:DB_USERNAME="postgres"
+# $env:DB_PASSWORD="your-local-password"
+# $env:JWT_SECRET_KEY="your-32-character-secret-key-here"
+# 
+# For production (Render, Heroku, etc.), set these in your deployment platform:
+# - DB_URL: Your production database connection string
+# - DB_USERNAME: Your production database username
+# - DB_PASSWORD: Your production database password
+# - JWT_SECRET_KEY: A strong secret key (keep this secret!)
+# 
+# =============================================================================
