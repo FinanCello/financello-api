@@ -31,5 +31,4 @@ public class SpendingLimitController {
         List<SpendingLimitAlertResponse> response = spendingLimitService.getAlerts(userId);
         return ResponseEntity.ok(response);
     }
-
 }
