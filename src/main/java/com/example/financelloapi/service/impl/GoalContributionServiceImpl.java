@@ -5,6 +5,8 @@ import com.example.financelloapi.dto.test.RegisterGoalContributionResponse;
 import com.example.financelloapi.exception.ContributionExceedsTargetException;
 import com.example.financelloapi.exception.EmptyAmountException;
 import com.example.financelloapi.exception.IncorrectDateException;
+import com.example.financelloapi.exception.UserContributionsNotFoundException;
+import com.example.financelloapi.exception.UserGoalContributionsNotFoundException;
 import com.example.financelloapi.mapper.GoalContributionMapper;
 import com.example.financelloapi.model.entity.GoalContribution;
 import com.example.financelloapi.model.entity.SavingGoal;
@@ -86,5 +88,23 @@ public class GoalContributionServiceImpl implements GoalContributionService {
     @Override
     public List<GoalContribution> historyGoalContributions() {
         return goalContributionRepository.findAll();
+    }
+
+    @Override
+    public List<GoalContribution> getContributionsByUserId(Integer userId) {
+        List<GoalContribution> contributions = goalContributionRepository.findBySavingGoal_User_Id(userId);
+        if (contributions.isEmpty()) {
+            throw new UserContributionsNotFoundException(userId);
+        }
+        return contributions;
+    }
+
+    @Override
+    public List<GoalContribution> getContributionsByUserIdAndGoalId(Integer userId, Integer goalId) {
+        List<GoalContribution> contributions = goalContributionRepository.findBySavingGoal_User_IdAndSavingGoal_Id(userId, goalId);
+        if (contributions.isEmpty()) {
+            throw new UserGoalContributionsNotFoundException(userId, goalId);
+        }
+        return contributions;
     }
 }

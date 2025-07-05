@@ -127,6 +127,33 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(UserContributionsNotFoundException.class)
+    public ProblemDetail handleUserContributionsNotFoundException(UserContributionsNotFoundException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle(ex.getMessage());
+        pd.setDetail("No se encontraron contribuciones para el usuario especificado");
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(UserGoalContributionsNotFoundException.class)
+    public ProblemDetail handleUserGoalContributionsNotFoundException(UserGoalContributionsNotFoundException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle(ex.getMessage());
+        pd.setDetail("No se encontraron contribuciones para el usuario en la meta especificada");
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(UserGoalsNotFoundException.class)
+    public ProblemDetail handleUserGoalsNotFoundException(UserGoalsNotFoundException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle(ex.getMessage());
+        pd.setDetail("No se encontraron metas de ahorro para el usuario especificado");
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);

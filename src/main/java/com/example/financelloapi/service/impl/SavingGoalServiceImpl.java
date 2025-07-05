@@ -3,10 +3,12 @@ package com.example.financelloapi.service.impl;
 import com.example.financelloapi.dto.request.AddSavingGoalRequest;
 import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
+import com.example.financelloapi.dto.response.UserGoalsWithContributionsResponse;
 import com.example.financelloapi.exception.CurrentAmountExceedsTargetException;
 import com.example.financelloapi.exception.SavingGoalHasContributionsException;
 import com.example.financelloapi.exception.TargetAmountLessThanCurrentAmountException;
 import com.example.financelloapi.exception.UserDoesntExistException;
+import com.example.financelloapi.exception.UserGoalsNotFoundException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
 import com.example.financelloapi.model.entity.SavingGoal;
 import com.example.financelloapi.model.entity.User;
@@ -121,6 +123,23 @@ public class SavingGoalServiceImpl implements SavingGoalService{
         List<SavingGoal> goals = savingGoalRepository.findByUserId(userId);
         return goals.stream()
                 .map(savingGoalMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<UserGoalsWithContributionsResponse> getUserGoalsWithContributions(Integer userId) {
+        // valida existencia de usuario
+        userRepository.findByIdCustom(userId)
+                .orElseThrow(() -> new UserDoesntExistException("Usuario no encontrado: " + userId));
+
+        // recoge todas las metas de ese usuario
+        List<SavingGoal> goals = savingGoalRepository.findByUserId(userId);
+        if (goals.isEmpty()) {
+            throw new UserGoalsNotFoundException(userId);
+        }
+        
+        return goals.stream()
+                .map(UserGoalsWithContributionsResponse::fromSavingGoal)
                 .toList();
     }
 }

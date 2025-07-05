@@ -19,4 +19,8 @@ public interface GoalContributionRepository extends JpaRepository<GoalContributi
     float sumTotalByUserId(@Param("userId") Integer userId); // Suma total de dinero ahorrado por el usuario
 
     List<GoalContribution> findBySavingGoal_User_IdOrderByDateAsc(Integer userId); // Lista ordenada de contribuciones por fechas (para racha diaria)
+    
+    List<GoalContribution> findBySavingGoal_User_Id(Integer userId); // Obtener todas las contribuciones de un usuario
+    
+    List<GoalContribution> findBySavingGoal_User_IdAndSavingGoal_Id(Integer userId, Integer goalId); // Obtener contribuciones de un usuario a una meta específica
 }

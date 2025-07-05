@@ -11,4 +11,6 @@ public interface GoalContributionService {
     RegisterGoalContributionResponse registerGoalContribution(RegisterGoalContributionRequest request);
     List<GoalContribution> historyGoalContributionsByDate(LocalDate date);
     List<GoalContribution> historyGoalContributions();
+    List<GoalContribution> getContributionsByUserId(Integer userId);
+    List<GoalContribution> getContributionsByUserIdAndGoalId(Integer userId, Integer goalId);
 }

@@ -20,6 +20,5 @@ public class Achievement {
     private String icon;
     private String triggerType; // Ej: "GOAL_COMPLETED", "N_CONTRIBUTIONS"
     private Integer triggerValue;
-
     // Getters/Setters
 }

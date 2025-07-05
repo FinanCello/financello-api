@@ -1,5 +1,6 @@
 package com.example.financelloapi.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -27,5 +28,6 @@ public class GoalContribution {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id", referencedColumnName = "goal_id", nullable = false)
+    @JsonBackReference
     private SavingGoal savingGoal;
 }

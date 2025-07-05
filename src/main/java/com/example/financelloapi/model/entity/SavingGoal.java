@@ -1,6 +1,7 @@
 package com.example.financelloapi.model.entity;
 
 import com.example.financelloapi.model.enums.SavingGoalProgress;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,6 +25,7 @@ public class SavingGoal {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "savingGoal")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonManagedReference
     private List<GoalContribution> contributions;
 
     @Size(max = 100)

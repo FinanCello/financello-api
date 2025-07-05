@@ -12,7 +12,6 @@ import java.util.List;
 @RequestMapping("/achievements")
 
 public class AchievementController {
-
     @Autowired
     private AchievementService achievementService;
 
