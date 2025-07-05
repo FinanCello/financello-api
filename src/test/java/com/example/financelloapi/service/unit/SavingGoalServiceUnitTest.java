@@ -203,7 +203,7 @@ public class SavingGoalServiceUnitTest {
         user.setId(1);
         existing.setUser(user);
 
-        UpdateSavingGoalRequest req = new UpdateSavingGoalRequest(200f, LocalDate.now().plusDays(5));
+        UpdateSavingGoalRequest req = new UpdateSavingGoalRequest("Viaje",200f, LocalDate.now().plusDays(5));
         AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse(
                 goalId, "Meta Test", req.targetAmount(), 100f, req.dueDate(), 1, SavingGoalProgress.IN_PROGRESS
         );
@@ -272,7 +272,7 @@ public class SavingGoalServiceUnitTest {
         existing.setTargetAmount(1000f);
 
         UpdateSavingGoalRequest request = new UpdateSavingGoalRequest(
-                300f, // Intentar reducir a $300 (menor que los $500 actuales)
+                "Viaje",300f, // Intentar reducir a $300 (menor que los $500 actuales)
                 LocalDate.now().plusMonths(6)
         );
 
@@ -301,7 +301,7 @@ public class SavingGoalServiceUnitTest {
         existing.setCurrentAmount(100f);
 
         UpdateSavingGoalRequest request = new UpdateSavingGoalRequest(
-                0f, // Monto inválido
+                "Viaje",0f, // Monto inválido
                 LocalDate.now().plusMonths(6)
         );
 
@@ -329,7 +329,7 @@ public class SavingGoalServiceUnitTest {
         existing.setCurrentAmount(100f);
 
         UpdateSavingGoalRequest request = new UpdateSavingGoalRequest(
-                1000f,
+                "Viaje",1000f,
                 LocalDate.now().minusDays(1) // Fecha pasada
         );
 

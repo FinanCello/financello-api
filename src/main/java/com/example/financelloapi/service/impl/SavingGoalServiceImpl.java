@@ -105,6 +105,7 @@ public class SavingGoalServiceImpl implements SavingGoalService{
         }
 
         // 3) Aplicamos cambios y guardamos
+        goal.setName(request.name());
         goal.setTargetAmount(request.targetAmount());
         goal.setDueDate(request.dueDate());
         SavingGoal updated = savingGoalRepository.save(goal);
