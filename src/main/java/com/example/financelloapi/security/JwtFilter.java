@@ -13,6 +13,12 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends OncePerRequestFilter{
 
+    private final JwtUtil jwtUtil;
+
+    public JwtFilter(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
+
     @Override
     protected void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
         String requestPath = request.getRequestURI();
@@ -27,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter{
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                var auth = JwtUtil.getAuthentication(token);
+                var auth = jwtUtil.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception e) {
                 // Si el token es inválido, simplemente continúa sin autenticación

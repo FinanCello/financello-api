@@ -2,34 +2,41 @@ package com.example.financelloapi.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
 
-@Service
+@Component
 public class JwtUtil {
 
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private static final long EXPIRATION_TIME = 864_000_000;
+    private final Key secretKey;
+    private final long expirationTime;
+
+    public JwtUtil(@Value("${jwt.secret.key}") String secretKeyString,
+                   @Value("${jwt.expiration.time:864000000}") long expirationTime) {
+        this.secretKey = Keys.hmacShaKeyFor(secretKeyString.getBytes());
+        this.expirationTime = expirationTime;
+    }
 
     public String generateToken (String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", "ROLE_" + role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(secretKey)
                 .compact();
     }
 
-    public static Authentication getAuthentication (String token) {
+    public Authentication getAuthentication (String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
