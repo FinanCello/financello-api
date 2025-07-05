@@ -40,6 +40,24 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(ContributionExceedsTargetException.class)
+    public ProblemDetail handleContributionExceedsTargetException(ContributionExceedsTargetException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Contribución excede la meta");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
+    @ExceptionHandler(CurrentAmountExceedsTargetException.class)
+    public ProblemDetail handleCurrentAmountExceedsTargetException(CurrentAmountExceedsTargetException ex, WebRequest request) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Monto actual excede la meta");
+        pd.setDetail(ex.getMessage());
+        pd.setProperty("path", request.getDescription(false));
+        return pd;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex, WebRequest request) {
         List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();

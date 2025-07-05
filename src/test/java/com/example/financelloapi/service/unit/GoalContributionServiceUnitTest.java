@@ -2,12 +2,14 @@ package com.example.financelloapi.service.unit;
 
 import com.example.financelloapi.dto.request.RegisterGoalContributionRequest;
 import com.example.financelloapi.dto.test.RegisterGoalContributionResponse;
+import com.example.financelloapi.exception.ContributionExceedsTargetException;
 import com.example.financelloapi.exception.EmptyAmountException;
 import com.example.financelloapi.mapper.GoalContributionMapper;
 import com.example.financelloapi.repository.GoalContributionRepository;
 import com.example.financelloapi.repository.SavingGoalRepository;
 import com.example.financelloapi.model.entity.GoalContribution;
 import com.example.financelloapi.model.entity.SavingGoal;
+import com.example.financelloapi.model.enums.SavingGoalProgress;
 import com.example.financelloapi.service.impl.GoalContributionServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -46,30 +48,39 @@ public class GoalContributionServiceUnitTest {
     void registerGoalContribution_success() {
         RegisterGoalContributionRequest request = new RegisterGoalContributionRequest(1, 150.0f, LocalDate.now());
 
-        when(savingGoalRepository.existsById(1)).thenReturn(true);
+        SavingGoal savingGoal = new SavingGoal();
+        savingGoal.setId(1);
+        savingGoal.setCurrentAmount(200.0f);
+        savingGoal.setTargetAmount(1000.0f);
+        savingGoal.setProgress(SavingGoalProgress.IN_PROGRESS);
 
-        SavingGoal goal = new SavingGoal();
-        goal.setId(1);
-        when(savingGoalRepository.getById(1)).thenReturn(goal);
+        GoalContribution goalContribution = new GoalContribution();
+        goalContribution.setId(1);
+        goalContribution.setAmount(150.0f);
+        goalContribution.setDate(request.date());
+        goalContribution.setSavingGoal(savingGoal);
 
-        GoalContribution contributionToSave = new GoalContribution();
-        contributionToSave.setAmount(request.amount());
-        contributionToSave.setDate(request.date());
-        contributionToSave.setSavingGoal(goal);
-        when(goalContributionRepository.save(any(GoalContribution.class))).thenReturn(contributionToSave);
+        RegisterGoalContributionResponse expectedResponse = new RegisterGoalContributionResponse(
+                150.0f, request.date()
+        );
 
-        RegisterGoalContributionResponse response = new RegisterGoalContributionResponse(request.amount(), request.date());
-        when(goalContributionMapper.toResponse(any(GoalContribution.class))).thenReturn(response);
+        when(savingGoalRepository.findById(1)).thenReturn(Optional.of(savingGoal));
+        when(goalContributionRepository.save(any(GoalContribution.class))).thenReturn(goalContribution);
+        when(savingGoalRepository.save(any(SavingGoal.class))).thenReturn(savingGoal);
+        when(goalContributionMapper.toResponse(any(GoalContribution.class))).thenReturn(expectedResponse);
 
-        RegisterGoalContributionResponse result = goalContributionService.registerGoalContribution(request);
+        RegisterGoalContributionResponse actualResponse = goalContributionService.registerGoalContribution(request);
 
-        assertNotNull(result);
-        assertEquals(request.amount(), result.amount());
-        assertEquals(request.date(), result.date());
+        assertNotNull(actualResponse);
+        assertEquals(expectedResponse.amount(), actualResponse.amount());
+        assertEquals(expectedResponse.date(), actualResponse.date());
 
-        verify(savingGoalRepository).existsById(1);
-        verify(savingGoalRepository).getById(1);
+        // Verificar que el current_amount se actualizó correctamente
+        assertEquals(350.0f, savingGoal.getCurrentAmount()); // 200 + 150
+
+        verify(savingGoalRepository).findById(1);
         verify(goalContributionRepository).save(any(GoalContribution.class));
+        verify(savingGoalRepository).save(savingGoal);
         verify(goalContributionMapper).toResponse(any(GoalContribution.class));
     }
 
@@ -88,22 +99,90 @@ public class GoalContributionServiceUnitTest {
     }
 
     @Test
-    @DisplayName("US05-CP03 - Error al registrar aporte con meta inexistente")
-    void registerGoalContribution_nonexistentGoal_throwsException() {
-        RegisterGoalContributionRequest request = new RegisterGoalContributionRequest(99, 100.0f, LocalDate.now());
+    @DisplayName("US05-CP03 - Error al registrar aporte que excede la meta objetivo")
+    void registerGoalContribution_exceedsTarget_throwsException() {
+        RegisterGoalContributionRequest request = new RegisterGoalContributionRequest(1, 600.0f, LocalDate.now());
 
-        when(savingGoalRepository.existsById(99)).thenReturn(false);
+        SavingGoal savingGoal = new SavingGoal();
+        savingGoal.setId(1);
+        savingGoal.setCurrentAmount(500.0f);
+        savingGoal.setTargetAmount(1000.0f);
+        savingGoal.setProgress(SavingGoalProgress.IN_PROGRESS);
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+        when(savingGoalRepository.findById(1)).thenReturn(Optional.of(savingGoal));
+
+        ContributionExceedsTargetException exception = assertThrows(ContributionExceedsTargetException.class, () -> {
             goalContributionService.registerGoalContribution(request);
         });
 
-        assertEquals("Goal not found", ex.getMessage());
+        assertTrue(exception.getMessage().contains("Esta contribución de $600.0"));
+        assertTrue(exception.getMessage().contains("Meta objetivo: $1000.0"));
+        assertTrue(exception.getMessage().contains("Monto actual: $500.0"));
 
-        verify(savingGoalRepository).existsById(99);
-        verifyNoMoreInteractions(savingGoalRepository);
-        verifyNoInteractions(goalContributionRepository);
-        verifyNoInteractions(goalContributionMapper);
+        verify(savingGoalRepository).findById(1);
+        verify(goalContributionRepository, never()).save(any(GoalContribution.class));
+        verify(savingGoalRepository, never()).save(any(SavingGoal.class));
+    }
+
+    @Test
+    @DisplayName("US05-CP04 - Registrar aporte que completa exactamente la meta")
+    void registerGoalContribution_completesGoal_setsProgressToDone() {
+        RegisterGoalContributionRequest request = new RegisterGoalContributionRequest(1, 300.0f, LocalDate.now());
+
+        SavingGoal savingGoal = new SavingGoal();
+        savingGoal.setId(1);
+        savingGoal.setCurrentAmount(700.0f);
+        savingGoal.setTargetAmount(1000.0f);
+        savingGoal.setProgress(SavingGoalProgress.IN_PROGRESS);
+
+        GoalContribution goalContribution = new GoalContribution();
+        goalContribution.setId(1);
+        goalContribution.setAmount(300.0f);
+        goalContribution.setDate(request.date());
+        goalContribution.setSavingGoal(savingGoal);
+
+        RegisterGoalContributionResponse expectedResponse = new RegisterGoalContributionResponse(
+                300.0f, request.date()
+        );
+
+        when(savingGoalRepository.findById(1)).thenReturn(Optional.of(savingGoal));
+        when(goalContributionRepository.save(any(GoalContribution.class))).thenReturn(goalContribution);
+        when(savingGoalRepository.save(any(SavingGoal.class))).thenReturn(savingGoal);
+        when(goalContributionMapper.toResponse(any(GoalContribution.class))).thenReturn(expectedResponse);
+
+        RegisterGoalContributionResponse actualResponse = goalContributionService.registerGoalContribution(request);
+
+        assertNotNull(actualResponse);
+        assertEquals(expectedResponse.amount(), actualResponse.amount());
+        assertEquals(expectedResponse.date(), actualResponse.date());
+
+        // Verificar que el current_amount se actualizó correctamente
+        assertEquals(1000.0f, savingGoal.getCurrentAmount()); // 700 + 300
+        // Verificar que el progress cambió a DONE
+        assertEquals(SavingGoalProgress.DONE, savingGoal.getProgress());
+
+        verify(savingGoalRepository).findById(1);
+        verify(goalContributionRepository).save(any(GoalContribution.class));
+        verify(savingGoalRepository).save(savingGoal);
+        verify(goalContributionMapper).toResponse(any(GoalContribution.class));
+    }
+
+    @Test
+    @DisplayName("US05-CP05 - Error al registrar aporte para meta no encontrada")
+    void registerGoalContribution_goalNotFound_throwsException() {
+        RegisterGoalContributionRequest request = new RegisterGoalContributionRequest(999, 150.0f, LocalDate.now());
+
+        when(savingGoalRepository.findById(999)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            goalContributionService.registerGoalContribution(request);
+        });
+
+        assertEquals("Goal not found", exception.getMessage());
+
+        verify(savingGoalRepository).findById(999);
+        verify(goalContributionRepository, never()).save(any(GoalContribution.class));
+        verify(savingGoalRepository, never()).save(any(SavingGoal.class));
     }
 
     @Test

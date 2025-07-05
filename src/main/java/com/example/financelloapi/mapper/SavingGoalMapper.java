@@ -4,6 +4,7 @@ import com.example.financelloapi.dto.request.AddSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
 import com.example.financelloapi.model.entity.SavingGoal;
 import com.example.financelloapi.model.entity.User;
+import com.example.financelloapi.model.enums.SavingGoalProgress;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,6 +16,7 @@ public class SavingGoalMapper {
         goal.setTargetAmount(dto.targetAmount());
         goal.setDueDate(dto.dueDate());
         goal.setUser(user);                // <<< vinculamos usuario
+        goal.setProgress(SavingGoalProgress.IN_PROGRESS); // <<< Asignar automáticamente IN_PROGRESS
         return goal;
     }
 
@@ -30,7 +32,8 @@ public class SavingGoalMapper {
                 entity.getTargetAmount(),
                 entity.getCurrentAmount(),
                 entity.getDueDate(),
-                entity.getUser() != null ? entity.getUser().getId() : null
+                entity.getUser() != null ? entity.getUser().getId() : null,
+                entity.getProgress()
         );
     }
 }

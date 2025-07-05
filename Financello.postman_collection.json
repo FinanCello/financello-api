@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "04abd26e-0618-41a0-8bb5-0788b6435bfd",
+		"_postman_id": "16974c61-e9a0-4004-89c1-737524653a2f",
 		"name": "Financello",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "43659828",
-		"_collection_link": "https://liamquinoneff-2005859.postman.co/workspace/Liam-Quino-Neff's-Workspace~5d764719-53d3-4290-836b-7618e7b43f1f/collection/43659828-04abd26e-0618-41a0-8bb5-0788b6435bfd?action=share&source=collection_link&creator=43659828"
+		"_collection_link": "https://liamquinoneff-2005859.postman.co/workspace/Liam-Quino-Neff's-Workspace~5d764719-53d3-4290-836b-7618e7b43f1f/collection/43659828-16974c61-e9a0-4004-89c1-737524653a2f?action=share&source=collection_link&creator=43659828"
 	},
 	"item": [
 		{
@@ -20,7 +20,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"johndoe@email.com\",\r\n    \"password\": \"password123\",\r\n    \"userType\": \"PERSONAL\"\r\n}",
+							"raw": "{\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"johndoe@email.com\",\r\n    \"password\": \"password123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -170,6 +170,44 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"firstName\": \"Edit\",\r\n    \"lastName\": \"Edicion\",\r\n    \"email\": \"editado@correo.com\",\r\n    \"password\": \"123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/profile/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Profile - Partial Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"NuevoNombre\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -772,7 +810,7 @@
 			"name": "Budgets",
 			"item": [
 				{
-					"name": "Budget planning",
+					"name": "Create Budget",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -788,7 +826,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"userId\": 1,\r\n  \"period\": \"2027-Q3\",\r\n  \"totalIncomePlanned\": 4500.0,\r\n  \"totalOutcomePlanned\": 1800.0\r\n}\r\n",
+							"raw": "{\r\n  \"name\": \"Presupuesto Mensual Enero 2025\",\r\n  \"period\": \"2025-01\",\r\n  \"totalIncomePlanned\": 5000.0,\r\n  \"totalOutcomePlanned\": 4200.0\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -796,12 +834,231 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/budgets",
+							"raw": "{{base_url}}/budgets/add?userId=1",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"budgets"
+								"budgets",
+								"add"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Budgets by User ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/budgets/user?userId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"budgets",
+								"user"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Budget by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/budgets/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"budgets",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Budget Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/budgets/status/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"budgets",
+								"status",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category Total Expenses",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/expenses/total?userId=1&categoryId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"expenses",
+								"total"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "categoryId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category Total Incomes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/incomes/total?userId=1&categoryId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"incomes",
+								"total"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "categoryId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Recent Movements by Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/movements/recent?userId=1&categoryId=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"movements",
+								"recent"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "categoryId",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
 							]
 						}
 					},

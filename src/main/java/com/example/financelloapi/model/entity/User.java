@@ -1,6 +1,5 @@
 package com.example.financelloapi.model.entity;
 
-import com.example.financelloapi.model.enums.UserType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -69,8 +68,4 @@ public class User {
     @NotNull
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", nullable = false)
-    private UserType userType;
 }
