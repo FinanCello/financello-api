@@ -1,5 +1,6 @@
 package com.example.financelloapi.model.entity;
 
+import com.example.financelloapi.model.enums.SavingGoalProgress;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -43,4 +44,8 @@ public class SavingGoal {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "progress", nullable = false)
+    private SavingGoalProgress progress;
 }

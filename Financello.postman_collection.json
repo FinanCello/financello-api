@@ -1,132 +1,1151 @@
 {
 	"info": {
-		"_postman_id": "87f80e64-6bf8-46cb-9b84-acd9ee002f9f",
+		"_postman_id": "16974c61-e9a0-4004-89c1-737524653a2f",
 		"name": "Financello",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "34201836"
+		"_exporter_id": "43659828",
+		"_collection_link": "https://liamquinoneff-2005859.postman.co/workspace/Liam-Quino-Neff's-Workspace~5d764719-53d3-4290-836b-7618e7b43f1f/collection/43659828-16974c61-e9a0-4004-89c1-737524653a2f?action=share&source=collection_link&creator=43659828"
 	},
 	"item": [
 		{
-			"name": "Register",
-			"request": {
-				"auth": {
-					"type": "bearer"
-				},
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"firstName\": \"Nombre\",\r\n    \"lastName\": \"Apellido\",\r\n    \"email\": \"nombre@correo.com\",\r\n    \"password\": \"password\",\r\n    \"userType\": \"PERSONAL\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Auth & Users",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"auth": {
+							"type": "bearer"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"johndoe@email.com\",\r\n    \"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{base_url}}/auth/register",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"auth",
-						"register"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Login",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\":\"leonardobravoricapa@gmail.com\",\r\n    \"password\":123456789\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"johndoe@email.com\",\r\n    \"password\":\"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{base_url}}/auth/login",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"auth",
-						"login"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Verify Roles",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/roles/1",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"roles",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "View Profile",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/auth/profile/1",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"auth",
-						"profile",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Edit Profile",
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"firstName\": \"Nombre\",\r\n    \"lastName\": \"Apellido\",\r\n    \"email\": \"nombre@correo.com\",\r\n    \"password\": \"password\"\r\n}\r\n",
-					"options": {
-						"raw": {
-							"language": "json"
+				{
+					"name": "Verify Roles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roles/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								"1"
+							]
 						}
-					}
+					},
+					"response": []
 				},
-				"url": {
-					"raw": "{{base_url}}/auth/profile/1",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"auth",
-						"profile",
-						"1"
-					]
+				{
+					"name": "View User Roles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/profile/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"Edit\",\r\n    \"lastName\": \"Edicion\",\r\n    \"email\": \"editado@correo.com\",\r\n    \"password\": \"123\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/profile/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Profile - Partial Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"NuevoNombre\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/profile/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"profile",
+								"1"
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Create Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Transporte\",\r\n    \"description\": \"Gastos de transporte\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/categories?userId=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"categories"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Categories",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/categories/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Ocio\",\r\n    \"description\": \"Gastos de entretenimiento\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/categories/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/categories/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Saving Goals",
+			"item": [
+				{
+					"name": "Create Goal",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('targetAmount');",
+									"    pm.expect(jsonData).to.have.property('currentAmount');",
+									"    pm.expect(jsonData).to.have.property('dueDate');",
+									"    pm.expect(jsonData).to.have.property('userId');",
+									"});",
+									"",
+									"pm.test(\"Current amount is initialized to 0\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.currentAmount).to.eql(0.0);",
+									"});",
+									"",
+									"pm.test(\"User ID matches request\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.userId).to.eql(1);",
+									"});",
+									"",
+									"// Store goal ID for future requests",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"goal_id\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"PC Gaming Setup\",\r\n    \"targetAmount\": 1500.00,\r\n    \"dueDate\": \"2026-06-30\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/goals/add?userId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"goals",
+								"add"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Goal",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaW5hbmNlbGxvMUBlbWFpbC5jb20iLCJyb2xlIjoiUk9MRV9Sb2xlKGlkPTEsIHJvbGVUeXBlPUFETUlOLCB1c2Vycz1bY29tLmV4YW1wbGUuZmluYW5jZWxsb2FwaS5tb2RlbC5lbnRpdHkuVXNlckA0M2YyMWZiM10pIiwiaWF0IjoxNzQ5NTc0NDY3LCJleHAiOjE3NTA0Mzg0Njd9.q8Y0FaCsyWx2godIL7xVBxwEsOVycZ2lVV-23F4Smog",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"targetAmount\": 850.0,\r\n  \"dueDate\": \"2025-12-28\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/goals/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"goals",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Goal",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/goals/{{goal_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"goals",
+								"{{goal_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Goals by User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});",
+									"",
+									"pm.test(\"All goals have required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        jsonData.forEach(function(goal) {",
+									"            pm.expect(goal).to.have.property('id');",
+									"            pm.expect(goal).to.have.property('name');",
+									"            pm.expect(goal).to.have.property('targetAmount');",
+									"            pm.expect(goal).to.have.property('currentAmount');",
+									"            pm.expect(goal).to.have.property('dueDate');",
+									"            pm.expect(goal).to.have.property('userId');",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"All goals belong to user 1\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.length > 0) {",
+									"        jsonData.forEach(function(goal) {",
+									"            pm.expect(goal.userId).to.eql(1);",
+									"        });",
+									"    }",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/goals/user?userId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"goals",
+								"user"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Contributions",
+			"item": [
+				{
+					"name": "Register Contribution",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"goalId\": 1,\r\n    \"amount\": 10,\r\n    \"date\": \"2025-02-05\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/contribution/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contribution",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Contribution History",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contribution/history",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contribution",
+								"history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Contribution History by Date",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contribution/history/date?date=2025-02-05",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contribution",
+								"history",
+								"date"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2025-02-05"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Movements",
+			"item": [
+				{
+					"name": "Create Movement",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"amount\": 30,\r\n    \"date\": \"2025-10-08\",\r\n    \"movementType\": \"INCOME\",\r\n    \"categoryId\": 2,\r\n    \"currencyType\": \"PEN\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/movements/register?userId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"movements",
+								"register"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Financial History",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/movements/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"movements",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Budgets",
+			"item": [
+				{
+					"name": "Create Budget",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Presupuesto Mensual Enero 2025\",\r\n  \"period\": \"2025-01\",\r\n  \"totalIncomePlanned\": 5000.0,\r\n  \"totalOutcomePlanned\": 4200.0\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/budgets/add?userId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"budgets",
+								"add"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Budgets by User ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/budgets/user?userId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"budgets",
+								"user"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Budget by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/budgets/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"budgets",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Budget Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/budgets/status/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"budgets",
+								"status",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category Total Expenses",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/expenses/total?userId=1&categoryId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"expenses",
+								"total"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "categoryId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category Total Incomes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/incomes/total?userId=1&categoryId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"incomes",
+								"total"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "categoryId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Recent Movements by Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/movements/recent?userId=1&categoryId=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"movements",
+								"recent"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								},
+								{
+									"key": "categoryId",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Spending Limits",
+			"item": [
+				{
+					"name": "Spending Limit",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\": 1,\r\n    \"categoryId\": 1,\r\n    \"monthlyLimit\": 150.0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/spending-limit?userId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"spending-limit"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Spending Limit Alert",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/spending-limit/alerts?userId=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"spending-limit",
+								"alerts"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [

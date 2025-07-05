@@ -1,9 +1,17 @@
 package com.example.financelloapi.dto.request;
 
-import com.example.financelloapi.model.entity.GoalContribution;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalDate;
 
-public record AddSavingGoalRequest(String name, @Positive Float targetAmount, @PositiveOrZero Float currentAmount, LocalDate dueDate) {}
+public record AddSavingGoalRequest(
+        @NotBlank(message = "El nombre es obligatorio") 
+        String name, 
+        @NotNull(message = "El monto objetivo es obligatorio")
+        @Positive(message = "El monto objetivo debe ser positivo") 
+        Float targetAmount, 
+        @NotNull(message = "La fecha de vencimiento es obligatoria")
+        LocalDate dueDate
+) {}

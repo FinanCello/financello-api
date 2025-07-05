@@ -30,7 +30,7 @@ public class CategoryMapper {
 
     // devuelve nombre de categoria
     public static CategorySimpleResponse toCategorySimpleResponse(Category category) {
-        return new CategorySimpleResponse(category.getName());
+        return new CategorySimpleResponse(category.getId(), category.getName());
     }
 
     // devuelve lista con nombres de categorias

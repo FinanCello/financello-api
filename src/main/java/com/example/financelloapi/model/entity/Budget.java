@@ -16,6 +16,11 @@ public class Budget {
     @Column(name = "budget_id", nullable = false)
     private Integer id;
 
+    @Size(max = 100)
+    @NotNull
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
+
     @Size(max = 50)
     @NotNull
     @Column(name = "period", nullable = false, length = 50)
