@@ -3,6 +3,7 @@ package com.example.financelloapi.api;
 import com.example.financelloapi.dto.request.AddSavingGoalRequest;
 import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
+import com.example.financelloapi.dto.response.UserGoalsWithContributionsResponse;
 import com.example.financelloapi.service.SavingGoalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -49,5 +50,14 @@ public class SavingGoalController {
             @PathVariable Integer goalId,
             @RequestBody UpdateSavingGoalRequest request) {
         return ResponseEntity.ok(savingGoalService.updateSavingGoal(goalId, request));
+    }
+
+    // Obtener metas de ahorro con sus contribuciones por usuario
+    @GetMapping("/user/{userId}/contributions")
+    public ResponseEntity<List<UserGoalsWithContributionsResponse>> getUserGoalsWithContributions(
+            @PathVariable Integer userId) {
+        return ResponseEntity.ok(
+                savingGoalService.getUserGoalsWithContributions(userId)
+        );
     }
 }

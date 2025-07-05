@@ -33,4 +33,16 @@ public class GoalContributionController {
     public ResponseEntity<List<GoalContribution>> getHistorialGoalContributionByDate(@RequestParam LocalDate date) {
         return ResponseEntity.ok(goalContributionService.historyGoalContributionsByDate(date));
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<GoalContribution>> getContributionsByUserId(@PathVariable Integer userId) {
+        return ResponseEntity.ok(goalContributionService.getContributionsByUserId(userId));
+    }
+
+    @GetMapping("/user/{userId}/goal/{goalId}")
+    public ResponseEntity<List<GoalContribution>> getContributionsByUserIdAndGoalId(
+            @PathVariable Integer userId, 
+            @PathVariable Integer goalId) {
+        return ResponseEntity.ok(goalContributionService.getContributionsByUserIdAndGoalId(userId, goalId));
+    }
 }

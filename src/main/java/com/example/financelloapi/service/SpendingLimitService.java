@@ -18,6 +18,7 @@ import com.example.financelloapi.repository.SpendingLimitRepository;
 import com.example.financelloapi.repository.CategoryRepository;
 import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.repository.FinancialMovementRepository;
+import com.example.financelloapi.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -64,6 +65,26 @@ public class SpendingLimitService {
         return spendingLimitMapper.toResponse(savedLimit);
 
     }
+
+    @Transactional
+    public List<SpendingLimitResponse> listSpendingLimits(Integer userId) {
+        return spendingLimitRepository
+                .findByUser_Id(userId)
+                .stream()
+                .map(spendingLimitMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional
+    public void deleteByCategory(Integer userId, Integer categoryId) {
+        SpendingLimit limit = spendingLimitRepository
+                .findByCategory_IdAndUser_Id(categoryId, userId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "No existe un límite para la categoría " + categoryId));
+        spendingLimitRepository.delete(limit);
+    }
+
 
     @Transactional
     public List<SpendingLimitAlertResponse> getAlerts(Integer userId) {

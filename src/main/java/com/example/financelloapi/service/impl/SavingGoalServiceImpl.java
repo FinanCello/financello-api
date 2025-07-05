@@ -3,8 +3,12 @@ package com.example.financelloapi.service.impl;
 import com.example.financelloapi.dto.request.AddSavingGoalRequest;
 import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
+import com.example.financelloapi.dto.response.UserGoalsWithContributionsResponse;
+import com.example.financelloapi.exception.CurrentAmountExceedsTargetException;
 import com.example.financelloapi.exception.SavingGoalHasContributionsException;
+import com.example.financelloapi.exception.TargetAmountLessThanCurrentAmountException;
 import com.example.financelloapi.exception.UserDoesntExistException;
+import com.example.financelloapi.exception.UserGoalsNotFoundException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
 import com.example.financelloapi.model.entity.SavingGoal;
 import com.example.financelloapi.model.entity.User;
@@ -29,6 +33,10 @@ public class SavingGoalServiceImpl implements SavingGoalService{
     @Override
     public AddSavingGoalResponse addSavingGoal(Integer userId, AddSavingGoalRequest request) {
         // 1) validaciones del DTO…
+        if (request.targetAmount() == null || request.targetAmount() <= 0.0f) {
+            throw new IllegalArgumentException("El monto objetivo debe ser mayor a 0");
+        }
+        
         // 2) obtenemos el User o lanzamos excepción
         User user = userRepository.findByIdCustom(userId)
                 .orElseThrow(() -> new UserDoesntExistException("Usuario no encontrado: " + userId));
@@ -46,6 +54,15 @@ public class SavingGoalServiceImpl implements SavingGoalService{
         // 4) si no existe, creamos una nueva entidad y le asignamos el user
         SavingGoal goal = savingGoalMapper.toEntity(request, user);
         goal.setCurrentAmount(0.0f);
+        
+        // 5) Validar que current_amount no exceda target_amount (redundante pero por seguridad)
+        if (goal.getCurrentAmount() > goal.getTargetAmount()) {
+            throw new CurrentAmountExceedsTargetException(
+                "El monto actual ($" + goal.getCurrentAmount() + 
+                ") no puede ser mayor al monto objetivo ($" + goal.getTargetAmount() + ")"
+            );
+        }
+        
         SavingGoal saved = savingGoalRepository.save(goal);
         return savingGoalMapper.toResponse(saved);
     }
@@ -77,12 +94,18 @@ public class SavingGoalServiceImpl implements SavingGoalService{
         if (request.dueDate() == null || request.dueDate().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La fecha de vencimiento debe ser hoy o futura");
         }
+        
         // Validar que el nuevo monto objetivo no sea menor al monto actual
         if (goal.getCurrentAmount() != null && request.targetAmount() < goal.getCurrentAmount()) {
-            throw new IllegalArgumentException("El monto objetivo no puede ser menor al monto actual acumulado");
+            throw new TargetAmountLessThanCurrentAmountException(
+                "No se puede reducir la meta objetivo a $" + request.targetAmount() + 
+                " porque ya se han acumulado $" + goal.getCurrentAmount() + 
+                ". La meta objetivo debe ser mayor o igual al monto actual acumulado."
+            );
         }
 
         // 3) Aplicamos cambios y guardamos
+        goal.setName(request.name());
         goal.setTargetAmount(request.targetAmount());
         goal.setDueDate(request.dueDate());
         SavingGoal updated = savingGoalRepository.save(goal);
@@ -101,6 +124,23 @@ public class SavingGoalServiceImpl implements SavingGoalService{
         List<SavingGoal> goals = savingGoalRepository.findByUserId(userId);
         return goals.stream()
                 .map(savingGoalMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public List<UserGoalsWithContributionsResponse> getUserGoalsWithContributions(Integer userId) {
+        // valida existencia de usuario
+        userRepository.findByIdCustom(userId)
+                .orElseThrow(() -> new UserDoesntExistException("Usuario no encontrado: " + userId));
+
+        // recoge todas las metas de ese usuario
+        List<SavingGoal> goals = savingGoalRepository.findByUserId(userId);
+        if (goals.isEmpty()) {
+            throw new UserGoalsNotFoundException(userId);
+        }
+        
+        return goals.stream()
+                .map(UserGoalsWithContributionsResponse::fromSavingGoal)
                 .toList();
     }
 }

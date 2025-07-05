@@ -4,10 +4,12 @@ import com.example.financelloapi.dto.request.AddSavingGoalRequest;
 import com.example.financelloapi.dto.request.UpdateSavingGoalRequest;
 import com.example.financelloapi.dto.test.AddSavingGoalResponse;
 import com.example.financelloapi.exception.SavingGoalHasContributionsException;
+import com.example.financelloapi.exception.TargetAmountLessThanCurrentAmountException;
 import com.example.financelloapi.exception.UserDoesntExistException;
 import com.example.financelloapi.mapper.SavingGoalMapper;
 import com.example.financelloapi.model.entity.SavingGoal;
 import com.example.financelloapi.model.entity.User;
+import com.example.financelloapi.model.enums.SavingGoalProgress;
 import com.example.financelloapi.repository.SavingGoalRepository;
 import com.example.financelloapi.repository.UserRepository;
 import com.example.financelloapi.service.impl.SavingGoalServiceImpl;
@@ -71,7 +73,7 @@ public class SavingGoalServiceUnitTest {
         savedGoal.setUser(user);
 
         AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse(
-                1, "Viaje a Japón", 1000.0f, 0.0f, dueDate, userId
+                1, "Viaje a Japón", 1000.0f, 0.0f, dueDate, userId, SavingGoalProgress.IN_PROGRESS
         );
 
         when(userRepository.findByIdCustom(userId)).thenReturn(Optional.of(user));
@@ -91,6 +93,8 @@ public class SavingGoalServiceUnitTest {
         assertEquals(expectedResponse.currentAmount(), actualResponse.currentAmount());
         assertEquals(expectedResponse.dueDate(), actualResponse.dueDate());
         assertEquals(expectedResponse.userId(), actualResponse.userId());
+        assertEquals(expectedResponse.progress(), actualResponse.progress());
+        assertEquals(SavingGoalProgress.IN_PROGRESS, actualResponse.progress());
 
         verify(userRepository).findByIdCustom(userId);
         verify(savingGoalRepository).findByName(request.name());
@@ -144,10 +148,10 @@ public class SavingGoalServiceUnitTest {
         List<SavingGoal> goals = List.of(goal1, goal2);
 
         AddSavingGoalResponse response1 = new AddSavingGoalResponse(
-                1, "Meta 1", 1000f, 200f, LocalDate.now().plusDays(30), userId
+                1, "Meta 1", 1000f, 200f, LocalDate.now().plusDays(30), userId, SavingGoalProgress.IN_PROGRESS
         );
         AddSavingGoalResponse response2 = new AddSavingGoalResponse(
-                2, "Meta 2", 500f, 100f, LocalDate.now().plusDays(60), userId
+                2, "Meta 2", 500f, 100f, LocalDate.now().plusDays(60), userId, SavingGoalProgress.IN_PROGRESS
         );
 
         when(userRepository.findByIdCustom(userId)).thenReturn(Optional.of(user));
@@ -199,9 +203,9 @@ public class SavingGoalServiceUnitTest {
         user.setId(1);
         existing.setUser(user);
 
-        UpdateSavingGoalRequest req = new UpdateSavingGoalRequest(200f, LocalDate.now().plusDays(5));
+        UpdateSavingGoalRequest req = new UpdateSavingGoalRequest("Viaje",200f, LocalDate.now().plusDays(5));
         AddSavingGoalResponse expectedResponse = new AddSavingGoalResponse(
-                goalId, "Meta Test", req.targetAmount(), 100f, req.dueDate(), 1
+                goalId, "Meta Test", req.targetAmount(), 100f, req.dueDate(), 1, SavingGoalProgress.IN_PROGRESS
         );
 
         when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
@@ -255,5 +259,91 @@ public class SavingGoalServiceUnitTest {
                 ex.getMessage()
         );
         verify(savingGoalRepository, never()).delete(any());
+    }
+
+    @Test
+    @DisplayName("US14-CP03 - Error al editar meta con target_amount menor al current_amount")
+    void updateSavingGoal_targetLessThanCurrent_throwsException() {
+        // Arrange
+        Integer goalId = 1;
+        SavingGoal existing = new SavingGoal();
+        existing.setId(goalId);
+        existing.setCurrentAmount(500f); // Ya tiene $500 acumulados
+        existing.setTargetAmount(1000f);
+
+        UpdateSavingGoalRequest request = new UpdateSavingGoalRequest(
+                "Viaje",300f, // Intentar reducir a $300 (menor que los $500 actuales)
+                LocalDate.now().plusMonths(6)
+        );
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
+
+        // Act & Assert
+        TargetAmountLessThanCurrentAmountException exception = assertThrows(
+            TargetAmountLessThanCurrentAmountException.class, 
+            () -> savingGoalService.updateSavingGoal(goalId, request)
+        );
+
+        assertTrue(exception.getMessage().contains("No se puede reducir la meta objetivo a $300.0"));
+        assertTrue(exception.getMessage().contains("ya se han acumulado $500.0"));
+
+        verify(savingGoalRepository).findById(goalId);
+        verify(savingGoalRepository, never()).save(any(SavingGoal.class));
+    }
+
+    @Test
+    @DisplayName("US14-CP04 - Error al editar meta con target_amount cero o negativo")
+    void updateSavingGoal_invalidTargetAmount_throwsException() {
+        // Arrange
+        Integer goalId = 1;
+        SavingGoal existing = new SavingGoal();
+        existing.setId(goalId);
+        existing.setCurrentAmount(100f);
+
+        UpdateSavingGoalRequest request = new UpdateSavingGoalRequest(
+                "Viaje",0f, // Monto inválido
+                LocalDate.now().plusMonths(6)
+        );
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class, 
+            () -> savingGoalService.updateSavingGoal(goalId, request)
+        );
+
+        assertEquals("El monto objetivo debe ser mayor a 0", exception.getMessage());
+
+        verify(savingGoalRepository).findById(goalId);
+        verify(savingGoalRepository, never()).save(any(SavingGoal.class));
+    }
+
+    @Test
+    @DisplayName("US14-CP05 - Error al editar meta con fecha pasada")
+    void updateSavingGoal_pastDate_throwsException() {
+        // Arrange
+        Integer goalId = 1;
+        SavingGoal existing = new SavingGoal();
+        existing.setId(goalId);
+        existing.setCurrentAmount(100f);
+
+        UpdateSavingGoalRequest request = new UpdateSavingGoalRequest(
+                "Viaje",1000f,
+                LocalDate.now().minusDays(1) // Fecha pasada
+        );
+
+        when(savingGoalRepository.findById(goalId)).thenReturn(Optional.of(existing));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class, 
+            () -> savingGoalService.updateSavingGoal(goalId, request)
+        );
+
+        assertEquals("La fecha de vencimiento debe ser hoy o futura", exception.getMessage());
+
+        verify(savingGoalRepository).findById(goalId);
+        verify(savingGoalRepository, never()).save(any(SavingGoal.class));
     }
 }
