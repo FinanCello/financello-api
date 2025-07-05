@@ -17,8 +17,9 @@ public class CorsConfig {
         
         // Permitir múltiples orígenes: localhost para desarrollo y Netlify para producción
         config.setAllowedOriginPatterns(List.of(
-            "http://localhost:4200",
-            "https://685c8b9d9b4f1900080580ee--financello-web-v1.netlify.app"
+                "http://localhost:4200",
+                "https://685c8b9d9b4f1900080580ee--financello-web-v1.netlify.app",
+                "https://financello-web-v1.netlify.app/"
         ));
         
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
