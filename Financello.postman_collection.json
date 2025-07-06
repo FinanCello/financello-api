@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "16974c61-e9a0-4004-89c1-737524653a2f",
+		"_postman_id": "1fa664c0-659e-46e0-8bfb-b396fb8ad392",
 		"name": "Financello",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "43659828",
-		"_collection_link": "https://liamquinoneff-2005859.postman.co/workspace/Liam-Quino-Neff's-Workspace~5d764719-53d3-4290-836b-7618e7b43f1f/collection/43659828-16974c61-e9a0-4004-89c1-737524653a2f?action=share&source=collection_link&creator=43659828"
+		"_collection_link": "https://liamquinoneff-2005859.postman.co/workspace/Liam-Quino-Neff's-Workspace~5d764719-53d3-4290-836b-7618e7b43f1f/collection/43659828-1fa664c0-659e-46e0-8bfb-b396fb8ad392?action=share&source=collection_link&creator=43659828"
 	},
 	"item": [
 		{
@@ -1146,6 +1146,111 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Achievements",
+			"item": [
+				{
+					"name": "View Achievements",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsZW9uYXJkb2JyYXZvcmljYXBhQGdtYWlsLmNvbSIsInJvbGUiOiJST0xFX1JvbGUoaWQ9Miwgcm9sZVR5cGU9QkFTSUMsIHVzZXJzPVtjb20uZXhhbXBsZS5maW5hbmNlbGxvYXBpLm1vZGVsLmVudGl0eS5Vc2VyQDRkZDdmYzA5XSkiLCJpYXQiOjE3NTE2ODYyNDgsImV4cCI6MTc1MjU1MDI0OH0.h_hSh2HVuti6VA0GxPqmBFenI5S75JrSGwn6XjnoWug",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"PC\",\r\n    \"targetAmount\": 500.99,\r\n    \"currentAmount\": 230.50,\r\n    \"dueDate\":\"2025-02-05\"\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/achievements",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"achievements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "View User Achievements",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsZW9uYXJkb2JyYXZvcmljYXBhQGdtYWlsLmNvbSIsInJvbGUiOiJST0xFX1JvbGUoaWQ9Miwgcm9sZVR5cGU9QkFTSUMsIHVzZXJzPVtjb20uZXhhbXBsZS5maW5hbmNlbGxvYXBpLm1vZGVsLmVudGl0eS5Vc2VyQDdhZDA1ZmU2XSkiLCJpYXQiOjE3NTE3MzI0MzIsImV4cCI6MTc1MjU5NjQzMn0.or0CE_oZbILTj90X5M8GpmonxT01WN0ygn8uglCBLJA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"PC\",\r\n    \"targetAmount\": 500.99,\r\n    \"currentAmount\": 230.50,\r\n    \"dueDate\":\"2025-02-05\"\r\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/achievements/user/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"achievements",
+								"user",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Check Achievements",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsZW9uYXJkb2JyYXZvcmljYXBhQGdtYWlsLmNvbSIsInJvbGUiOiJST0xFX1JvbGUoaWQ9Miwgcm9sZVR5cGU9QkFTSUMsIHVzZXJzPVtjb20uZXhhbXBsZS5maW5hbmNlbGxvYXBpLm1vZGVsLmVudGl0eS5Vc2VyQDdhZDA1ZmU2XSkiLCJpYXQiOjE3NTE3MzI0MzIsImV4cCI6MTc1MjU5NjQzMn0.or0CE_oZbILTj90X5M8GpmonxT01WN0ygn8uglCBLJA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/achievements/user/1/check",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"achievements",
+								"user",
+								"1",
+								"check"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -1174,6 +1279,12 @@
 		{
 			"key": "base_url",
 			"value": "http://localhost:8080/api/v1",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "base_url",
+			"value": "https://financello-api.onrender.com/api/v1",
 			"type": "string"
 		}
 	]
